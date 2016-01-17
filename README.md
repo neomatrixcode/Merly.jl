@@ -15,7 +15,7 @@ Pkg.clone("git://github.com/codeneomatrix/Merly.jl.git")
 ```
 
 ## Example
-
+As will be
 ```julia
 using Merly
 
