@@ -11,7 +11,7 @@ Merly is a micro framework for declaring routes and handling requests.
 Installing
 ----------
 ```julia
-Pkg.clone("git://github.com/codeneomatrix/Faker.jl.git")
+Pkg.clone("git://github.com/codeneomatrix/Merly.jl.git")
 ```
 
 ## Example
