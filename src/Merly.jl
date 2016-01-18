@@ -3,7 +3,7 @@ module Merly
 using HttpServer,
       HttpCommon
 
-export app
+export app, @route
 
 type Pag
 	method
@@ -15,14 +15,19 @@ type Fram
 	start::Function
 end
 
-function pag(url,res)
+function pag(url::Regex,res)
     Pag("Get",url,res)
 end
 
 NotFound = Response(404)
 
-b=[pag(r"^/hello/","helloworld"),pag(r"^/jaja/","esto es jaja")]
-push!(b,pag(r"^/jajo/","esto es jajo"))
+b=[]
+
+macro route(exp1,exp2)
+	quote
+		push!(b,pag(Regex($exp1),$exp2))
+	end
+end
 
 
 function handler(b,req,res)
@@ -67,9 +72,7 @@ return Fram(start)
 end
 
 
-#macro route(def)
 
-#end
 
 
 

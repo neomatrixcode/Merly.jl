@@ -21,12 +21,12 @@ using Merly
 
 server = Merly.app()
 
-@route "/", "Hello World!"
+@route "/" "Hello World!"
 
-@route GET, "/hello/:name", (req, res)->
+@route GET "/hello/:name" (req, res)->
 "<b>Hello {{name}}</b>!"
 
-@route POST | PUT, "/" , (req, res)->
+@route POST | PUT  "/" (req, res)->
 'I did something!'
 
 server.start("localhost", 8080)
