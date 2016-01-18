@@ -19,7 +19,7 @@ As will be
 ```julia
 using Merly
 
-server = merly.app();
+server = Merly.app()
 
 @route "/", "Hello World!"
 
@@ -29,6 +29,6 @@ server = merly.app();
 @route POST | PUT, "/" , (req, res)->
 'I did something!'
 
-server.start(host='localhost', port=8080)
+server.start("localhost", 8080)
 
 ```
