@@ -49,6 +49,9 @@ h = HttpCommon.headers()
 for s=1:tam
 	if ismatch(b[s].route,req.resource)
 		h["Content-Type"]="text/plain"
+		#res = Response()#OPCION 2
+		#res.status = 200
+		#res.body=b[s].state # manipulas cada parametro
 		return Response(200,h,b[s].state)
 	end
 end
@@ -71,17 +74,40 @@ end
 return Fram(start)
 end
 
+function _url(ruta, resource)
+  ruta = split(ruta,"/")
+  ruta =ruta[2:length(ruta)]
 
+  resource = split(resource,"/")
+  resource =resource[2:length(resource)]
+  lruta=length(ruta)
+  lresource=length(resource)
+  s=true
+  if(lruta==lresource)
+    for i=1:lruta
+      if length(ruta[i])>=1
+        if !(ruta[i][1]==':')
+          println("ruta:  ",Regex(ruta[i]))
+          println("entrada:  ",resource[i])
+          println((ismatch(Regex(ruta[i]),resource[i])))
+          s=s && (ismatch(Regex(ruta[i]),resource[i]))
+        else
+          println("$(ruta[i]) => $(resource[i])")
+        end
+      end
+    end
+    return s
+  end
+  return false
+end
 
-
-
-
+_url("/home/:hola/","/home/AZR/")
 end # module
 
 
 #=
 function route(handler::Function, app::App, methods::Int, path::String)
-  
+
 end
 route(a::App, m::Int, p::String, h::Function) = route(h, a, m, p)
 
