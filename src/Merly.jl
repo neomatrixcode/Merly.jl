@@ -24,7 +24,7 @@ NotFound = Response(404)
 b=[]
 params=Dict()
 body=Dict()
-
+query=Dict()
 
 macro route(exp1,exp2)
 	quote
@@ -33,14 +33,32 @@ macro route(exp1,exp2)
 end
 
 function _url(ruta, resource)
+  resource = split(resource,"?")
+  try
+    if length(resource[2])>=1
+      global query
+      query=parsequerystring(resource[2])
+    end
+  end
+
+  resource = split(resource[1],"/")
+  resource =resource[2:length(resource)]
+
   ruta = split(ruta,"/")
   ruta =ruta[2:length(ruta)]
 
-  resource = split(resource,"/")
-  resource =resource[2:length(resource)]
   lruta=length(ruta)
   lresource=length(resource)
+  if ruta[end]==""
+    lruta=lruta-1
+  end
+
+  if resource[end]==""
+    lresource=lresource-1
+  end
+
   s=true
+
   if(lruta==lresource)
     for i=1:lruta
       if length(ruta[i])>=1
@@ -52,7 +70,6 @@ function _url(ruta, resource)
         else
           r=ruta[i][2:length(ruta[i])]
           params[r]=resource[i]
-          println(params)
         end
       end
     end
@@ -89,10 +106,14 @@ for s=1:tam
 	if _url(b[s].route,req.resource)
 		h["Content-Type"]="text/plain"
     global params
+    global query
+    println(params)
+    println(query)
     res.headers=h
 		res.status = 200
 		res.data=b[s].state # manipulas cada parametro
     params=Dict()
+    query=Dict()
 		return res#Response(200,h,b[s].state)
 	end
 end
