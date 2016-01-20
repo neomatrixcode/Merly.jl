@@ -2,7 +2,8 @@ module Merly
 
 using HttpServer,
       HttpCommon,
-      JSON
+      JSON,
+      XMLDict
 
 export app, @route
 
@@ -93,6 +94,10 @@ function _body(data,ty)
     body= JSON.parse(bo)
     return body
   end
+  if ismatch(Regex("application/xml"),ty)
+    body= xml_dict(bo)
+    return body
+  end
 
   return bo
 end
@@ -108,25 +113,25 @@ function handler(b,req,res)
   tam= length(b)
 
   if tam>0
-  h = HttpCommon.headers()
-  for s=1:tam
-  	if _url(b[s].route,req.resource)
-      body= _body(req.data,req.headers["Accept"])
-  		h["Content-Type"]="text/plain"
-      global params
-      global query
-      println(params)
-      println(query)
-      println("interpetando los Bytes de req.data como caracteres: ")
-      println(body)
-      res.headers=h
-  		res.status = 200
-  		res.data=b[s].state # manipulas cada parametro
-      params=Dict()
-      query=Dict()
-  		return res#Response(200,h,b[s].state)
-  	end
-  end
+    h = HttpCommon.headers()
+    for s=1:tam
+    	if _url(b[s].route,req.resource)
+        body= _body(req.data,req.headers["Accept"])
+    		h["Content-Type"]="text/plain"
+        global params
+        global query
+        println(params)
+        println(query)
+        println("interpetando los Bytes de req.data como caracteres: ")
+        println(body)
+        res.headers=h
+    		res.status = 200
+    		res.data=b[s].state # manipulas cada parametro
+        params=Dict()
+        query=Dict()
+    		return res#Response(200,h,b[s].state)
+    	end
+    end
   end
   return NotFound
 end
