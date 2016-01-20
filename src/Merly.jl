@@ -138,10 +138,7 @@ function handler(b,req,res)
         if ismatch(b[s].method,req.method)
           body=""
       		h=he
-          #println("params: ",params)
-          #println("query: ",query)
-          #println("b[s].method: ",b[s].method)
-
+        
           if !(ismatch(Regex("GET"),req.method))
             #println("interpetando los Bytes de req.data como caracteres: ")
             body= _body(req.data,req.headers["Accept"])
@@ -150,16 +147,19 @@ function handler(b,req,res)
           h["Content-Type"]="text/html"
 
       		res.status = 200
-
+          respond= b[s].state
             #----------aqui escribe el programador-----------
 
-            b[s].code(params,query,res,h,body)
+          dat = b[s].code(params,query,res,h,body)
+          if dat!=""
+            respond=dat
+          end
             #----------------------------------------------
 
-          respond= b[s].state
+
           sal=[]
           try
-            sal = matchall(Regex("{{([A-Z]|[a-z]|[0-9])*}}"),b[s].state)
+            sal = matchall(Regex("{{([A-Z]|[a-z]|[0-9])*}}"),respond)
             d=length(sal)
             if d>0
               for i=1:d

@@ -23,8 +23,13 @@ server = Merly.app()
 
 @page "/" "Hello World!"
 @page "/hola/:usr" "<b>Hello {{usr}}!</b>"
-@route POST|PUT|DELETE "/" begin
-res.data="I did something!"
+
+@route GET "/get/:data" begin
+  "get this back: {{data}}"
+end
+
+@route POST|PUT|DELETE "/post" begin
+  "I did something!"
 end
 
 server.start("localhost", 8080)
