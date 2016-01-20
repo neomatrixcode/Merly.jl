@@ -1,9 +1,17 @@
 module Merly
 
 using HttpServer,
-      HttpCommon
+      HttpCommon,
+      JSON
 
 export app, @route
+
+
+b=[]
+params=Dict()
+query=Dict()
+NotFound = Response(404)
+
 
 type Pag
 	method
@@ -19,12 +27,6 @@ function pag(url,res)
     Pag("Get",url,res)
 end
 
-NotFound = Response(404)
-
-b=[]
-params=Dict()
-body=Dict()
-query=Dict()
 
 macro route(exp1,exp2)
 	quote
@@ -78,62 +80,70 @@ function _url(ruta, resource)
   return false
 end
 
-function handler(b,req,res)
-bo=""
-println("datos del request:")
-println(req.resource)
-println(req.method)
-println(req.headers)
-println(req.headers["Content-Type"])
-if(length(req.data)>=1)
-  println("interpetando los Bytes de req.data como caracteres: ")
-  for i=1:length(req.data)
-    bo*="$(Char(req.data[i]))"
+function _body(data,ty)
+  bo="{}"
+  if(length(data)>=1)
+    bo=""
+    for i=1:length(data)
+      bo*="$(Char(data[i]))"
+    end
   end
-  bo= replace(bo,Regex("{|}"),"",2)
-  println(bo)
-  db=split(bo,":")
-  body[db[1]]=db[2]
-  println(body)
-  println("\n--")
+
+  if ismatch(Regex("application/json"),ty)
+    body= JSON.parse(bo)
+    return body
+  end
+
+  return bo
 end
 
-tam= length(b)
+function handler(b,req,res)
+  println("datos del request:")
+  println(req.resource)
+  println(req.method)
+  println(req.headers)
+  println(req.headers["Content-Type"])
+  println("")
 
-if tam>0
-h = HttpCommon.headers()
-for s=1:tam
-	if _url(b[s].route,req.resource)
-		h["Content-Type"]="text/plain"
-    global params
-    global query
-    println(params)
-    println(query)
-    res.headers=h
-		res.status = 200
-		res.data=b[s].state # manipulas cada parametro
-    params=Dict()
-    query=Dict()
-		return res#Response(200,h,b[s].state)
-	end
-end
-end
-return NotFound
+  tam= length(b)
+
+  if tam>0
+  h = HttpCommon.headers()
+  for s=1:tam
+  	if _url(b[s].route,req.resource)
+      body= _body(req.data,req.headers["Accept"])
+  		h["Content-Type"]="text/plain"
+      global params
+      global query
+      println(params)
+      println(query)
+      println("interpetando los Bytes de req.data como caracteres: ")
+      println(body)
+      res.headers=h
+  		res.status = 200
+  		res.data=b[s].state # manipulas cada parametro
+      params=Dict()
+      query=Dict()
+  		return res#Response(200,h,b[s].state)
+  	end
+  end
+  end
+  return NotFound
 end
 
 
 
 function app()
 
- function start(host="localhost",port=8000)
- http = HttpHandler((req, res)-> handler(b,req,res))
-http.events["error"]  = (client, error) -> println(error)
-http.events["listen"] = (port)          -> println("Listening on $port...")
-server = Server(http)
-run(server, host=IPv4(127,0,0,1), port=8000)
-end
+  function start(host="localhost",port=8000)
+    http = HttpHandler((req, res)-> handler(b,req,res))
+    http.events["error"]  = (client, error) -> println(error)
+    http.events["listen"] = (port)          -> println("Listening on $port...")
+    server = Server(http)
+    run(server, host=IPv4(127,0,0,1), port=8000)
+  end
 
-return Fram(start)
+  return Fram(start)
 end
 
 
