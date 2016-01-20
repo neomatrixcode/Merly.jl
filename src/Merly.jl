@@ -9,8 +9,7 @@ export app, @route
 
 
 b=[]
-params=Dict()
-query=Dict()
+
 NotFound = Response(404)
 
 
@@ -36,10 +35,12 @@ macro route(exp1,exp2)
 end
 
 function _url(ruta, resource)
+  params=Dict()
+  query=Dict()
+
   resource = split(resource,"?")
   try
     if length(resource[2])>=1
-      global query
       query=parsequerystring(resource[2])
     end
   end
@@ -76,9 +77,9 @@ function _url(ruta, resource)
         end
       end
     end
-    return s
+    return s,params,query
   end
-  return false
+  return false,params,query
 end
 
 function _body(data,ty)
@@ -113,11 +114,10 @@ function handler(b,req,res)
   if tam>0
     he = HttpCommon.headers()
     for s=1:tam
-      if _url(b[s].route,req.resource)
-        coincide=ismatch(Regex(b[s].method),req.method)
-        if coincide
-          global params
-          global query
+      pasa,params,query=_url(b[s].route,req.resource)
+      if pasa
+        if ismatch(Regex(b[s].method),req.method)
+
       		h=he
           println("params: ",params)
           println("query: ",query)
