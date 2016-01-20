@@ -25,7 +25,7 @@ type Fram
 end
 
 function pag(url,res)
-    Pag("Get",url,res)
+    Pag("GET",url,res)
 end
 
 
@@ -104,32 +104,60 @@ end
 
 function handler(b,req,res)
   println("datos del request:")
-  println(req.resource)
-  println(req.method)
-  println(req.headers)
-  println(req.headers["Content-Type"])
+  println("resource: ",req.resource)
+  println("method: ",req.method)
+  println("headers: ",req.headers)
   println("")
 
   tam= length(b)
-
   if tam>0
-    h = HttpCommon.headers()
+    he = HttpCommon.headers()
     for s=1:tam
-    	if _url(b[s].route,req.resource)
-        body= _body(req.data,req.headers["Accept"])
-    		h["Content-Type"]="text/plain"
-        global params
-        global query
-        println(params)
-        println(query)
-        println("interpetando los Bytes de req.data como caracteres: ")
-        println(body)
-        res.headers=h
-    		res.status = 200
-    		res.data=b[s].state # manipulas cada parametro
-        params=Dict()
-        query=Dict()
-    		return res#Response(200,h,b[s].state)
+      if _url(b[s].route,req.resource)
+        coincide=ismatch(Regex(b[s].method),req.method)
+        if coincide
+          global params
+          global query
+      		h=he
+          println("params: ",params)
+          println("query: ",query)
+          respond= try b[s].state catch "" end
+          println("b[s].method: ",b[s].method)
+
+          if !(ismatch(Regex("GET"),req.method))
+            println("interpetando los Bytes de req.data como caracteres: ")
+            body= _body(req.data,req.headers["Accept"])
+            println(body)
+          end
+
+          #----------aqui escribe el programador-----------
+
+          h["Content-Type"]="text/plain"
+
+      		res.status = 200
+
+          #----------------------------------------------
+
+          sal = matchall(Regex("{{([A-Z]|[a-z]|[0-9])*}}"),respond)
+          d=length(sal)
+          try
+            if d>0
+              for i=1:d
+                respond = replace(respond,Regex(sal[i]),params["$(sal[i][3:end-2])"])
+              end
+            end
+          end
+
+          res.headers=h
+      		res.data=respond # manipulas cada parametro
+          println(respond)
+          params=Dict()
+          query=Dict()
+        else
+            res.status = 404
+        end
+
+    		return res  #Response(200,h,b[s].state)
     	end
     end
   end
@@ -151,21 +179,5 @@ function app()
   return Fram(start)
 end
 
-
-
 #_url("/home/[A-Z]{1,3}/","/home/AZR/")
 end # module
-
-
-#=
-function route(handler::Function, app::App, methods::Int, path::String)
-
-end
-route(a::App, m::Int, p::String, h::Function) = route(h, a, m, p)
-
-get(h::Function, a::App, p::String)    = route(h, a, GET, p)
-post(h::Function, a::App, p::String)   = route(h, a, POST, p)
-put(h::Function, a::App, p::String)    = route(h, a, PUT, p)
-update(h::Function, a::App, p::String) = route(h, a, UPDATE, p)
-delete(h::Function, a::App, p::String) = route(h, a, DELETE, p)
-=#
