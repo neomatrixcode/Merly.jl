@@ -86,9 +86,9 @@ function _url(ruta, resource)
     for i=1:lruta
       if length(ruta[i])>=1
         if !(ruta[i][1]==':')
-          println("ruta:  ",Regex(ruta[i]))
-          println("entrada:  ",resource[i])
-          println((ismatch(Regex(ruta[i]),resource[i])))
+          #println("ruta:  ",Regex(ruta[i]))
+          #println("entrada:  ",resource[i])
+          #println((ismatch(Regex(ruta[i]),resource[i])))
           s=s && (ismatch(Regex(ruta[i]),resource[i]))
         else
           r=ruta[i][2:length(ruta[i])]
@@ -122,63 +122,65 @@ function _body(data,ty)
   return bo
 end
 
-function handler(b,req,res)
-  println("datos del request:")
+
+function respus(element,params,query,res,req)
+  #=println("datos del request:")
   println("resource: ",req.resource)
   println("method: ",req.method)
   println("headers: ",req.headers)
   println("")
+  =#
 
+  body=""
+  h= HttpCommon.headers()
+
+  if !(ismatch(Regex("GET"),req.method))
+    #println("interpetando los Bytes de req.data como caracteres: ")
+    body= _body(req.data,req.headers["Accept"])
+  end
+
+  h["Content-Type"]="text/html"
+
+  res.status = 200
+  respond= element.state
+  #----------aqui escribe el programador-----------
+
+  dat = element.code(params,query,res,h,body)
+  if dat!=""
+    respond=dat
+  end
+  #----------------------------------------------
+
+
+  sal=[]
+  try
+    sal = matchall(Regex("{{([A-Z]|[a-z]|[0-9])*}}"),respond)
+    d=length(sal)
+    if d>0
+      for i=1:d
+        respond= replace(respond,Regex(sal[i]),params["$(sal[i][3:end-2])"])
+      end
+    end
+  end
+  if respond != ""
+    res.data= respond
+  end
+  res.headers=h
+
+  return res
+end
+
+
+function handler(b,req,res)
   tam= length(b)
   if tam>0
-    he = HttpCommon.headers()
     for s=1:tam
+      pm=ismatch(b[s].method,req.method)
       pasa,params,query=_url(b[s].route,req.resource)
-      if pasa
-        if ismatch(b[s].method,req.method)
-          body=""
-      		h=he
-        
-          if !(ismatch(Regex("GET"),req.method))
-            #println("interpetando los Bytes de req.data como caracteres: ")
-            body= _body(req.data,req.headers["Accept"])
-          end
-
-          h["Content-Type"]="text/html"
-
-      		res.status = 200
-          respond= b[s].state
-            #----------aqui escribe el programador-----------
-
-          dat = b[s].code(params,query,res,h,body)
-          if dat!=""
-            respond=dat
-          end
-            #----------------------------------------------
-
-
-          sal=[]
-          try
-            sal = matchall(Regex("{{([A-Z]|[a-z]|[0-9])*}}"),respond)
-            d=length(sal)
-            if d>0
-              for i=1:d
-                respond= replace(respond,Regex(sal[i]),params["$(sal[i][3:end-2])"])
-              end
-            end
-          end
-          if respond != ""
-            res.data= respond
-          end
-          res.headers=h
-          params=Dict()
-          query=Dict()
-        else
-            res.status = 404
-        end
-
-    		return res  #Response(200,h,b[s].state)
-    	end
+      if pm && pasa
+        resp=respus(b[s],params,query,res,req)
+        return resp
+      end
     end
   end
   return NotFound
@@ -193,7 +195,15 @@ function app()
     http.events["error"]  = (client, error) -> println(error)
     http.events["listen"] = (port)          -> println("Listening on $port...")
     server = Server(http)
-    @async run(server, host=IPv4(127,0,0,1), port=8000)
+    if host=="localhost"
+      host="127.0.0.1"
+    end
+    try
+      IPv4(host)
+      @async run(server, host=IPv4(host), port=port)
+    catch
+      "only IPv4 addresses"
+    end
   end
 
   return Fram(start)

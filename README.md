@@ -15,7 +15,7 @@ Pkg.clone("git://github.com/codeneomatrix/Merly.jl.git")
 ```
 
 ## Example
-As will be
+
 ```julia
 using Merly
 
@@ -28,7 +28,16 @@ server = Merly.app()
   "get this back: {{data}}"
 end
 
-@route POST|PUT|DELETE "/post" begin
+@route POST "/post" begin
+  "I did something!"
+end
+
+@route POST|PUT|DELETE "/" begin
+  println("params: ",params)
+  println("query: ",query)
+  println("body: ",body)
+  h["Content-Type"]="text/plain"
+  res.status = 200
   "I did something!"
 end
 
