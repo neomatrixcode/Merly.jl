@@ -37,10 +37,49 @@ end
   println("query: ",query)
   println("body: ",body)
   h["Content-Type"]="text/plain"
-  res.status = 200
+  res.status = 200 #optional
   "I did something!"
 end
 
 server.start("localhost", 8080)
+
+```
+
+
+## Reply Json
+
+```julia
+@route POST|PUT|DELETE "/" begin
+  h["Content-Type"]="application/json"
+  res.status = 200 #optional
+  "{\"data1\":2,\"data2\":\"t\"}"
+end
+
+or
+
+@route POST|PUT|DELETE "/" begin
+  h["Content-Type"]="application/json"
+  info=Dict()
+  info["data1"]=2
+  info["data2"]="t"
+  res.status = 200 #optional
+  JSON.json(info)
+end
+
+```
+
+## Reply XML
+
+```julia
+@route POST|PUT|DELETE "/" begin
+  h["Content-Type"]="application/xml"
+
+  "<ListAllMyBucketsResult>
+    <Buckets>
+      <Bucket><Name>quotes</Name><CreationDate>2006-02-03T16:45:09.000Z</CreationDate></Bucket>
+      <Bucket><Name>samples</Name><CreationDate>2006-02-03T16:41:58.000Z</CreationDate></Bucket>
+    </Buckets>
+  </ListAllMyBucketsResult>"
+end
 
 ```

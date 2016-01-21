@@ -22,7 +22,6 @@ NotFound = Response(404)
 type Pag
 	method
     route
-    state
     code
 end
 
@@ -30,20 +29,18 @@ type Fram
 	start::Function
 end
 
-function pag(url,res)
-    Pag(Regex("GET"),url,res,(params,query,res,h,body)->"")
+function pag(url,code)
+    Pag(Regex("GET"),url,code)
 end
+
 function pag(met,url,cod)
-    Pag(Regex(met),url,"",cod)
-end
-function pag(met,url,res,cod)
-    Pag(Regex(met),url,res,cod)
+    Pag(Regex(met),url,cod)
 end
 
 
 macro page(exp1,exp2)
 	quote
-		push!(b,pag($exp1,$exp2))
+		push!(b,pag($exp1,(params,query,res,h,body)->$exp2))
 	end
 end
 
@@ -142,13 +139,10 @@ function respus(element,params,query,res,req)
   h["Content-Type"]="text/html"
 
   res.status = 200
-  respond= element.state
+
   #----------aqui escribe el programador-----------
 
-  dat = element.code(params,query,res,h,body)
-  if dat!=""
-    respond=dat
-  end
+  respond = element.code(params,query,res,h,body)
   #----------------------------------------------
 
 
