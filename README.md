@@ -36,8 +36,9 @@ end
   println("params: ",params)
   println("query: ",query)
   println("body: ",body)
+
   h["Content-Type"]="text/plain"
-  res.status = 200 #optional
+
   "I did something!"
 end
 
@@ -45,8 +46,48 @@ server.start("localhost", 8080)
 
 ```
 
+###Parameters dictionary
+```julia
+@route GET "/get/:data" begin
+  "get this back: "*params["data"]
+end
+```
+###url query dictionary
+```julia
+@route POST|PUT|DELETE "/" begin
+  h["Content-Type"]="text/plain"
 
-## Reply Json
+  "I did something! "*query["value1name"]
+end
+```
+###Dictionary of body
+Payload
+```ruby
+{"data1":"Hello"}  
+```
+```julia
+@route POST|PUT|DELETE "/" begin
+  h["Content-Type"]="text/plain"
+
+  "Payload data "*body["data1"]
+end
+```
+
+Payload
+```html
+<Data>
+  <Data1>Hello World!</Data1>
+</Data>
+```
+```julia
+@route POST|PUT|DELETE "/" begin
+  h["Content-Type"]="text/plain"
+
+  "Payload data "*body["Data"]["Data1"]
+end
+```
+
+### Reply JSON
 
 ```julia
 @route POST|PUT|DELETE "/" begin
@@ -55,8 +96,9 @@ server.start("localhost", 8080)
   "{\"data1\":2,\"data2\":\"t\"}"
 end
 
+```
 or
-
+```julia
 @route POST|PUT|DELETE "/" begin
   h["Content-Type"]="application/json"
   info=Dict()
@@ -68,7 +110,7 @@ end
 
 ```
 
-## Reply XML
+### Reply XML
 
 ```julia
 @route POST|PUT|DELETE "/" begin
