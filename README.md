@@ -125,3 +125,11 @@ end
 end
 
 ```
+
+### Reply File
+
+```julia
+server = Merly.app("Path")
+@page "/" File("Index.html", res)
+
+```

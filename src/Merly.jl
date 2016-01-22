@@ -15,7 +15,7 @@ PUT="PUT"
 DELETE="DELETE"
 GET="GET"
 b=[]
-
+root=pwd()
 NotFound = Response(404)
 
 
@@ -120,6 +120,28 @@ function _body(data,ty)
 end
 
 
+
+function WebServer(res)
+  #cargas todos los archivos .css y .js de la ubicacion root y los lanzas!!!
+  #=@page "/bootstrap-3.3.5-dist/css/bootstrap.min.css" begin
+  h["Content-Type"]="text/css"
+  File("bootstrap-3.3.5-dist/css/bootstrap.min.css", res)
+  end=#
+end
+
+function File(file, res)
+  # m = match(r"^/+(.*)$", req.state[:resource])
+  # if m != nothing
+  #   path = normpath(root, m.captures[1])
+  global root
+  path = normpath(root, file)
+  if isfile(path)
+    res.data = readall(path)
+  else
+    res.status = 404 # Bad Request
+  end
+end
+
 function respus(element,params,query,res,req)
   #=println("datos del request:")
   println("resource: ",req.resource)
@@ -136,8 +158,7 @@ function respus(element,params,query,res,req)
     body= _body(req.data,req.headers["Accept"])
   end
 
-  h["Content-Type"]="text/html"
-
+  #h["Content-Type"]="text/html"
   res.status = 200
 
   #----------aqui escribe el programador-----------
@@ -182,7 +203,10 @@ end
 
 
 
-function app()
+function app(r=pwd()::AbstractString)
+global root
+root=r
+
 
   function start(host="localhost",port=8000)
     http = HttpHandler((req, res)-> handler(b,req,res))
