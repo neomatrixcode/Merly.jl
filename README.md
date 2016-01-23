@@ -127,9 +127,15 @@ end
 ```
 
 ### Reply File
-
+image files, fonts, style sheets and JavaScript that are located in the Path directory are automatically loaded
 ```julia
-server = Merly.app("Path")
+server = Merly.app("Path") #example: "C:\\julia\\Julia-0.5.0-dev"  defauld: pwd()
 @page "/" File("Index.html", res)
 
+```
+
+### Bonus
+If you forgot the MIME type of a file you can use the next instruction
+```julia
+h["Content-Type"]=mimetypes["file extension"]
 ```

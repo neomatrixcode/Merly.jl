@@ -1,5 +1,5 @@
 module Merly
-
+import HttpServer.mimetypes
 import Base.|
 
 using HttpServer,
@@ -29,6 +29,7 @@ type Fram
 	start::Function
 end
 
+
 function pag(url,code)
     Pag(Regex("GET"),url,code)
 end
@@ -41,12 +42,14 @@ end
 macro page(exp1,exp2)
 	quote
 		push!(b,pag($exp1,(params,query,res,h,body)->$exp2))
+    nothing
 	end
 end
 
 macro route(exp1,exp2,exp3)
 	quote
 		push!(b,pag($exp1,$exp2,(params,query,res,h,body)->$exp3 ))
+    nothing
 	end
 end
 
@@ -120,13 +123,40 @@ function _body(data,ty)
 end
 
 
+function files(arch)
+  global root
+  for i=1:length(arch)
+    roop=replace(arch[i],root,"")
+    extencion=matchall(r"(css|js|jpg|png|gif|jpeg|ttf|eot|svg|ttf|woff)$",roop)[end]
+    roop=replace(roop,"\\","/")
+    @page roop begin
+    h["Content-Type"]=mimetypes[extencion]
+    File(roop[2:end], res)
+    end
+  end
+end
 
-function WebServer(res)
-  #cargas todos los archivos .css y .js de la ubicacion root y los lanzas!!!
-  #=@page "/bootstrap-3.3.5-dist/css/bootstrap.min.css" begin
-  h["Content-Type"]="text/css"
-  File("bootstrap-3.3.5-dist/css/bootstrap.min.css", res)
-  end=#
+function WebServer(rootte)
+  cd(rootte)
+  ls= readdir()
+  arrfile=[]
+  arrdir=[]
+  for i=1:length(ls)
+    if isfile(ls[i])
+        if (ismatch(r"(\.css|\.js|\.jpg|\.png|\.gif|\.jpeg|\.ttf|\.eot|\.svg|\.ttf|\.woff)$",ls[i]))
+          push!(arrfile,normpath(rootte,ls[i]))
+        end
+    end
+    if isdir(ls[i])
+      #println("cambiando directorio:",normpath(rootte,ls[i]))
+      push!(arrdir,normpath(rootte,ls[i]))
+    end
+  end
+
+  files(arrfile)
+  for i=1:length(arrdir)
+    WebServer(arrdir[i])
+  end
 end
 
 function File(file, res)
@@ -138,11 +168,11 @@ function File(file, res)
   if isfile(path)
     res.data = readall(path)
   else
-    res.status = 404 # Bad Request
+    res.status = 404
   end
 end
 
-function respus(element,params,query,res,req)
+function process(element,params,query,res,req)
   #=println("datos del request:")
   println("resource: ",req.resource)
   println("method: ",req.method)
@@ -193,7 +223,7 @@ function handler(b,req,res)
       pm=ismatch(b[s].method,req.method)
       pasa,params,query=_url(b[s].route,req.resource)
       if pm && pasa
-        resp=respus(b[s],params,query,res,req)
+        resp=process(b[s],params,query,res,req)
         return resp
       end
     end
@@ -206,7 +236,7 @@ end
 function app(r=pwd()::AbstractString)
 global root
 root=r
-
+  WebServer(root)
 
   function start(host="localhost",port=8000)
     http = HttpHandler((req, res)-> handler(b,req,res))
