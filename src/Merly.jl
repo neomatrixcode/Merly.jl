@@ -17,7 +17,7 @@ GET="GET"
 b=[]
 root=pwd()
 NotFound = Response(404)
-
+#metodof=1
 
 type Pag
 	method
@@ -159,6 +159,10 @@ end
 
 function File(file, res)
   global root
+  #global metodof
+  #if metodof==2
+  #  file=replace(file,"/","",1)
+  #end
   path = normpath(root, file)
   if isfile(path)
     res.data = readall(path)
@@ -212,6 +216,20 @@ end
 
 
 function handler(b,req,res)
+  #---------------se exponene todos los archivos
+  #=global metodof
+  if metodof==2
+    resource = split(req.resource,"?")[1]
+    File(resource, res)
+    if length(res.data)>0
+      h= HttpCommon.headers()
+      extencion=split(req.resource,".")[end]
+      h["Content-Type"]="text/css"
+      res.headers=h
+      return res
+    end
+  end=#
+  ##--------------------------------------
   tam= length(b)
   if tam>0
     for s=1:tam
@@ -231,8 +249,12 @@ end
 function app(r=pwd()::AbstractString)
 global root
 root=r
+#-------------se exponen los archivos que se indiquen explicitamente en la funcion WebServer
+#global metodof
+#if metodof==1
   WebServer(root)
-
+#end
+#--------------------------------------------
   function start(host="localhost",port=8000)
     http = HttpHandler((req, res)-> handler(b,req,res))
     http.events["error"]  = (client, error) -> println(error)
