@@ -126,9 +126,8 @@ end
 function files(arch)
   global root
   for i=1:length(arch)
-    roop=replace(arch[i],root,"")
-    extencion=matchall(r"(css|js|jpg|png|gif|jpeg|ttf|eot|svg|ttf|woff)$",roop)[end]
-    roop=replace(roop,"\\","/")
+    roop=replace(replace(arch[i],root,""),"\\","/")
+    extencion=split(roop,".")[end]
     @page roop begin
     h["Content-Type"]=mimetypes[extencion]
     File(roop[2:end], res)
@@ -152,7 +151,6 @@ function WebServer(rootte)
       push!(arrdir,normpath(rootte,ls[i]))
     end
   end
-
   files(arrfile)
   for i=1:length(arrdir)
     WebServer(arrdir[i])
@@ -160,9 +158,6 @@ function WebServer(rootte)
 end
 
 function File(file, res)
-  # m = match(r"^/+(.*)$", req.state[:resource])
-  # if m != nothing
-  #   path = normpath(root, m.captures[1])
   global root
   path = normpath(root, file)
   if isfile(path)
