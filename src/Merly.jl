@@ -21,9 +21,9 @@ NotFound = Response(404)
 exten="\"\""
 
 type Pag
-	method
-    route
-    code
+	 method::Regex
+    route::ASCIIString
+     code::Function
 end
 
 type Fram
@@ -31,11 +31,11 @@ type Fram
 end
 
 
-function pag(url,code)
+function pag(url::ASCIIString,code::Function)
     Pag(Regex("GET"),url,code)
 end
 
-function pag(met,url,cod)
+function pag(met::ASCIIString,url::ASCIIString,cod::Function)
     Pag(Regex(met),url,cod)
 end
 
@@ -54,7 +54,7 @@ macro route(exp1,exp2,exp3)
 	end
 end
 
-function _url(ruta, resource)
+function _url(ruta::ASCIIString, resource::UTF8String)
   params=Dict()
   query=Dict()
 
@@ -66,10 +66,10 @@ function _url(ruta, resource)
   end
 
   resource = split(resource[1],"/")
-  resource =resource[2:length(resource)]
+  resource =resource[2:end]
 
   ruta = split(ruta,"/")
-  ruta =ruta[2:length(ruta)]
+  ruta =ruta[2:end]
 
   lruta=length(ruta)
   lresource=length(resource)
@@ -90,12 +90,9 @@ function _url(ruta, resource)
     for i=1:lruta
       if length(ruta[i])>=1
         if !(ruta[i][1]==':')
-          #println("ruta:  ",Regex(ruta[i]))
-          #println("entrada:  ",resource[i])
-          #println((ismatch(Regex(ruta[i]),resource[i])))
           s=s && (ismatch(Regex(ruta[i]),resource[i]))
         else
-          r=ruta[i][2:length(ruta[i])]
+          r=ruta[i][2:end]
           params[r]=resource[i]
         end
       end
@@ -105,11 +102,12 @@ function _url(ruta, resource)
   return false,params,query
 end
 
-function _body(data,ty)
+function _body(data::Array{UInt8,1},ty::ASCIIString)
   bo="{}"
-  if(length(data)>=1)
+  ld=length(data)
+  if(ld>=1)
     bo=""
-    for i=1:length(data)
+    for i=1:ld
       bo*="$(Char(data[i]))"
     end
   end
@@ -127,7 +125,7 @@ function _body(data,ty)
 end
 
 
-function files(arch)
+function files(arch::Array{Any,1})
   global root
   for i=1:length(arch)
     roop=replace(replace(arch[i],root,""),"\\","/")
@@ -143,7 +141,7 @@ function files(arch)
   end
 end
 
-function WebServer(rootte)
+function WebServer(rootte::ASCIIString)
   cd(rootte)
   ls= readdir()
   arrfile=[]
@@ -155,7 +153,6 @@ function WebServer(rootte)
         end
     end
     if isdir(ls[i])
-      #println("cambiando directorio:",normpath(rootte,ls[i]))
       push!(arrdir,normpath(rootte,ls[i]))
     end
   end
@@ -165,7 +162,7 @@ function WebServer(rootte)
   end
 end
 
-function File(file, res)
+function File(file::ASCIIString, res::HttpCommon.Response)
   global root
   #global metodof
   #if metodof==2
@@ -179,14 +176,7 @@ function File(file, res)
   end
 end
 
-function process(element,params,query,res,req)
-  #=println("datos del request:")
-  println("resource: ",req.resource)
-  println("method: ",req.method)
-  println("headers: ",req.headers)
-  println("")
-  =#
-
+function process(element::Merly.Pag,params::Dict{Any,Any},query::Dict{Any,Any},res::HttpCommon.Response,req::HttpCommon.Request)
   body=""
   h= HttpCommon.headers()
 
@@ -194,16 +184,11 @@ function process(element,params,query,res,req)
     #println("interpetando los Bytes de req.data como caracteres: ")
     body= _body(req.data,req.headers["Accept"])
   end
-
   #h["Content-Type"]="text/html"
   res.status = 200
-
   #----------aqui escribe el programador-----------
-
   respond = element.code(params,query,res,h,body)
   #----------------------------------------------
-
-
   sal=[]
   try
     sal = matchall(Regex("{{([A-Z]|[a-z]|[0-9])*}}"),respond)
@@ -218,12 +203,11 @@ function process(element,params,query,res,req)
     res.data= respond
   end
   res.headers=h
-
   return res
 end
 
 
-function handler(b,req,res)
+function handler(b::Array{Any,1},req::HttpCommon.Request,res::HttpCommon.Response)
   #---------------se exponene todos los archivos
   #=global metodof
   if metodof==2
@@ -254,7 +238,7 @@ end
 
 
 
-function app(r=pwd()::AbstractString,load="")
+function app(r=pwd()::AbstractString,load=""::AbstractString)
 global root
 global exten
 #global metodof
@@ -269,8 +253,6 @@ if OS_NAME==:Windows
     root=root[1:end-1]
   end
 end
-
-
 if length(load)>0
   if load=="*"
     WebServer(root)
@@ -279,10 +261,9 @@ if length(load)>0
     WebServer(root)
   end
 end
-
 cd(root)
 
-  function start(host="localhost",port=8000)
+  function start(host="localhost"::AbstractString,port=8000::Integer)
     http = HttpHandler((req, res)-> handler(b,req,res))
     http.events["error"]  = (client, error) -> println(error)
     http.events["listen"] = (port)          -> println("Listening on $port...")
@@ -298,9 +279,6 @@ cd(root)
       "only IPv4 addresses"
     end
   end
-
   return Fram(start)
 end
-
-#_url("/home/[A-Z]{1,3}/","/home/AZR/")
 end # module
