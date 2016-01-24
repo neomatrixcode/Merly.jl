@@ -43,14 +43,14 @@ end
 macro page(exp1,exp2)
 	quote
 		push!(b,pag($exp1,(params,query,res,h,body)->$exp2))
-    nothing
+    #nothing
 	end
 end
 
 macro route(exp1,exp2,exp3)
 	quote
 		push!(b,pag($exp1,$exp2,(params,query,res,h,body)->$exp3 ))
-    nothing
+    #nothing
 	end
 end
 
@@ -77,12 +77,14 @@ function _url(ruta, resource)
   println("ruta: ",ruta)
   println("resource: ",resource)
 
-  if ruta[end]==""
-    lruta=lruta-1
-  end
+  try
+    if ruta[end]==""
+      lruta=lruta-1
+    end
 
-  if resource[end]==""
-    lresource=lresource-1
+    if resource[end]==""
+      lresource=lresource-1
+    end
   end
 
   s=true
