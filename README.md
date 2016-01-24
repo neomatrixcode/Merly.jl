@@ -135,7 +135,7 @@ server = Merly.app("Path","load") #example: ("D:\\EXAMPLE\\src","*")  defauld: (
 ```
 ```clojure
 Possible values of load
- "*"              Load all the files located in the path
+ "*"              Load all the files located in the path, except what started with "."
  "jl","clj|jl|py"  Extension in files that will not be exposed
  ""               Any file, Default
 ```
