@@ -132,11 +132,13 @@ function files(arch)
   for i=1:length(arch)
     roop=replace(replace(arch[i],root,""),"\\","/")
     extencion=split(roop,".")[end]
-    @page roop begin
-    try
-      h["Content-Type"]=mimetypes[extencion]
-    end
-    File(roop[2:end], res)
+    if !ismatch(r"(/\.)",roop)
+      @page roop begin
+      try
+        h["Content-Type"]=mimetypes[extencion]
+      end
+      File(roop[2:end], res)
+      end
     end
   end
 end
@@ -148,7 +150,7 @@ function WebServer(rootte)
   arrdir=[]
   for i=1:length(ls)
     if isfile(ls[i])
-        if (ismatch(Regex("((.)*\\.(?!($exten)))"),ls[i])) && !ismatch(r"^\.",ls[i])
+        if (ismatch(Regex("((.)*\\.(?!($exten)))"),ls[i])) && !ismatch(r"^(\.)",ls[i])
           push!(arrfile,normpath(rootte,ls[i]))
         end
     end
@@ -278,7 +280,7 @@ if length(load)>0
   end
 end
 
-
+cd(root)
 
   function start(host="localhost",port=8000)
     http = HttpHandler((req, res)-> handler(b,req,res))
@@ -290,7 +292,8 @@ end
     end
     try
       IPv4(host)
-      @async run(server, host=IPv4(host), port=port)
+      #@async run(server, host=IPv4(host), port=port)
+      run(server, host=IPv4(host), port=port)
     catch
       "only IPv4 addresses"
     end
