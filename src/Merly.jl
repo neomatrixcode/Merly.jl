@@ -148,7 +148,7 @@ function WebServer(rootte)
   arrdir=[]
   for i=1:length(ls)
     if isfile(ls[i])
-        if (ismatch(Regex("((.)*\\.(?!($exten)))"),ls[i])) && && !ismatch(r"^\.",ls[i])
+        if (ismatch(Regex("((.)*\\.(?!($exten)))"),ls[i])) && !ismatch(r"^\.",ls[i])
           push!(arrfile,normpath(rootte,ls[i]))
         end
     end
