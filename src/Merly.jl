@@ -73,6 +73,10 @@ function _url(ruta, resource)
 
   lruta=length(ruta)
   lresource=length(resource)
+
+  println("ruta: ",ruta)
+  println("resource: ",resource)
+
   if ruta[end]==""
     lruta=lruta-1
   end
