@@ -143,3 +143,5 @@ If you forgot the MIME type of a file you can use the next instruction
 ```julia
 h["Content-Type"]=mimetypes["file extension"]
 ```
+
+##The contributions are welcome!
