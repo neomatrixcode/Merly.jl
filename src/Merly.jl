@@ -18,6 +18,7 @@ b=[]
 root=pwd()
 NotFound = Response(404)
 #metodof=1
+exten="\"\""
 
 type Pag
 	method
@@ -142,7 +143,7 @@ function WebServer(rootte)
   arrdir=[]
   for i=1:length(ls)
     if isfile(ls[i])
-        if (ismatch(r"(\.css|\.js|\.jpg|\.png|\.gif|\.jpeg|\.ttf|\.eot|\.svg|\.ttf|\.woff)$",ls[i]))
+        if (ismatch(Regex("((.)*\\.(?!($exten)))"),ls[i]))
           push!(arrfile,normpath(rootte,ls[i]))
         end
     end
@@ -246,15 +247,23 @@ end
 
 
 
-function app(r=pwd()::AbstractString)
+function app(r=pwd()::AbstractString,load="")
 global root
+global exten
 root=r
-#-------------se exponen los archivos que se indiquen explicitamente en la funcion WebServer
 #global metodof
-#if metodof==1
-  WebServer(root)
-#end
-#--------------------------------------------
+
+if length(load)>0
+  if load=="*"
+    WebServer(root)
+  else
+    exten=load
+    WebServer(root)
+  end
+end
+
+
+
   function start(host="localhost",port=8000)
     http = HttpHandler((req, res)-> handler(b,req,res))
     http.events["error"]  = (client, error) -> println(error)

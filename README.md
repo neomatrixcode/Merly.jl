@@ -127,11 +127,17 @@ end
 ```
 
 ### Reply File
-image files, fonts, style sheets and JavaScript that are located in the Path directory are automatically loaded
+
 ```julia
-server = Merly.app("Path") #example: "C:\\julia\\Julia-0.5.0-dev"  defauld: pwd()
+server = Merly.app("Path","load") #example: ("D:\\EXAMPLE\\src","*")  defauld: (pwd(),"")
 @page "/" File("Index.html", res)
 
+```
+```clojure
+Possible values of load
+ "*"              Load all the files located in the path
+ "jl","clj|jl|py"  Extension in files that will not be exposed
+ ""               Any file, Default
 ```
 
 ### Bonus
