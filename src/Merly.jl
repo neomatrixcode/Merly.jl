@@ -74,9 +74,6 @@ function _url(ruta, resource)
   lruta=length(ruta)
   lresource=length(resource)
 
-  println("ruta: ",ruta)
-  println("resource: ",resource)
-
   try
     if ruta[end]==""
       lruta=lruta-1
@@ -256,8 +253,19 @@ end
 function app(r=pwd()::AbstractString,load="")
 global root
 global exten
-root=r
 #global metodof
+root=r
+
+if root[end]=='/'
+  root=root[1:end-1]
+end
+
+if OS_NAME==:Windows
+  if root[end]=='\\'
+    root=root[1:end-1]
+  end
+end
+
 
 if length(load)>0
   if load=="*"
