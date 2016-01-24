@@ -4,9 +4,7 @@
 
 
 Merly is a micro framework for declaring routes and handling requests.
-
-### Construction package.  This implementation is changing daily...
-
+Quickly creating web applications in Julia with minimal effort.
 
 Installing
 ----------
