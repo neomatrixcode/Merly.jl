@@ -1,7 +1,7 @@
 # Merly.jl
 
 [![Build Status](https://travis-ci.org/codeneomatrix/Merly.jl.svg?branch=master)](https://travis-ci.org/codeneomatrix/Merly.jl)
-
+[![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/codeneomatrix/Merly.jl/master/LICENSE.md)
 
 Merly is a micro framework for declaring routes and handling requests.
 Quickly creating web applications in Julia with minimal effort.
@@ -9,7 +9,8 @@ Quickly creating web applications in Julia with minimal effort.
 Installing
 ----------
 ```julia
-Pkg.clone("git://github.com/codeneomatrix/Merly.jl.git")
+Pkg.add("Merly")                                           #Release
+Pkg.clone("git://github.com/codeneomatrix/Merly.jl.git")   #Development
 ```
 
 ## Example
