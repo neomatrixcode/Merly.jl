@@ -16,18 +16,19 @@ DELETE="DELETE"
 GET="GET"
 b=[]
 root=pwd()
-NotFound = Response(404)
+nfmessage=""
 #metodof=1
 exten="\"\""
 
 type Pag
-	 method::Regex
+   method::Regex
     route::ASCIIString
      code::Function
 end
 
 type Fram
-	start::Function
+  notfound::Function
+  start::Function
 end
 
 
@@ -41,17 +42,17 @@ end
 
 
 macro page(exp1,exp2)
-	quote
-		push!(b,pag($exp1,(params,query,res,h,body)->$exp2))
+  quote
+    push!(b,pag($exp1,(params,query,res,h,body)->$exp2))
     #nothing
-	end
+  end
 end
 
 macro route(exp1,exp2,exp3)
-	quote
-		push!(b,pag($exp1,$exp2,(params,query,res,h,body)->$exp3 ))
+  quote
+    push!(b,pag($exp1,$exp2,(params,query,res,h,body)->$exp3 ))
     #nothing
-	end
+  end
 end
 
 function _url(ruta::ASCIIString, resource::UTF8String)
@@ -164,15 +165,18 @@ end
 
 function File(file::ASCIIString, res::HttpCommon.Response)
   global root
+  global nfmessage
   #global metodof
   #if metodof==2
   #  file=replace(file,"/","",1)
   #end
+  res.data =""
   path = normpath(root, file)
   if isfile(path)
     res.data = readall(path)
   else
     res.status = 404
+    res.data = nfmessage
   end
 end
 
@@ -199,8 +203,10 @@ function process(element::Merly.Pag,params::Dict{Any,Any},query::Dict{Any,Any},r
       end
     end
   end
-  if respond != ""
+  if length(respond) >0
+    try 
     res.data= respond
+    end
   end
   res.headers=h
   return res
@@ -208,6 +214,7 @@ end
 
 
 function handler(b::Array{Any,1},req::HttpCommon.Request,res::HttpCommon.Response)
+  global nfmessage
   #---------------se exponene todos los archivos
   #=global metodof
   if metodof==2
@@ -233,7 +240,7 @@ function handler(b::Array{Any,1},req::HttpCommon.Request,res::HttpCommon.Respons
       end
     end
   end
-  return NotFound
+  return Response(404,nfmessage)
 end
 
 
@@ -262,6 +269,11 @@ if length(load)>0
   end
 end
 cd(root)
+  
+  function notfound(x)
+    global nfmessage
+    nfmessage=x
+  end
 
   function start(host="localhost"::AbstractString,port=8000::Integer)
     http = HttpHandler((req, res)-> handler(b,req,res))
@@ -279,6 +291,6 @@ cd(root)
       "only IPv4 addresses"
     end
   end
-  return Fram(start)
+  return Fram(notfound,start)
 end
 end # module

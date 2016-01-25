@@ -145,4 +145,15 @@ If you forgot the MIME type of a file you can use the next instruction
 h["Content-Type"]=mimetypes["file extension"]
 ```
 
+
+
+## Features available in the development version
+* Place a message in case of one find a resource:
+```julia
+server.notfound("<!DOCTYPE html>
+<html>
+<head><title>Not found</title></head>
+<body><h1>404, Not found</h1></body>
+</html>")
+```
 ##The contributions are welcome!
