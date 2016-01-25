@@ -163,20 +163,20 @@ function WebServer(rootte::ASCIIString)
   end
 end
 
+function NotFound(res)
+  global nfmessage
+  res.status = 404
+  res.data = nfmessage
+end
+
 function File(file::ASCIIString, res::HttpCommon.Response)
   global root
-  global nfmessage
-  #global metodof
-  #if metodof==2
-  #  file=replace(file,"/","",1)
-  #end
   res.data =""
   path = normpath(root, file)
   if isfile(path)
     res.data = readall(path)
   else
-    res.status = 404
-    res.data = nfmessage
+    NotFound(res)
   end
 end
 
@@ -215,20 +215,7 @@ end
 
 function handler(b::Array{Any,1},req::HttpCommon.Request,res::HttpCommon.Response)
   global nfmessage
-  #---------------se exponene todos los archivos
-  #=global metodof
-  if metodof==2
-    resource = split(req.resource,"?")[1]
-    File(resource, res)
-    if length(res.data)>0
-      h= HttpCommon.headers()
-      extencion=split(req.resource,".")[end]
-      h["Content-Type"]="text/css"
-      res.headers=h
-      return res
-    end
-  end=#
-  ##--------------------------------------
+  
   tam= length(b)
   if tam>0
     for s=1:tam
@@ -240,7 +227,7 @@ function handler(b::Array{Any,1},req::HttpCommon.Request,res::HttpCommon.Respons
       end
     end
   end
-  return Response(404,nfmessage)
+  NotFound(res)
 end
 
 
@@ -248,7 +235,6 @@ end
 function app(r=pwd()::AbstractString,load=""::AbstractString)
 global root
 global exten
-#global metodof
 root=r
 
 if root[end]=='/'
@@ -270,9 +256,18 @@ if length(load)>0
 end
 cd(root)
   
-  function notfound(x)
+  function notfound(x::AbstractString)
     global nfmessage
     nfmessage=x
+
+    try
+      path = normpath(root, x)
+      if isfile(path)
+          nfmessage = readall(path)
+      end
+    end
+
+    nothing
   end
 
   function start(host="localhost"::AbstractString,port=8000::Integer)
