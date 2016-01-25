@@ -46,7 +46,7 @@ server.start("localhost", 8080)
 ```
 
 ## Features available in the development version
-* Place a message in case of one find a resource:
+* Place a message in case of not finding a resource:
 ```julia
 server.notfound("<!DOCTYPE html>
 <html>
