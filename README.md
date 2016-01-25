@@ -45,7 +45,8 @@ server.start("localhost", 8080)
 
 ```
 
-## Features available in the development version
+Features available in the development version
+------------------
 * Place a message in case of not finding a resource:
 ```julia
 server.notfound("<!DOCTYPE html>
@@ -58,6 +59,9 @@ server.notfound("<!DOCTYPE html>
 server.notfound("notfound.html")
 ```
 
+
+Features available in the current release
+------------------
 ###Parameters dictionary
 ```julia
 @route GET "/get/:data" begin
