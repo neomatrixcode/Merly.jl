@@ -165,13 +165,12 @@ end
 
 function NotFound(res)
   global nfmessage
-  res.status = 404
   res.data = nfmessage
+  res.status = 404
 end
 
 function File(file::ASCIIString, res::HttpCommon.Response)
   global root
-  res.data =""
   path = normpath(root, file)
   if isfile(path)
     res.data = readall(path)
@@ -203,7 +202,7 @@ function process(element::Merly.Pag,params::Dict{Any,Any},query::Dict{Any,Any},r
       end
     end
   end
-  if length(respond) >0
+  if length(respond)>0
     try 
     res.data= respond
     end
@@ -213,9 +212,7 @@ function process(element::Merly.Pag,params::Dict{Any,Any},query::Dict{Any,Any},r
 end
 
 
-function handler(b::Array{Any,1},req::HttpCommon.Request,res::HttpCommon.Response)
-  global nfmessage
-  
+function handler(b::Array{Any,1},req::HttpCommon.Request,res::HttpCommon.Response)  
   tam= length(b)
   if tam>0
     for s=1:tam
@@ -228,6 +225,7 @@ function handler(b::Array{Any,1},req::HttpCommon.Request,res::HttpCommon.Respons
     end
   end
   NotFound(res)
+  return res
 end
 
 
