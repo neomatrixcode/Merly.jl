@@ -185,7 +185,11 @@ function process(element::Merly.Pag,params::Dict{Any,Any},query::Dict{Any,Any},r
 
   if !(ismatch(Regex("GET"),req.method))
     #println("interpetando los Bytes de req.data como caracteres: ")
+    try
     body= _body(req.data,req.headers["Accept"])
+    catch
+    body= _body(req.data,"")
+    end
   end
   #h["Content-Type"]="text/html"
   res.status = 200
