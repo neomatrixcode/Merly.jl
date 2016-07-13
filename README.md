@@ -153,7 +153,7 @@ end
 
 ```julia
 server = Merly.app("Path","load") #example: ("D:\\EXAMPLE\\src","*")  defauld: (pwd(),"")
-@page "/" File("Index.html", res)
+@page "/" File("Index.html", r)
 
 ```
 ```clojure

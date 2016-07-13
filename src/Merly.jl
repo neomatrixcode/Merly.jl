@@ -10,7 +10,7 @@ using HttpServer,
 export app, @page, @route, GET,POST,PUT,DELETE,Get,Post,Put,Delete
 |(x::ASCIIString, y::ASCIIString)="$x|$y"
 
-r=Dict()
+
 q=Dict()
 
 POST="POST"
@@ -21,7 +21,7 @@ b=[]
 root=pwd()
 nfmessage=""
 #metodof=1
-exten="\"\""
+exten="\"\""::AbstractString
 
 type Q
   query
@@ -213,7 +213,6 @@ end
 
 function process(element::Merly.Pag,q,res::HttpCommon.Response,req::HttpCommon.Request)
   
-
   if !(ismatch(Regex("GET"),req.method))
     #println("interpetando los Bytes de req.data como caracteres: ")
     global cors
@@ -275,8 +274,8 @@ global root
 global exten
 global q
 global cors
-cors=false
-root=r
+cors=false::Bool
+root=r::AbstractString
 q=Q("","","")
 if root[end]=='/'
   root=root[1:end-1]
@@ -291,7 +290,7 @@ if length(load)>0
   if load=="*"
     WebServer(root)
   else
-    exten=load
+    exten=load::AbstractString
     WebServer(root)
   end
 end
