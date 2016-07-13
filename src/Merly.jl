@@ -7,8 +7,11 @@ using HttpServer,
       JSON,
       XMLDict
 
-export app, @page, @route, GET,POST,PUT,DELETE
+export app, @page, @route, GET,POST,PUT,DELETE,Get,Post,Put,Delete
 |(x::ASCIIString, y::ASCIIString)="$x|$y"
+
+r=Dict()
+q=Dict()
 
 POST="POST"
 PUT="PUT"
@@ -20,17 +23,22 @@ nfmessage=""
 #metodof=1
 exten="\"\""
 
+type Q
+  query
+  params
+  body
+end
+
 type Pag
-   method::Regex
-    route::ASCIIString
-     code::Function
+  method::Regex
+  route::ASCIIString
+  code::Function
 end
 
 type Fram
   notfound::Function
   start::Function
 end
-
 
 function pag(url::ASCIIString,code::Function)
     Pag(Regex("GET"),url,code)
@@ -43,26 +51,47 @@ end
 
 macro page(exp1,exp2)
   quote
-    push!(b,pag($exp1,(params,query,res,h,body)->$exp2))
+    push!(b,pag($exp1,(q,r)->$exp2))
     #nothing
   end
 end
 
 macro route(exp1,exp2,exp3)
   quote
-    push!(b,pag($exp1,$exp2,(params,query,res,h,body)->$exp3 ))
+    push!(b,pag($exp1,$exp2,(q,r)->$exp3 ))
     #nothing
   end
 end
 
+function Get(URL::ASCIIString, fun::Function)
+  push!(b,pag("GET",URL,fun))
+end
+
+function Post(URL::ASCIIString, fun::Function)
+  push!(b,pag("POST",URL,fun))
+end
+
+#function Post(URL::ASCIIString, fun::Function)
+#  push!(b,pag("POST",URL,fun))
+#end
+
+function Put(URL::ASCIIString, fun::Function)
+  push!(b,pag("PUT",URL,fun))
+end
+
+function Delete(URL::ASCIIString, fun::Function)
+  push!(b,pag("DELETE",URL,fun))
+end
+
 function _url(ruta::ASCIIString, resource::UTF8String)
-  params=Dict()
-  query=Dict()
+  global q
+  q.params=Dict()
+  q.query=Dict()
 
   resource = split(resource,"?")
   try
     if length(resource[2])>=1
-      query=parsequerystring(resource[2])
+      q.query=parsequerystring(resource[2])
     end
   end
 
@@ -86,7 +115,6 @@ function _url(ruta::ASCIIString, resource::UTF8String)
   end
 
   s=true
-
   if(lruta==lresource)
     for i=1:lruta
       if length(ruta[i])>=1
@@ -94,16 +122,17 @@ function _url(ruta::ASCIIString, resource::UTF8String)
           s=s && (ismatch(Regex(ruta[i]),resource[i]))
         else
           r=ruta[i][2:end]
-          params[r]=resource[i]
+          q.params[r]=resource[i]
         end
       end
     end
-    return s,params,query
+    return s,q
   end
-  return false,params,query
+  return false,q
 end
 
 function _body(data::Array{UInt8,1},ty::ASCIIString)
+  global q
   bo="{}"
   ld=length(data)
   if(ld>=1)
@@ -111,18 +140,19 @@ function _body(data::Array{UInt8,1},ty::ASCIIString)
     for i=1:ld
       bo*="$(Char(data[i]))"
     end
+    q.body=bo
   end
 
   if ismatch(Regex("application/json"),ty)
-    body= JSON.parse(bo)
-    return body
+    q.body= JSON.parse(bo)
+    return q
   end
   if ismatch(Regex("application/xml"),ty)
-    body= xml_dict(bo)
-    return body
+    q.body= xml_dict(bo)
+    return q
   end
 
-  return bo
+  return q
 end
 
 
@@ -179,9 +209,9 @@ function File(file::ASCIIString, res::HttpCommon.Response)
   end
 end
 
-function process(element::Merly.Pag,params::Dict{Any,Any},query::Dict{Any,Any},res::HttpCommon.Response,req::HttpCommon.Request)
-  body=""
-  h= HttpCommon.headers()
+
+function process(element::Merly.Pag,q,res::HttpCommon.Response,req::HttpCommon.Request)
+  
 
   if !(ismatch(Regex("GET"),req.method))
     #println("interpetando los Bytes de req.data como caracteres: ")
@@ -193,8 +223,9 @@ function process(element::Merly.Pag,params::Dict{Any,Any},query::Dict{Any,Any},r
   end
   #h["Content-Type"]="text/html"
   res.status = 200
+  println(element)
   #----------aqui escribe el programador-----------
-  respond = element.code(params,query,res,h,body)
+  respond = element.code(q,res)
   #----------------------------------------------
   sal=[]
   try
@@ -202,7 +233,7 @@ function process(element::Merly.Pag,params::Dict{Any,Any},query::Dict{Any,Any},r
     d=length(sal)
     if d>0
       for i=1:d
-        respond= replace(respond,Regex(sal[i]),params["$(sal[i][3:end-2])"])
+        respond= replace(respond,Regex(sal[i]),q.params["$(sal[i][3:end-2])"])
       end
     end
   end
@@ -211,7 +242,7 @@ function process(element::Merly.Pag,params::Dict{Any,Any},query::Dict{Any,Any},r
     res.data= respond
     end
   end
-  res.headers=h
+  #res.headers=h
   return res
 end
 
@@ -221,9 +252,9 @@ function handler(b::Array{Any,1},req::HttpCommon.Request,res::HttpCommon.Respons
   if tam>0
     for s=1:tam
       pm=ismatch(b[s].method,req.method)
-      pasa,params,query=_url(b[s].route,req.resource)
+      pasa,q=_url(b[s].route,req.resource)
       if pm && pasa
-        resp=process(b[s],params,query,res,req)
+        resp=process(b[s],q,res,req)
         return resp
       end
     end
@@ -237,8 +268,9 @@ end
 function app(r=pwd()::AbstractString,load=""::AbstractString)
 global root
 global exten
+global q
 root=r
-
+q=Q("","","")
 if root[end]=='/'
   root=root[1:end-1]
 end

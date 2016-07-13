@@ -2,9 +2,12 @@
 
 [![Build Status](https://travis-ci.org/codeneomatrix/Merly.jl.svg?branch=master)](https://travis-ci.org/codeneomatrix/Merly.jl)
 [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/codeneomatrix/Merly.jl/master/LICENSE.md)
+[![Merly](http://pkg.julialang.org/badges/Merly_0.4.svg)](http://pkg.julialang.org/?pkg=Merly)
+[![Merly](http://pkg.julialang.org/badges/Merly_0.5.svg)](http://pkg.julialang.org/?pkg=Merly)
 
 Merly is a micro framework for declaring routes and handling requests.
 Quickly creating web applications in Julia with minimal effort.
+##The contributions are welcome!
 
 Installing
 ----------
@@ -17,6 +20,9 @@ Pkg.clone("git://github.com/codeneomatrix/Merly.jl.git")   #Development
 
 ```julia
 using Merly
+
+global u
+u="hello"
 
 server = Merly.app()
 
@@ -32,14 +38,30 @@ end
 end
 
 @route POST|PUT|DELETE "/" begin
-  println("params: ",params)
-  println("query: ",query)
-  println("body: ",body)
+  println("params: ",q.params)
+  println("query: ",q.query)
+  println("body: ",q.body)
 
-  h["Content-Type"]="text/plain"
+  r.headers["Content-Type"]="text/plain"
 
   "I did something!"
 end
+
+Get("/data", (q,r)->(begin
+  r.headers["Content-Type"]="text/plain"
+  "$u data"
+end))
+
+
+Post("/data", (q,r)->(begin
+  println("params: ",q.params)
+  println("query: ",q.query)
+  println("body: ",q.body)
+  r.headers["Content-Type"]="text/plain"
+  global u="bye"
+  "I did something!"
+end))
+
 
 server.start("localhost", 8080)
 
@@ -65,15 +87,15 @@ Features available in the current release
 ###Parameters dictionary
 ```julia
 @route GET "/get/:data" begin
-  "get this back: "*params["data"]
+  "get this back: "*q.params["data"]
 end
 ```
 ###url query dictionary
 ```julia
 @route POST|PUT|DELETE "/" begin
-  h["Content-Type"]="text/plain"
+  r.headers["Content-Type"]="text/plain"
 
-  "I did something! "*query["value1name"]
+  "I did something! "*q.query["value1name"]
 end
 ```
 ###Dictionary of body
@@ -83,9 +105,9 @@ Payload
 ```
 ```julia
 @route POST|PUT|DELETE "/" begin
-  h["Content-Type"]="text/plain"
+  r.headers["Content-Type"]="text/plain"
 
-  "Payload data "*body["data1"]
+  "Payload data "*q.body["data1"]
 end
 ```
 
@@ -97,9 +119,9 @@ Payload
 ```
 ```julia
 @route POST|PUT|DELETE "/" begin
-  h["Content-Type"]="text/plain"
+  r.headers["Content-Type"]="text/plain"
 
-  "Payload data "*body["Data"]["Data1"]
+  "Payload data "*q.body["Data"]["Data1"]
 end
 ```
 
@@ -107,8 +129,8 @@ end
 
 ```julia
 @route POST|PUT|DELETE "/" begin
-  h["Content-Type"]="application/json"
-  res.status = 200 #optional
+  r.headers["Content-Type"]="application/json"
+  r.status = 200 #optional
   "{\"data1\":2,\"data2\":\"t\"}"
 end
 
@@ -116,11 +138,11 @@ end
 or
 ```julia
 @route POST|PUT|DELETE "/" begin
-  h["Content-Type"]="application/json"
+  r.headers["Content-Type"]="application/json"
   info=Dict()
   info["data1"]=2
   info["data2"]="t"
-  res.status = 200 #optional
+  r.status = 200 #optional
   JSON.json(info)
 end
 
@@ -130,7 +152,7 @@ end
 
 ```julia
 @route POST|PUT|DELETE "/" begin
-  h["Content-Type"]="application/xml"
+  r.headers["Content-Type"]="application/xml"
 
   "<ListAllMyBucketsResult>
     <Buckets>
@@ -159,7 +181,7 @@ Possible values of load
 ### Bonus
 If you forgot the MIME type of a file you can use the next instruction
 ```julia
-h["Content-Type"]=mimetypes["file extension"]
+r.headers["Content-Type"]=mimetypes["file extension"]
 ```
 
-##The contributions are welcome!
+
