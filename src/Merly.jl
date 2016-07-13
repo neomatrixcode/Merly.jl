@@ -38,6 +38,7 @@ end
 type Fram
   notfound::Function
   start::Function
+  use::Function
 end
 
 function pag(url::ASCIIString,code::Function)
@@ -215,6 +216,7 @@ function process(element::Merly.Pag,q,res::HttpCommon.Response,req::HttpCommon.R
 
   if !(ismatch(Regex("GET"),req.method))
     #println("interpetando los Bytes de req.data como caracteres: ")
+    global cors
     try
     body= _body(req.data,req.headers["Accept"])
     catch
@@ -222,8 +224,11 @@ function process(element::Merly.Pag,q,res::HttpCommon.Response,req::HttpCommon.R
     end
   end
   #h["Content-Type"]="text/html"
+  if cors
+    res.headers["Access-Control-Allow-Origin"]="*"
+    res.headers["Access-Control-Allow-Methods"]="POST,GET,OPTIONS"
+  end
   res.status = 200
-  println(element)
   #----------aqui escribe el programador-----------
   respond = element.code(q,res)
   #----------------------------------------------
@@ -269,6 +274,8 @@ function app(r=pwd()::AbstractString,load=""::AbstractString)
 global root
 global exten
 global q
+global cors
+cors=false
 root=r
 q=Q("","","")
 if root[end]=='/'
@@ -290,6 +297,14 @@ if length(load)>0
 end
 cd(root)
   
+  function use(y::AbstractString)
+    if(y=="CORS")
+      cors=true
+    else
+      cors=false
+    end
+  end
+
   function notfound(x::AbstractString)
     global nfmessage
     nfmessage=x
@@ -320,6 +335,6 @@ cd(root)
       "only IPv4 addresses"
     end
   end
-  return Fram(notfound,start)
+  return Fram(notfound,start,use)
 end
 end # module

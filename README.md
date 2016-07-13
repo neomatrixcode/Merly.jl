@@ -67,21 +67,6 @@ server.start("localhost", 8080)
 
 ```
 
-Features available in the development version
-------------------
-* Place a message in case of not finding a resource:
-```julia
-server.notfound("<!DOCTYPE html>
-<html>
-<head><title>Not found</title></head>
-<body><h1>404, Not found</h1></body>
-</html>")
-```
-```julia
-server.notfound("notfound.html")
-```
-
-
 Features available in the current release
 ------------------
 ###Parameters dictionary
@@ -178,10 +163,24 @@ Possible values of load
  ""               Any file, Default
 ```
 
+### Not found message
+```julia
+server.notfound("<!DOCTYPE html>
+<html>
+<head><title>Not found</title></head>
+<body><h1>404, Not found</h1></body>
+</html>")
+```
+```julia
+server.notfound("notfound.html")
+```
+###CORS
+```julia
+server.use("CORS")
+```
+
 ### Bonus
 If you forgot the MIME type of a file you can use the next instruction
 ```julia
 r.headers["Content-Type"]=mimetypes["file extension"]
 ```
-
-
