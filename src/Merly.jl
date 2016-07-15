@@ -165,7 +165,7 @@ function files(arch::Array{Any,1})
     if !ismatch(r"(/\.)",roop)
       @page roop begin
       try
-        h["Content-Type"]=mimetypes[extencion]
+        r.headers["Content-Type"]=mimetypes[extencion]
       end
       File(roop[2:end], r)
       end
