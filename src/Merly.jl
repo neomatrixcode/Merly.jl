@@ -167,7 +167,7 @@ function files(arch::Array{Any,1})
       try
         h["Content-Type"]=mimetypes[extencion]
       end
-      File(roop[2:end], res)
+      File(roop[2:end], r)
       end
     end
   end
