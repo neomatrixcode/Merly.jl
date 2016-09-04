@@ -1,5 +1,7 @@
 # Merly.jl
 
+*Micro framework for web programming in Julia.*
+
 [![Build Status](https://travis-ci.org/codeneomatrix/Merly.jl.svg?branch=master)](https://travis-ci.org/codeneomatrix/Merly.jl)
 [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/codeneomatrix/Merly.jl/master/LICENSE.md)
 [![Merly](http://pkg.julialang.org/badges/Merly_0.4.svg)](http://pkg.julialang.org/?pkg=Merly)
