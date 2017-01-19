@@ -6,6 +6,7 @@
 [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/codeneomatrix/Merly.jl/master/LICENSE.md)
 [![Merly](http://pkg.julialang.org/badges/Merly_0.4.svg)](http://pkg.julialang.org/?pkg=Merly)
 [![Merly](http://pkg.julialang.org/badges/Merly_0.5.svg)](http://pkg.julialang.org/?pkg=Merly)
+[![Merly](http://pkg.julialang.org/badges/Merly_0.6.svg)](http://pkg.julialang.org/?pkg=Merly)
 
 Merly is a micro framework for declaring routes and handling requests.
 Quickly creating web applications in Julia with minimal effort.
