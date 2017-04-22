@@ -10,7 +10,25 @@
 
 Merly is a micro framework for declaring routes and handling requests.
 Quickly creating web applications in Julia with minimal effort.
-##The contributions are welcome!
+
+Roadmap
+-----
+Below are some of the features that are planned to be added in future versions of Faker.jl once version 1.0 of the language is released.
+
+### All contributions and suggestions are welcome !!!!
+
+#### Version 0.1.0
+ + Julia version 1.0 syntax update
+ 
+#### Version 0.1.1
+ + Implementation of a websocket module
+ 
+#### Version 0.1.1
+ + Performance improvement
+ 
+#### Version 0.1.2
+ + Threads implementation
+ 
 
 Installing
 ----------
@@ -72,13 +90,13 @@ server.start("localhost", 8080)
 
 Features available in the current release
 ------------------
-###Parameters dictionary
+### Parameters dictionary
 ```julia
 @route GET "/get/:data" begin
   "get this back: "*q.params["data"]
 end
 ```
-###url query dictionary
+### url query dictionary
 ```julia
 @route POST|PUT|DELETE "/" begin
   r.headers["Content-Type"]="text/plain"
@@ -86,7 +104,7 @@ end
   "I did something! "*q.query["value1name"]
 end
 ```
-###Dictionary of body
+### Dictionary of body
 Payload
 ```ruby
 {"data1":"Hello"}  
@@ -177,7 +195,7 @@ server.notfound("<!DOCTYPE html>
 ```julia
 server.notfound("notfound.html")
 ```
-###CORS
+### CORS
 ```julia
 server.use("CORS")
 ```
