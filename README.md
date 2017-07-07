@@ -21,12 +21,15 @@ Below are some of the features that are planned to be added in future versions o
  + Julia version 1.0 syntax update
  
 #### Version 0.1.1
+ + Implementation of verbose
+
+#### Version 0.1.2
  + Implementation of a websocket module
  
-#### Version 0.1.1
+#### Version 0.1.3
  + Performance improvement
  
-#### Version 0.1.2
+#### Version 0.1.4
  + Threads implementation
  
 
