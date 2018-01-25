@@ -105,7 +105,7 @@ function files(arch::Array{Any,1})
       try
         r.headers["Content-Type"]=mimetypes[extencion]
       end
-      File(roop[2:end], r)
+        r.data= File(roop[2:end])
       end
     end
   end
@@ -134,13 +134,12 @@ end
 
 
 
-function File(file::String, res::HttpCommon.Response)
-  global root
-  path = normpath(root, file)
-  if isfile(path)
-    res.data = readall(path)
-  else
-    NotFound(res)
+function File(file::String)
+  try
+    path = normpath(root, file)
+    return readstring(path)
+  catch
+    return file
   end
 end
 
@@ -203,7 +202,6 @@ global q
 global cors
 cors=false::Bool
 root=r::AbstractString
-
 q=Q(Dict(),Dict(),"","NotFound")
 if root[end]=='/'
   root=root[1:end-1]
@@ -229,12 +227,7 @@ cd(root)
   end
 
   function notfound(text::AbstractString)
-    try
-      path = normpath(root, text)
-      q.notfound_message= readall(path)
-    catch
-      q.notfound_message = text
-    end
+      q.notfound_message= File(text)
   end
 
   function start(host="localhost"::AbstractString,port=8000::Integer)
