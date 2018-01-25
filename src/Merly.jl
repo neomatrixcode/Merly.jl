@@ -7,18 +7,14 @@ using HttpServer,
       JSON,
       XMLDict
 
+include("routes.jl")
 include("allformats.jl")
 
-export app, @page, @route, GET,POST,PUT,DELETE,Get,Post,Put,Delete
-|(x::String, y::String)="$x|$y"
 
+export app, @page, @route, GET,POST,PUT,DELETE,Get,Post,Put,Delete,routes
 
 q=Dict()
 
-POST="POST"
-PUT="PUT"
-DELETE="DELETE"
-GET="GET"
 b=[]
 root=pwd()
 nfmessage=""
@@ -31,11 +27,6 @@ type Q
   body
 end
 
-type Pag
-  method::Regex
-  route::String
-  code::Function
-end
 
 type Fram
   notfound::Function
@@ -43,48 +34,7 @@ type Fram
   use::Function
 end
 
-function pag(url::String,code::Function)
-    Pag(Regex("GET"),url,code)
-end
 
-function pag(met::String,url::String,cod::Function)
-    Pag(Regex(met),url,cod)
-end
-
-
-macro page(exp1,exp2)
-  quote
-    push!(b,pag($exp1,(q,r)->$exp2))
-    #nothing
-  end
-end
-
-macro route(exp1,exp2,exp3)
-  quote
-    push!(b,pag($exp1,$exp2,(q,r)->$exp3 ))
-    #nothing
-  end
-end
-
-function Get(URL::String, fun::Function)
-  push!(b,pag("GET",URL,fun))
-end
-
-function Post(URL::String, fun::Function)
-  push!(b,pag("POST",URL,fun))
-end
-
-#function Post(URL::String, fun::Function)
-#  push!(b,pag("POST",URL,fun))
-#end
-
-function Put(URL::String, fun::Function)
-  push!(b,pag("PUT",URL,fun))
-end
-
-function Delete(URL::String, fun::Function)
-  push!(b,pag("DELETE",URL,fun))
-end
 
 #function _url(ruta::String, resource::UTF8String)
 function _url(ruta::String, resource::String)
@@ -145,6 +95,7 @@ function _body(data::Array{UInt8,1},format::String)
   end
 
   q.body = getindex(formats, format)(content)
+  println(q.body)
   return q
 end
 
@@ -203,26 +154,8 @@ function File(file::String, res::HttpCommon.Response)
 end
 
 
-function process(element::Merly.Pag,q,res::HttpCommon.Response,req::HttpCommon.Request)
+#=function process(element::Merly.Pag,q,res::HttpCommon.Response,req::HttpCommon.Request)
 
-  if !(ismatch(Regex("GET"),req.method))
-    #println("interpetando los Bytes de req.data como caracteres: ")
-    global cors
-    try
-    body= _body(req.data,req.headers["Content-Type"])
-    catch
-    body= _body(req.data,"*/*")
-    end
-  end
-  #h["Content-Type"]="text/html"
-  if cors
-    res.headers["Access-Control-Allow-Origin"]="*"
-    res.headers["Access-Control-Allow-Methods"]="POST,GET,OPTIONS"
-  end
-  res.status = 200
-  #----------aqui escribe el programador-----------
-  respond = element.code(q,res)
-  #----------------------------------------------
   sal=[]
   try
     sal = matchall(Regex("{{([A-Z]|[a-z]|[0-9])*}}"),respond)
@@ -240,23 +173,42 @@ function process(element::Merly.Pag,q,res::HttpCommon.Response,req::HttpCommon.R
   end
   #res.headers=h
   return res
-end
+end=#
 
 
 function handler(b::Array{Any,1},req::HttpCommon.Request,res::HttpCommon.Response)
-  tam= length(b)
-  if tam>0
-    for s=1:tam
-      pm=ismatch(b[s].method,req.method)
-      pasa,q=_url(b[s].route,req.resource)
-      if pm && pasa
+
+
+  searchroute = req.method*req.resource
+
+
+    try
+      body= _body(req.data,req.headers["Content-Type"])
+    catch
+      body= _body(req.data,"*/*")
+    end
+
+    if cors
+     res.headers["Access-Control-Allow-Origin"]="*"
+     res.headers["Access-Control-Allow-Methods"]="POST,GET,OPTIONS"
+    end
+
+    res.status = 200
+    resp=""
+    try
+      info("METODO : ",req.method,"    URL : ",req.resource)
+      resp = getindex(routes, searchroute)(q,req,res)
+    end
+    return resp
+
+  #=
+  if existeruta_s
         resp=process(b[s],q,res,req)
         return resp
-      end
-    end
   end
   NotFound(res)
   return res
+  =#
 end
 
 
