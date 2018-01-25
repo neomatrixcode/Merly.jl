@@ -7,8 +7,10 @@ using HttpServer,
       JSON,
       XMLDict
 
+include("allformats.jl")
+
 export app, @page, @route, GET,POST,PUT,DELETE,Get,Post,Put,Delete
-|(x::ASCIIString, y::ASCIIString)="$x|$y"
+|(x::String, y::String)="$x|$y"
 
 
 q=Dict()
@@ -31,7 +33,7 @@ end
 
 type Pag
   method::Regex
-  route::ASCIIString
+  route::String
   code::Function
 end
 
@@ -41,11 +43,11 @@ type Fram
   use::Function
 end
 
-function pag(url::ASCIIString,code::Function)
+function pag(url::String,code::Function)
     Pag(Regex("GET"),url,code)
 end
 
-function pag(met::ASCIIString,url::ASCIIString,cod::Function)
+function pag(met::String,url::String,cod::Function)
     Pag(Regex(met),url,cod)
 end
 
@@ -64,27 +66,28 @@ macro route(exp1,exp2,exp3)
   end
 end
 
-function Get(URL::ASCIIString, fun::Function)
+function Get(URL::String, fun::Function)
   push!(b,pag("GET",URL,fun))
 end
 
-function Post(URL::ASCIIString, fun::Function)
+function Post(URL::String, fun::Function)
   push!(b,pag("POST",URL,fun))
 end
 
-#function Post(URL::ASCIIString, fun::Function)
+#function Post(URL::String, fun::Function)
 #  push!(b,pag("POST",URL,fun))
 #end
 
-function Put(URL::ASCIIString, fun::Function)
+function Put(URL::String, fun::Function)
   push!(b,pag("PUT",URL,fun))
 end
 
-function Delete(URL::ASCIIString, fun::Function)
+function Delete(URL::String, fun::Function)
   push!(b,pag("DELETE",URL,fun))
 end
 
-function _url(ruta::ASCIIString, resource::UTF8String)
+#function _url(ruta::String, resource::UTF8String)
+function _url(ruta::String, resource::String)
   global q
   q.params=Dict()
   q.query=Dict()
@@ -132,27 +135,16 @@ function _url(ruta::ASCIIString, resource::UTF8String)
   return false,q
 end
 
-function _body(data::Array{UInt8,1},ty::ASCIIString)
+
+function _body(data::Array{UInt8,1},format::String)
   global q
-  bo="{}"
-  ld=length(data)
-  if(ld>=1)
-    bo=""
-    for i=1:ld
-      bo*="$(Char(data[i]))"
-    end
-    q.body=bo
+
+  content=""
+  for i=1:length(data)
+   content*="$(Char(data[i]))"
   end
 
-  if ismatch(Regex("application/json"),ty)
-    q.body= JSON.parse(bo)
-    return q
-  end
-  if ismatch(Regex("application/xml"),ty)
-    q.body= xml_dict(bo)
-    return q
-  end
-
+  q.body = getindex(formats, format)(content)
   return q
 end
 
@@ -173,7 +165,7 @@ function files(arch::Array{Any,1})
   end
 end
 
-function WebServer(rootte::ASCIIString)
+function WebServer(rootte::String)
   cd(rootte)
   ls= readdir()
   arrfile=[]
@@ -200,7 +192,7 @@ function NotFound(res)
   res.status = 404
 end
 
-function File(file::ASCIIString, res::HttpCommon.Response)
+function File(file::String, res::HttpCommon.Response)
   global root
   path = normpath(root, file)
   if isfile(path)
@@ -212,14 +204,14 @@ end
 
 
 function process(element::Merly.Pag,q,res::HttpCommon.Response,req::HttpCommon.Request)
-  
+
   if !(ismatch(Regex("GET"),req.method))
     #println("interpetando los Bytes de req.data como caracteres: ")
     global cors
     try
-    body= _body(req.data,req.headers["Accept"])
+    body= _body(req.data,req.headers["Content-Type"])
     catch
-    body= _body(req.data,"")
+    body= _body(req.data,"*/*")
     end
   end
   #h["Content-Type"]="text/html"
@@ -242,7 +234,7 @@ function process(element::Merly.Pag,q,res::HttpCommon.Response,req::HttpCommon.R
     end
   end
   if length(respond)>0
-    try 
+    try
     res.data= respond
     end
   end
@@ -251,7 +243,7 @@ function process(element::Merly.Pag,q,res::HttpCommon.Response,req::HttpCommon.R
 end
 
 
-function handler(b::Array{Any,1},req::HttpCommon.Request,res::HttpCommon.Response)  
+function handler(b::Array{Any,1},req::HttpCommon.Request,res::HttpCommon.Response)
   tam= length(b)
   if tam>0
     for s=1:tam
@@ -268,7 +260,8 @@ function handler(b::Array{Any,1},req::HttpCommon.Request,res::HttpCommon.Respons
 end
 
 
-
+# funcion debug
+# CRTL Z  para matar proceso
 function app(r=pwd()::AbstractString,load=""::AbstractString)
 global root
 global exten
@@ -280,8 +273,8 @@ q=Q("","","")
 if root[end]=='/'
   root=root[1:end-1]
 end
-
-if OS_NAME==:Windows
+#OSNAME = is_windows() ? :Windows : Compat.KERNEL
+if is_windows()
   if root[end]=='\\'
     root=root[1:end-1]
   end
@@ -295,7 +288,7 @@ if length(load)>0
   end
 end
 cd(root)
-  
+
   function use(y::AbstractString)
     if(y=="CORS")
       cors=true
