@@ -1,11 +1,6 @@
 
 function toplanetext(data)
-  try
    return data
- catch
-   warn("The format does not match the data received")
-   return data
- end
 end
 
 function tojson(data)

@@ -6,7 +6,14 @@ PUT="PUT"
 DELETE="DELETE"
 GET="GET"
 
+function NotFound(q,req,res)
+  #global nfmessage
+  res.status = 404
+  res.data = q.notfound_message
+end
+
 routes=Dict()
+routes["notfound"] = NotFound
 
 macro page(exp1,exp2)
   quote
@@ -17,7 +24,10 @@ end
 
 macro route(exp1,exp2,exp3)
   quote
-    routes[$exp1*$exp2] = (q,req,r)->$exp
+    verbs= split($exp1,"|")
+    for i=verbs
+      routes[i*$exp2] = (q,req,r)->$exp3
+    end
     println(routes)
   end
 end

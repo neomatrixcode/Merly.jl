@@ -17,7 +17,7 @@ q=Dict()
 
 b=[]
 root=pwd()
-nfmessage=""
+
 #metodof=1
 exten="\"\""::AbstractString
 
@@ -25,6 +25,7 @@ type Q
   query
   params
   body
+  notfound_message
 end
 
 
@@ -38,9 +39,6 @@ end
 
 #function _url(ruta::String, resource::UTF8String)
 function _url(ruta::String, resource::String)
-  global q
-  q.params=Dict()
-  q.query=Dict()
 
   resource = split(resource,"?")
   try
@@ -87,16 +85,13 @@ end
 
 
 function _body(data::Array{UInt8,1},format::String)
-  global q
 
   content=""
   for i=1:length(data)
    content*="$(Char(data[i]))"
   end
 
-  q.body = getindex(formats, format)(content)
-  println(q.body)
-  return q
+  return getindex(formats, format)(content)
 end
 
 
@@ -137,11 +132,7 @@ function WebServer(rootte::String)
   end
 end
 
-function NotFound(res)
-  global nfmessage
-  res.data = nfmessage
-  res.status = 404
-end
+
 
 function File(file::String, res::HttpCommon.Response)
   global root
@@ -176,43 +167,34 @@ end
 end=#
 
 
-function handler(b::Array{Any,1},req::HttpCommon.Request,res::HttpCommon.Response)
+function handler(request::HttpCommon.Request,response::HttpCommon.Response)
 
-
-  searchroute = req.method*req.resource
-
-
-    try
-      body= _body(req.data,req.headers["Content-Type"])
-    catch
-      body= _body(req.data,"*/*")
-    end
-
-    if cors
-     res.headers["Access-Control-Allow-Origin"]="*"
-     res.headers["Access-Control-Allow-Methods"]="POST,GET,OPTIONS"
-    end
-
-    res.status = 200
-    resp=""
-    try
-      info("METODO : ",req.method,"    URL : ",req.resource)
-      resp = getindex(routes, searchroute)(q,req,res)
-    end
-    return resp
-
-  #=
-  if existeruta_s
-        resp=process(b[s],q,res,req)
-        return resp
+  searchroute = request.method*request.resource
+  try
+    q.body = _body(request.data,request.headers["Content-Type"])
+  catch
+    q.body = _body(request.data,"*/*")
   end
-  NotFound(res)
-  return res
-  =#
+
+  if cors
+   response.headers["Access-Control-Allow-Origin"]="*"
+   response.headers["Access-Control-Allow-Methods"]="POST,GET,OPTIONS"
+  end
+
+  #res.status = 200
+
+  try
+    info("METODO : ",request.method,"    URL : ",request.resource)
+    response.data = getindex(routes, searchroute)(q,request,response)
+  catch
+    response.data = getindex(routes, "notfound")(q,request,response)
+  end
+  return response
 end
 
 
 # funcion debug
+# ipv 6
 # CRTL Z  para matar proceso
 function app(r=pwd()::AbstractString,load=""::AbstractString)
 global root
@@ -221,7 +203,8 @@ global q
 global cors
 cors=false::Bool
 root=r::AbstractString
-q=Q("","","")
+
+q=Q(Dict(),Dict(),"","NotFound")
 if root[end]=='/'
   root=root[1:end-1]
 end
@@ -242,29 +225,20 @@ end
 cd(root)
 
   function use(y::AbstractString)
-    if(y=="CORS")
-      cors=true
-    else
-      cors=false
-    end
+      cors=y=="CORS"
   end
 
-  function notfound(x::AbstractString)
-    global nfmessage
-    nfmessage=x
-
+  function notfound(text::AbstractString)
     try
-      path = normpath(root, x)
-      if isfile(path)
-          nfmessage = readall(path)
-      end
+      path = normpath(root, text)
+      q.notfound_message= readall(path)
+    catch
+      q.notfound_message = text
     end
-
-    nothing
   end
 
   function start(host="localhost"::AbstractString,port=8000::Integer)
-    http = HttpHandler((req, res)-> handler(b,req,res))
+    http = HttpHandler((req, res)-> handler(req,res))
     http.events["error"]  = (client, error) -> println(error)
     http.events["listen"] = (port)          -> println("Listening on $port...")
     server = Server(http)
