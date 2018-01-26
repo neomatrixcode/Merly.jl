@@ -34,48 +34,6 @@ type Fram
   use::Function
 end
 
-
-
-#function _url(ruta::String, resource::UTF8String)
-function _url(ruta::String, resource::String)
-
-  resource = split(resource[1],"/")
-  resource =resource[2:end]
-
-  ruta = split(ruta,"/")
-  ruta =ruta[2:end]
-
-  lruta=length(ruta)
-  lresource=length(resource)
-
-  try
-    if ruta[end]==""
-      lruta=lruta-1
-    end
-
-    if resource[end]==""
-      lresource=lresource-1
-    end
-  end
-
-  s=true
-  if(lruta==lresource)
-    for i=1:lruta
-      if length(ruta[i])>=1
-        if !(ruta[i][1]==':')
-          s=s && (ismatch(Regex(ruta[i]),resource[i]))
-        else
-          r=ruta[i][2:end]
-          q.params[r]=resource[i]
-        end
-      end
-    end
-    return s,q
-  end
-  return false,q
-end
-
-
 function _body(data::Array{UInt8,1},format::String)
 
   content=""
@@ -136,27 +94,14 @@ function File(file::String)
 end
 
 
-#=function process(element::Merly.Pag,q,res::HttpCommon.Response,req::HttpCommon.Request)
-
-  sal=[]
-  try
-    sal = matchall(Regex("{{([A-Z]|[a-z]|[0-9])*}}"),respond)
-    d=length(sal)
-    if d>0
-      for i=1:d
-        respond= replace(respond,Regex(sal[i]),q.params["$(sal[i][3:end-2])"])
-      end
+function resolveroute(ruta::String)
+  for key in keys(routes)
+    params= match(key,ruta)
+    if params!= nothing
+      return params, getindex(routes,key)
     end
   end
-  if length(respond)>0
-    try
-    res.data= respond
-    end
-  end
-  #res.headers=h
-  return res
-end=#
-
+end
 
 function handler(request::HttpCommon.Request,response::HttpCommon.Response)
 
@@ -182,7 +127,14 @@ function handler(request::HttpCommon.Request,response::HttpCommon.Response)
 
   try
     info("METODO : ",request.method,"    URL : ",url)
-    response.data = getindex(routes, searchroute)(q,request,response)
+    q.params, _function  = resolveroute(searchroute)
+
+    respond = _function(q,request,response)
+    sal = matchall(Regex("{{([a-z])+}}"),respond)
+    for i in sal
+      respond = replace(respond,Regex(i),q.params["$(i[3:end-2])"])
+    end
+    response.data = respond
   catch
     response.data = getindex(routes, "notfound")(q,request,response)
   end
