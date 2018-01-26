@@ -10,7 +10,7 @@ using HttpServer,
 include("routes.jl")
 include("allformats.jl")
 
-export app, @page, @route, GET,POST,PUT,DELETE,Get,Post,Put,Delete,routes
+export app, @page, @route, GET,POST,PUT,DELETE,Get,Post,Put,Delete,routes,routes_patterns
 
 q=Dict()
 
@@ -95,12 +95,22 @@ end
 
 
 function resolveroute(ruta::String)
-  for key in keys(routes)
+  for key in keys(routes_patterns)
     params= match(key,ruta)
     if params!= nothing
-      return params, getindex(routes,key)
+      return params, getindex(routes_patterns,key)
     end
   end
+end
+
+function processroute_pattern(searchroute::String,request::HttpCommon.Request,response::HttpCommon.Response)
+  q.params, _function  = resolveroute(searchroute)
+  respond = _function(q,request,response)
+  sal = matchall(Regex("{{([a-z])+}}"),respond)
+  for i in sal
+    respond = replace(respond,Regex(i),q.params["$(i[3:end-2])"])
+  end
+  return respond
 end
 
 function handler(request::HttpCommon.Request,response::HttpCommon.Response)
@@ -125,19 +135,20 @@ function handler(request::HttpCommon.Request,response::HttpCommon.Response)
    response.headers["Access-Control-Allow-Methods"]="POST,GET,OPTIONS"
   end
 
-  try
-    info("METODO : ",request.method,"    URL : ",url)
-    q.params, _function  = resolveroute(searchroute)
 
-    respond = _function(q,request,response)
-    sal = matchall(Regex("{{([a-z])+}}"),respond)
-    for i in sal
-      respond = replace(respond,Regex(i),q.params["$(i[3:end-2])"])
-    end
-    response.data = respond
+  info("METODO : ",request.method,"    URL : ",url)
+
+
+  try
+    response.data = getindex(routes, searchroute)(q,request,response)
   catch
-    response.data = getindex(routes, "notfound")(q,request,response)
+    try
+      response.data = processroute_pattern(searchroute,request,response)
+    catch
+      response.data = getindex(routes, "notfound")(q,request,response)
+    end
   end
+
   return response
 end
 
