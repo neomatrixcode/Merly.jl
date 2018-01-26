@@ -1,10 +1,13 @@
 
 |(x::String, y::String)="$x|$y"
 
+GET="GET"
 POST="POST"
 PUT="PUT"
 DELETE="DELETE"
-GET="GET"
+HEAD = "HEAD"
+OPTIONS = "OPTIONS"
+PATCH = "PATCH"
 
 function NotFound(q,req,res)
   #global nfmessage

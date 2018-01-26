@@ -10,8 +10,7 @@ using HttpServer,
 include("routes.jl")
 include("allformats.jl")
 
-export app, @page, @route, GET,POST,PUT,DELETE,Get,Post,Put,Delete,routes,routes_patterns
-
+export app, @page, @route, GET,POST,PUT,DELETE,HEAD,OPTIONS,PATCH,Get,Post,Put,Delete
 q=Dict()
 
 b=[]
