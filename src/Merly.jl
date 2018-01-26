@@ -10,7 +10,6 @@ using HttpServer,
 include("routes.jl")
 include("allformats.jl")
 
-
 export app, @page, @route, GET,POST,PUT,DELETE,Get,Post,Put,Delete,routes
 
 q=Dict()
@@ -39,13 +38,6 @@ end
 
 #function _url(ruta::String, resource::UTF8String)
 function _url(ruta::String, resource::String)
-
-  resource = split(resource,"?")
-  try
-    if length(resource[2])>=1
-      q.query=parsequerystring(resource[2])
-    end
-  end
 
   resource = split(resource[1],"/")
   resource =resource[2:end]
@@ -168,7 +160,15 @@ end=#
 
 function handler(request::HttpCommon.Request,response::HttpCommon.Response)
 
-  searchroute = request.method*request.resource
+  data = split(request.resource,"?")
+  url=data[1]
+
+  searchroute = request.method*url
+
+  try
+    q.query= parsequerystring(data[2]);
+  end
+
   try
     q.body = _body(request.data,request.headers["Content-Type"])
   catch
@@ -180,10 +180,8 @@ function handler(request::HttpCommon.Request,response::HttpCommon.Response)
    response.headers["Access-Control-Allow-Methods"]="POST,GET,OPTIONS"
   end
 
-  #res.status = 200
-
   try
-    info("METODO : ",request.method,"    URL : ",request.resource)
+    info("METODO : ",request.method,"    URL : ",url)
     response.data = getindex(routes, searchroute)(q,request,response)
   catch
     response.data = getindex(routes, "notfound")(q,request,response)
