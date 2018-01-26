@@ -8,10 +8,14 @@ GET="GET"
 
 function  processtext(text::String)
     text = "^"*text*"\$"
+  try
     text = replace(text,"/:","/(?<")
-    text = replace(text,">/",">[a-z]+)/")
     text = replace(text,">",">[a-z]+)")
     return Regex(text)
+  catch
+    warn("Error in the format of the route, verify it")
+    return Regex(text)
+  end
 end
 
 function NotFound(q,req,res)
