@@ -1,3 +1,4 @@
+__precompile__()
 module Merly
 import HttpServer.mimetypes
 import Base.|
