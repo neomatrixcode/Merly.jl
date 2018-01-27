@@ -142,14 +142,29 @@ global cors
 
   function webserverpath(path::AbstractString)
       root= path
-      #cd(root)
   end
 
-  function start(host="0.0.0.0"::AbstractString,port=8000::Integer)
+  function start(config=Dict("host" => "0.0.0.0","port" => 8000,"log"  => true)::Dict)
+    host= "0.0.0.0"
+    port= 8000
+
+    try
+    host=get(config, "host", "0.0.0.0")::AbstractString
+    catch
+      error("Verify the format of the ip address \n AbstractString \"127.0.0.1\"")
+    end
+
+    try
+    port=get(config, "port", 8000)::Int
+    catch
+      error("Verify the port format \n Int 8000 ")
+    end
+
     http = HttpHandler((req, res)-> handler(req,res))
     http.events["error"]  = (client, error) -> println(error)
     http.events["listen"] = (port)          -> println("Listening on $port...")
     server = Server(http)
+
     if host=="localhost"
       host="127.0.0.1"
     end
