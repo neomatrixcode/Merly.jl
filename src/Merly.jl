@@ -144,12 +144,12 @@ global cors
       root= path
   end
 
-  function start(config=Dict("host" => "0.0.0.0","port" => 8000,"log"  => true)::Dict)
-    host= "0.0.0.0"
+  function start(config=Dict("host" => "127.0.0.1","port" => 8000,"log"  => true)::Dict)
+    host= "127.0.0.1"
     port= 8000
 
     try
-    host=get(config, "host", "0.0.0.0")::AbstractString
+    host=get(config, "host", "127.0.0.1")::AbstractString
     catch
       error("Verify the format of the ip address \n AbstractString \"127.0.0.1\"")
     end
