@@ -9,79 +9,45 @@ using HttpServer,
 
 include("routes.jl")
 include("allformats.jl")
+include("webserver.jl")
 
-export app, @page, @route, GET,POST,PUT,DELETE,HEAD,OPTIONS,PATCH,Get,Post,Put,Delete
-q=Dict()
+export app, @page, @route, GET,POST,PUT,DELETE,HEAD,OPTIONS,PATCH,Get,Post,Put,Delete,routes
 
-b=[]
+cors=false::Bool
+
 root=pwd()
+if root[end]=='/'
+  root=root[1:end-1]
+elseif is_windows() && root[end]=='\\'
+  root=root[1:end-1]
+end
 
-#metodof=1
 exten="\"\""::AbstractString
 
 type Q
   query
   params
-  body
-  notfound_message
+  body::AbstractString
+  notfound_message::AbstractString
 end
 
+global q=Q(Dict(),Dict(),"","NotFound")
 
 type Fram
   notfound::Function
   start::Function
-  use::Function
+  useCORS::Function
+  webserverfiles::Function
+  webserverpath::Function
 end
 
 function _body(data::Array{UInt8,1},format::String)
-
   content=""
   for i=1:length(data)
    content*="$(Char(data[i]))"
   end
-
   return getindex(formats, format)(content)
 end
-
-
-function files(arch::Array{Any,1})
-  global root
-  for i=1:length(arch)
-    roop=replace(replace(arch[i],root,""),"\\","/")
-    extencion=split(roop,".")[end]
-    if !ismatch(r"(/\.)",roop)
-      @page roop begin
-      try
-        r.headers["Content-Type"]=mimetypes[extencion]
-      end
-        r.data= File(roop[2:end])
-      end
-    end
-  end
-end
-
-function WebServer(rootte::String)
-  cd(rootte)
-  ls= readdir()
-  arrfile=[]
-  arrdir=[]
-  for i=1:length(ls)
-    if isfile(ls[i])
-        if (ismatch(Regex("((.)*\\.(?!($exten)))"),ls[i])) && !ismatch(r"^(\.)",ls[i])
-          push!(arrfile,normpath(rootte,ls[i]))
-        end
-    end
-    if isdir(ls[i])
-      push!(arrdir,normpath(rootte,ls[i]))
-    end
-  end
-  files(arrfile)
-  for i=1:length(arrdir)
-    WebServer(arrdir[i])
-  end
-end
-
-
 
 function File(file::String)
   try
@@ -91,7 +57,6 @@ function File(file::String)
     return file
   end
 end
-
 
 function resolveroute(ruta::String)
   for key in keys(routes_patterns)
@@ -134,9 +99,7 @@ function handler(request::HttpCommon.Request,response::HttpCommon.Response)
    response.headers["Access-Control-Allow-Methods"]="POST,GET,OPTIONS"
   end
 
-
   info("METODO : ",request.method,"    URL : ",url)
-
 
   try
     response.data = getindex(routes, searchroute)(q,request,response)
@@ -155,42 +118,34 @@ end
 # funcion debug
 # ipv 6
 # CRTL Z  para matar proceso
-function app(r=pwd()::AbstractString,load=""::AbstractString)
+function app()
 global root
 global exten
-global q
 global cors
-cors=false::Bool
-root=r::AbstractString
-q=Q(Dict(),Dict(),"","NotFound")
-if root[end]=='/'
-  root=root[1:end-1]
-end
-#OSNAME = is_windows() ? :Windows : Compat.KERNEL
-if is_windows()
-  if root[end]=='\\'
-    root=root[1:end-1]
-  end
-end
-if length(load)>0
-  if load=="*"
-    WebServer(root)
-  else
-    exten=load::AbstractString
-    WebServer(root)
-  end
-end
-cd(root)
 
-  function use(y::AbstractString)
-      cors=y=="CORS"
+  function useCORS(activate::Bool)
+      cors=activate
   end
 
   function notfound(text::AbstractString)
       q.notfound_message= File(text)
   end
 
-  function start(host="localhost"::AbstractString,port=8000::Integer)
+  function webserverfiles(load::AbstractString)
+      if load=="*"
+        WebServer(root)
+      else
+        exten=load::AbstractString
+        WebServer(root)
+      end
+  end
+
+  function webserverpath(path::AbstractString)
+      root= path
+      #cd(root)
+  end
+
+  function start(host="0.0.0.0"::AbstractString,port=8000::Integer)
     http = HttpHandler((req, res)-> handler(req,res))
     http.events["error"]  = (client, error) -> println(error)
     http.events["listen"] = (port)          -> println("Listening on $port...")
@@ -199,13 +154,17 @@ cd(root)
       host="127.0.0.1"
     end
     try
-      IPv4(host)
       #@async run(server, host=IPv4(host), port=port)
       run(server, host=IPv4(host), port=port)
     catch
-      "only IPv4 addresses"
+      try
+        run(server, host=IPv6(host), port=port)
+      catch
+        warn("Address not valid, check it")
+      end
     end
   end
-  return Fram(notfound,start,use)
+
+  return Fram(notfound,start,useCORS,webserverfiles,webserverpath)
 end
 end # module
