@@ -23,7 +23,7 @@ function  createurl(text::String,funtion::Function)
   if contains(text, ":")||contains(text, "(")
     try
       text_ = "^"*text*"\$"
-      text_ = replace(text_,"/:","/(?<")
+      text_ = replace(text_,":","(?<")
       text_ = replace(text_,">",">[a-z]+)")
       routes_patterns[Regex(text_)] = funtion
     catch

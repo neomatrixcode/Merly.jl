@@ -11,10 +11,10 @@ include("routes.jl")
 include("allformats.jl")
 include("webserver.jl")
 
-export app, @page, @route, GET,POST,PUT,DELETE,HEAD,OPTIONS,PATCH,Get,Post,Put,Delete,routes
+export app, @page, @route, GET,POST,PUT,DELETE,HEAD,OPTIONS,PATCH,Get,Post,Put,Delete
 
 cors=false::Bool
-
+debug=true::Bool
 root=pwd()
 if root[end]=='/'
   root=root[1:end-1]
@@ -25,8 +25,8 @@ end
 exten="\"\""::AbstractString
 
 type Q
-  query
-  params
+  query::Dict
+  params::Any
   body::AbstractString
   notfound_message::AbstractString
 end
@@ -99,8 +99,9 @@ function handler(request::HttpCommon.Request,response::HttpCommon.Response)
    response.headers["Access-Control-Allow-Methods"]="POST,GET,OPTIONS"
   end
 
-  info("METODO : ",request.method,"    URL : ",url)
-
+  if debug
+    info("METODO : ",request.method,"    URL : ",url)
+  end
   try
     response.data = getindex(routes, searchroute)(q,request,response)
   catch
@@ -115,13 +116,11 @@ function handler(request::HttpCommon.Request,response::HttpCommon.Response)
 end
 
 
-# funcion debug
-# ipv 6
-# CRTL Z  para matar proceso
 function app()
 global root
 global exten
 global cors
+global debug
 
   function useCORS(activate::Bool)
       cors=activate
@@ -144,7 +143,7 @@ global cors
       root= path
   end
 
-  function start(config=Dict("host" => "127.0.0.1","port" => 8000,"log"  => true)::Dict)
+  function start(config=Dict("host" => "127.0.0.1","port" => 8000,"debug"  => true)::Dict)
     host= "127.0.0.1"
     port= 8000
 
@@ -158,6 +157,12 @@ global cors
     port=get(config, "port", 8000)::Int
     catch
       error("Verify the port format \n Int 8000 ")
+    end
+
+    try
+    debug=get(config, "debug", true)::Bool
+    catch
+      error("Verify the debug format \n Bool true ")
     end
 
     http = HttpHandler((req, res)-> handler(req,res))
