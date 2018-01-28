@@ -1,37 +1,42 @@
 # Merly.jl
 
-*Micro framework for web programming in Julia.*
+<p align="center">
+<strong>Micro framework for web programming in Julia..</strong>
+<br><br>
+<a href="https://travis-ci.org/codeneomatrix/Merly.jl"><img src="https://travis-ci.org/codeneomatrix/Merly.jl.svg?branch=master"></a>
+<a href="https://codecov.io/gh/codeneomatrix/Merly.jl">
+  <img src="https://codecov.io/gh/codeneomatrix/Merly.jl/branch/master/graph/badge.svg" />
+</a>
+&nbsp;&nbsp
+<a href="https://pkg.julialang.org/detail/Merly"><img src="http://pkg.julialang.org/badges/Merly_0.6.svg"></a>
+<a href="https://pkg.julialang.org/detail/Merly"><img src="http://pkg.julialang.org/badges/Merly_0.7.svg"></a>
+ &nbsp;&nbsp;
+<a href="https://raw.githubusercontent.com/codeneomatrix/Merly.jl/master/LICENSE.md"><img src="https://img.shields.io/badge/license-MIT-blue.svg"></a>
 
-[![Build Status](https://travis-ci.org/codeneomatrix/Merly.jl.svg?branch=master)](https://travis-ci.org/codeneomatrix/Merly.jl)
-[![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/codeneomatrix/Merly.jl/master/LICENSE.md)
-[![Merly](http://pkg.julialang.org/badges/Merly_0.4.svg)](http://pkg.julialang.org/?pkg=Merly)
-[![Merly](http://pkg.julialang.org/badges/Merly_0.5.svg)](http://pkg.julialang.org/?pkg=Merly)
-[![Merly](http://pkg.julialang.org/badges/Merly_0.6.svg)](http://pkg.julialang.org/?pkg=Merly)
-
+## About
 Merly is a micro framework for declaring routes and handling requests.
 Quickly creating web applications in Julia with minimal effort.
 
 Roadmap
 -----
-Below are some of the features that are planned to be added in future versions of Faker.jl once version 1.0 of the language is released.
+#### Version 0.0.3
+- [x] adding the debug option
+- [x] optimizing routes
+- [x] refactor notfount, cors, body
+
+Below are some of the features that are planned to be added in future versions of Merly.jl once version 1.0 of the language is released.
 
 ### All contributions and suggestions are welcome !!!!
 
 #### Version 0.1.0
- + Julia version 1.0 syntax update
- 
-#### Version 0.1.1
- + Implementation of verbose
+- [ ] Julia version 1.0 syntax update
 
 #### Version 0.1.2
- + Implementation of a websocket module
- 
+- [ ] Implementation of a websocket module
+
 #### Version 0.1.3
- + Performance improvement
- 
-#### Version 0.1.4
- + Threads implementation
- 
+- [ ] Performance improvement
+
 
 Installing
 ----------
@@ -45,20 +50,19 @@ Pkg.clone("git://github.com/codeneomatrix/Merly.jl.git")   #Development
 ```julia
 using Merly
 
-global u
 u="hello"
 
 server = Merly.app()
 
 @page "/" "Hello World!"
-@page "/hola/:usr" "<b>Hello {{usr}}!</b>"
+@page "/hola/:usr>" "<b>Hello {{usr}}!</b>"
 
-@route GET "/get/:data" begin
+@route GET "/get/:data>" begin
   "get this back: {{data}}"
 end
 
 @route POST "/post" begin
-  "I did something!"
+  res.data = "I did something!"
 end
 
 @route POST|PUT|DELETE "/" begin
@@ -66,22 +70,22 @@ end
   println("query: ",q.query)
   println("body: ",q.body)
 
-  r.headers["Content-Type"]="text/plain"
+  res.headers["Content-Type"]="text/plain"
 
   "I did something!"
 end
 
-Get("/data", (q,r)->(begin
-  r.headers["Content-Type"]="text/plain"
-  "$u data"
+Get("/data", (q,req,res)->(begin
+  res.headers["Content-Type"]="text/plain"
+  u*"data"
 end))
 
 
-Post("/data", (q,r)->(begin
+Post("/data", (q,req,res)->(begin
   println("params: ",q.params)
   println("query: ",q.query)
   println("body: ",q.body)
-  r.headers["Content-Type"]="text/plain"
+  res.headers["Content-Type"]="text/plain"
   global u="bye"
   "I did something!"
 end))
@@ -95,28 +99,32 @@ Features available in the current release
 ------------------
 ### Parameters dictionary
 ```julia
-@route GET "/get/:data" begin
+@route GET "/get/:data>" begin
+  # matches "GET /get/foo" and "GET /get/bar"
+  # q.params["data"] is 'foo' or 'bar'
   "get this back: "*q.params["data"]
 end
 ```
 ### url query dictionary
+
 ```julia
 @route POST|PUT|DELETE "/" begin
-  r.headers["Content-Type"]="text/plain"
-
-  "I did something! "*q.query["value1name"]
+  res.headers["Content-Type"]="text/plain"
+  # matches "POST /?title=foo&author=bar"
+  title = q.query["title"]
+  author = q.query["author"]
+  "I did something!"
 end
 ```
 ### Dictionary of body
 Payload
 ```ruby
-{"data1":"Hello"}  
+{"data1":"Hello"}
 ```
 ```julia
 @route POST|PUT|DELETE "/" begin
-  r.headers["Content-Type"]="text/plain"
-
-  "Payload data "*q.body["data1"]
+  res.headers["Content-Type"]="text/plain"
+  res.data = "Payload data "*q.body["data1"]
 end
 ```
 
@@ -128,8 +136,7 @@ Payload
 ```
 ```julia
 @route POST|PUT|DELETE "/" begin
-  r.headers["Content-Type"]="text/plain"
-
+  res.headers["Content-Type"]="text/plain"
   "Payload data "*q.body["Data"]["Data1"]
 end
 ```
@@ -138,8 +145,8 @@ end
 
 ```julia
 @route POST|PUT|DELETE "/" begin
-  r.headers["Content-Type"]="application/json"
-  r.status = 200 #optional
+  res.headers["Content-Type"]="application/json"
+  res.status = 200 #optional
   "{\"data1\":2,\"data2\":\"t\"}"
 end
 
@@ -147,12 +154,12 @@ end
 or
 ```julia
 @route POST|PUT|DELETE "/" begin
-  r.headers["Content-Type"]="application/json"
+  res.headers["Content-Type"]="application/json"
   info=Dict()
   info["data1"]=2
   info["data2"]="t"
-  r.status = 200 #optional
-  JSON.json(info)
+  res.status = 200 #optional
+  res.data = JSON.json(info)
 end
 
 ```
@@ -161,7 +168,7 @@ end
 
 ```julia
 @route POST|PUT|DELETE "/" begin
-  r.headers["Content-Type"]="application/xml"
+  res.headers["Content-Type"]="application/xml"
 
   "<ListAllMyBucketsResult>
     <Buckets>
@@ -176,15 +183,26 @@ end
 ### Reply File
 
 ```julia
-server = Merly.app("Path","load") #example: ("D:\\EXAMPLE\\src","*")  defauld: (pwd(),"")
-@page "/" File("Index.html", r)
+@page "/" File("Index.html")
+```
 
+### Web server
+
+```julia
+# By default, the location where to look for the files that will
+# be exposed will be the same where the script is, if the files are
+# not found in that site, the location of the files can be established
+# with the following instruction.
+server.webserverpath("C:\\path")  # example in windows
+
+
+server.webserverfiles("*") #
 ```
 ```clojure
-Possible values of load
- "*"              Load all the files located in the path, except what started with "."
+Possible values of webserverfiles
+
+ "*"               Load all the files located in the path, except what started with "."
  "jl","clj|jl|py"  Extension in files that will not be exposed
- ""               Any file, Default
 ```
 
 ### Not found message
@@ -200,11 +218,11 @@ server.notfound("notfound.html")
 ```
 ### CORS
 ```julia
-server.use("CORS")
+server.useCORS(true)
 ```
 
 ### Bonus
 If you forgot the MIME type of a file you can use the next instruction
 ```julia
-r.headers["Content-Type"]=mimetypes["file extension"]
+res.headers["Content-Type"]=mimetypes["file extension"]
 ```
