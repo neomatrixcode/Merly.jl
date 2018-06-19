@@ -6,6 +6,7 @@ function files(arch::Array{Any,1})
     extencion="text/plain"
     try
       extencion=mimetypes[split(roop,".")[end]]
+    catch
     end
     data = File(roop[2:end])
     #try
