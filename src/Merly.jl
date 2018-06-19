@@ -25,7 +25,7 @@ end
 
 exten="\"\""::AbstractString
 
-type Q
+mutable struct Q
   query::Dict
   params::Any
   body::AbstractString
@@ -34,7 +34,7 @@ end
 
 global q=Q(Dict(),Dict(),"","NotFound")
 
-type Fram
+mutable struct Fram
   notfound::Function
   start::Function
   useCORS::Function
@@ -87,6 +87,7 @@ function handler(request::HttpCommon.Request,response::HttpCommon.Response)
 
   try
     q.query= parsequerystring(data[2]);
+  catch
   end
 
   try
