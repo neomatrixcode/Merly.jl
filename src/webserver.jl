@@ -2,16 +2,18 @@
 function files(arch::Array{Any,1})
   roop=""
   for i=1:length(arch)
-    roop=replace(replace(arch[i],root,""),"\\","/")
-    extencion="text/plain"
+    roop=replace(replace(arch[i],root => ""),"\\" => "/")
+    extension="text/plain"
     try
-      extencion=mimetypes[split(roop,".")[end]]
+      extension=mimetypes[split(roop,".")[end]]
+    catch
     end
     data = File(roop[2:end])
     #try
       createurl("GET"*roop,(q,req,res)->(begin
-        res.headers["Content-Type"]= extencion
-        res.data= data
+        HTTP.setheader(res,"Content-Type" => extension)
+        res.status = 200
+        res.body= data
       end))
     #end
   end
@@ -24,7 +26,7 @@ function WebServer(rootte::String)
   arrdir=[]
   for i=1:length(ls)
     if isfile(ls[i])
-        if (ismatch(Regex("((.)*\\.(?!($exten)))"),ls[i])) && !ismatch(r"^(\.)",ls[i])
+        if (occursin(Regex("((.)*\\.(?!($exten)))"),ls[i])) && !occursin(r"^(\.)",ls[i])
           push!(arrfile,normpath(rootte,ls[i]))
         end
     end

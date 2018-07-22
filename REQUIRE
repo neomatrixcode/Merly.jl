@@ -1,5 +1,3 @@
-julia 0.6
-HttpServer
+julia 0.7-
 HttpCommon
 JSON
-XMLDict

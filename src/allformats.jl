@@ -1,22 +1,22 @@
 
-function toplanetext(data)
+function toplanetext(data::String)
    return data
 end
 
-function tojson(data)
+function tojson(data::String)
   try
    return JSON.parse(data)
  catch
-   warn("The format JSON does not match the data received")
+   @warn("The format JSON does not match the data received")
    return data
  end
 end
 
-function toxml(data)
+function toxml(data::String)
   try
    return parse_xml(content)
  catch
-   warn("The format XML does not match the data received")
+   @warn("The format XML does not match the data received")
    return data
  end
 end

@@ -10,27 +10,28 @@ OPTIONS = "OPTIONS"
 PATCH = "PATCH"
 
 function NotFound(q,req,res)
-  #global nfmessage
   res.status = 404
-  res.data = q.notfound_message
+  res.body = notfound_message
 end
 
 routes=Dict()
 routes_patterns=Dict()
 routes["notfound"] = NotFound
 
-function  createurl(text::String,funtion::Function)
-  if contains(text, ":")||contains(text, "(")
+function createurl(url::String,funtion::Function)
+  if occursin(":",url)||occursin("(",url)
     try
-      text_ = "^"*text*"\$"
-      text_ = replace(text_,":","(?<")
-      text_ = replace(text_,">",">[a-z]+)")
-      routes_patterns[Regex(text_)] = funtion
+      url_ = "^"*url*"\$"
+      url_ = replace(url_,":" => "(?<")
+      url_ = replace(url_,">" => ">[a-z]+)")
+      routes_patterns[Regex(url_)] = funtion
+      @info("Url added",Regex(url_))
     catch
-     warn("Error in the format of the route $text, verify it\n \"VERB/get/:data>\" \n \"VERB/get/([0-9])\"")
+     @warn("Error in the format of the route $url, verify it\n \"VERB/get/:data>\" \n \"VERB/get/([0-9])\"")
     end
   else
-    routes[text] = funtion
+    routes[url] = funtion
+    @info("Url added",url)
   end
 end
 

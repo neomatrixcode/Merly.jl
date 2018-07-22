@@ -8,7 +8,6 @@
   <img src="https://codecov.io/gh/codeneomatrix/Merly.jl/branch/master/graph/badge.svg" />
 </a>
 &nbsp;&nbsp
-<a href="https://pkg.julialang.org/detail/Merly"><img src="http://pkg.julialang.org/badges/Merly_0.6.svg"></a>
 <a href="https://pkg.julialang.org/detail/Merly"><img src="http://pkg.julialang.org/badges/Merly_0.7.svg"></a>
  &nbsp;&nbsp;
 <a href="https://raw.githubusercontent.com/codeneomatrix/Merly.jl/master/LICENSE.md"><img src="https://img.shields.io/badge/license-MIT-blue.svg"></a>
@@ -24,12 +23,12 @@ Roadmap
 - [x] optimizing routes
 - [x] refactor notfount, cors, body
 
-Below are some of the features that are planned to be added in future versions of Merly.jl once version 1.0 of the language is released.
+Below are some of the features that are planned to be added in future versions of Merly.jl once version 0.7 of the language is released.
 
 ### All contributions and suggestions are welcome !!!!
 
 #### Version 0.1.0
-- [ ] Julia version 1.0 syntax update
+- [ ] Julia version 0.7 syntax update
 
 #### Version 0.1.2
 - [ ] Implementation of a websocket module
@@ -62,7 +61,7 @@ server = Merly.app()
 end
 
 @route POST "/post" begin
-  res.data = "I did something!"
+  res.body = "I did something!"
 end
 
 @route POST|PUT|DELETE "/" begin
@@ -70,13 +69,13 @@ end
   println("query: ",q.query)
   println("body: ",q.body)
 
-  res.headers["Content-Type"]="text/plain"
+  q.headers["Content-Type"]= "text/plain"
 
   "I did something!"
 end
 
 Get("/data", (q,req,res)->(begin
-  res.headers["Content-Type"]="text/plain"
+  q.headers["Content-Type"]= "text/plain"
   u*"data"
 end))
 
@@ -85,13 +84,13 @@ Post("/data", (q,req,res)->(begin
   println("params: ",q.params)
   println("query: ",q.query)
   println("body: ",q.body)
-  res.headers["Content-Type"]="text/plain"
+  q.headers["Content-Type"]= "text/plain"
   global u="bye"
   "I did something!"
 end))
 
 
-server.start("localhost", 8080)
+server.start(Dict("host" => "127.0.0.1","port" => 8000))
 
 ```
 
@@ -109,7 +108,7 @@ end
 
 ```julia
 @route POST|PUT|DELETE "/" begin
-  res.headers["Content-Type"]="text/plain"
+  q.headers["Content-Type"]= "text/plain"
   # matches "POST /?title=foo&author=bar"
   title = q.query["title"]
   author = q.query["author"]
@@ -123,8 +122,8 @@ Payload
 ```
 ```julia
 @route POST|PUT|DELETE "/" begin
-  res.headers["Content-Type"]="text/plain"
-  res.data = "Payload data "*q.body["data1"]
+  q.headers["Content-Type"]= "text/plain"
+  res.body = "Payload data "*q.body["data1"]
 end
 ```
 
@@ -136,7 +135,7 @@ Payload
 ```
 ```julia
 @route POST|PUT|DELETE "/" begin
-  res.headers["Content-Type"]="text/plain"
+  q.headers["Content-Type"]= "text/plain"
   "Payload data "*q.body["Data"]["Data1"]
 end
 ```
@@ -145,7 +144,7 @@ end
 
 ```julia
 @route POST|PUT|DELETE "/" begin
-  res.headers["Content-Type"]="application/json"
+  q.headers["Content-Type"]="application/json"
   res.status = 200 #optional
   "{\"data1\":2,\"data2\":\"t\"}"
 end
@@ -154,12 +153,12 @@ end
 or
 ```julia
 @route POST|PUT|DELETE "/" begin
-  res.headers["Content-Type"]="application/json"
+  q.headers["Content-Type"]="application/json"
   info=Dict()
   info["data1"]=2
   info["data2"]="t"
   res.status = 200 #optional
-  res.data = JSON.json(info)
+  res.body = JSON.json(info)
 end
 
 ```
@@ -168,7 +167,7 @@ end
 
 ```julia
 @route POST|PUT|DELETE "/" begin
-  res.headers["Content-Type"]="application/xml"
+  q.headers["Content-Type"]="application/xml"
 
   "<ListAllMyBucketsResult>
     <Buckets>
@@ -195,12 +194,11 @@ end
 # with the following instruction.
 server.webserverpath("C:\\path")  # example in windows
 
-
-server.webserverfiles("*") #
 ```
 ```clojure
 Possible values of webserverfiles
 
+server.webserverfiles("*") #
  "*"               Load all the files located in the path, except what started with "."
  "jl","clj|jl|py"  Extension in files that will not be exposed
 ```
@@ -224,5 +222,6 @@ server.useCORS(true)
 ### Bonus
 If you forgot the MIME type of a file you can use the next instruction
 ```julia
-res.headers["Content-Type"]=mimetypes["file extension"]
+q.headers["Content-Type"]= mimetypes["file extension"]
 ```
+the file mimetypes.jl was taken from https://github.com/JuliaWeb/HttpServer.jl  guys are great
