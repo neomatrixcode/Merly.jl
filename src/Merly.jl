@@ -3,7 +3,6 @@ module Merly
 import Base.|
 
 using Sockets,
-      HttpCommon,
       JSON,
       HTTP,
       XMLDict
