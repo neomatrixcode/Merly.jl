@@ -97,16 +97,16 @@ function handler(request::HTTP.Messages.Request)
 
   HTTP.setheader(response,"Content-Type" => "text/plain" )
 
- #try
+ try
     response.status= 200
     response.body = getindex(routes, searchroute)(q,request,response)
-  #=catch
+  catch
     try
       response.body = processroute_pattern(searchroute,request,response)
     catch
      response.body = getindex(routes, "notfound")(q,request,response)
     end
-  end=#
+  end
 
   for (key, value) in q.headers
     HTTP.setheader(response,key => value )
