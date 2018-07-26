@@ -180,3 +180,4 @@ global cors
   return Fram(notfound,start,useCORS,webserverfiles,webserverpath)
 end
 end # module
+#HSTS     HTTP.setheader(response,"Strict-Transport-Security" => "max-age=10886400; includeSubDomains; preload"
