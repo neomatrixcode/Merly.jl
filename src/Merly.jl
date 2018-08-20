@@ -171,10 +171,10 @@ function app()
 
     try
       #@async run(server, host=IPv4(host), port=port)
-      HTTP.Servers.serve(myserver, host, port)
+      return HTTP.Servers.serve(myserver, host, port)
     catch
       try
-        HTTP.Servers.serve(myserver, host, port)
+      return HTTP.Servers.serve(myserver, host, port)
       catch
         @warn("Address not valid, check it")
       end
