@@ -66,6 +66,7 @@ server.webserverfiles("jl")
 
 @async server.start(Dict("host" => "$(ip)","port" => port))
 
+sleep(2)
 
 r = HTTP.get("http://$(ip):$(port)/")
 @test r.status == 200
