@@ -19,6 +19,8 @@ mutable struct myresponse
   body::String
 end
 
+my_headers= HTTP.mkheaders(["Content-Type" => "text/plain"])
+
 cors=false::Bool
 root=pwd()
 if root[end]=='/'
@@ -50,12 +52,8 @@ function _body(data::Array{UInt8,1},format::SubString{String})
 end
 
 function File(file::String)
-  try
     path = normpath(root, file)
     return String(read(path))
-  catch
-    return file
-  end
 end
 
 function resolveroute(ruta::String)
@@ -82,36 +80,32 @@ function handler(request::HTTP.Messages.Request)
   data = split(request.target,"?")
   url=data[1]
   searchroute = request.method*url
-  try
-    q.query= HTTP.queryparams(data[2]);
-  catch
-  end
+
+  if (length(data)>1) q.query= HTTP.queryparams(data[2]) end
 
   response = myresponse(200,Dict(),"")
 
-  header_content_type = HTTP.header(request, "Content-Type")
-  if(length(header_content_type)>0)
-    q.body= _body(request.body,header_content_type)
-  else
-    q.body = _body(request.body,SubString("*/*"))
-  end
-
-  if (haskey(routes, searchroute))
-    response.body = getindex(routes, searchroute)(q,request,response)
-  else
-    try
-      response.body = processroute_pattern(searchroute,request,response)
-    catch
-     response.body = getindex(routes, "notfound")(q,request,response)
+  if ((request.method=="POST"  )||(request.method=="PUT"  )||(request.method=="PATCH"))
+    header_content_type = HTTP.header(request, "Content-Type")
+    if(length(header_content_type)>0)
+      q.body= getindex(formats, header_content_type)(String(request.body))
+    else
+      q.body = getindex(formats, "*/*")(String(request.body))
     end
   end
 
-  responsefinal = HTTP.Response(response.status,response.body)
-  if cors
-   HTTP.setheader(responsefinal,"Access-Control-Allow-Origin" => "*")
-   HTTP.setheader(responsefinal,"Access-Control-Allow-Methods" => "POST,GET,OPTIONS")
+  if (searchroute in routes_array)
+    response.body = getindex(routes, searchroute)(q,request,response)
+  else
+    #try
+    #  response.body = processroute_pattern(searchroute,request,response)
+    #catch
+     response.body = getindex(routes, "notfound")(q,request,response)
+    #end
   end
-  HTTP.setheader(responsefinal,"Content-Type" => "text/plain" )
+
+  responsefinal = HTTP.Response(response.status,my_headers, body=response.body)
+
   for (key, value) in response.headers
     HTTP.setheader(responsefinal,key => value )
   end
@@ -126,11 +120,17 @@ function app()
   global cors
 
   function useCORS(activate::Bool)
-    cors=activate
+   HTTP.setheader(my_headers,"Access-Control-Allow-Origin" => "*")
+   HTTP.setheader(my_headers,"Access-Control-Allow-Methods" => "POST,GET,OPTIONS")
+   return true
   end
 
-  function notfound(text::AbstractString)
+  function notfound(text::String)
+    if occursin(".html", text)
     notfound_message= File(text)
+    else
+      notfound_message= text
+    end
   end
 
   function webserverfiles(load::AbstractString)
@@ -148,38 +148,18 @@ function app()
 
   function start(config=Dict("host" => "127.0.0.1","port" => 8000)::Dict)
     host= Sockets.IPv4("127.0.0.1")
-    port= 8000
+    port=get(config, "port", 8000)::Int
 
-    try
-      host=Sockets.IPv4(get(config, "host", "127.0.0.1")::AbstractString)
-    catch
-      try
-        host=Sockets.IPv6(get(config, "host", "127.0.0.1")::AbstractString)
-      catch
-      end
-    end
-
-    try
-      port=get(config, "port", 8000)::Int
-    catch
-      @info("Port 8000 ")
-    end
+    my_host = get(config, "host", "127.0.0.1")::String
+    if ('.' in my_host) host=Sockets.IPv4(my_host) end
+    if (':' in my_host) host=Sockets.IPv6(my_host) end
 
     http = (req)-> handler(req)
-
     myserver= HTTP.Servers.Server(http, stdout)
-
-    try
-      #@async run(server, host=IPv4(host), port=port)
-      return HTTP.Servers.serve(myserver, host, port)
-    catch
-      try
-      return HTTP.Servers.serve(myserver, host, port)
-      catch
-        @warn("Address not valid, check it")
-      end
-    end
+    @info("Listening on: $(host) : $(port)")
+    return HTTP.Servers.serve(myserver, host, port)
   end
+
   @info("App created")
   return Fram(notfound,start,useCORS,webserverfiles,webserverpath)
 end

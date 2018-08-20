@@ -4,18 +4,14 @@ function files(arch::Array{Any,1})
   for i=1:length(arch)
     roop=replace(replace(arch[i],root => ""),"\\" => "/")
     extension="text/plain"
-    try
-      extension=mimetypes[split(roop,".")[end]]
-    catch
-    end
+    ext= split(roop,".")
+    if(length(ext)>1) extension=mimetypes[ext[2]] end
     data = File(roop[2:end])
-    #try
-      createurl("GET"*roop,(q,req,res)->(begin
-        HTTP.setheader(res,"Content-Type" => extension)
-        res.status = 200
-        res.body= data
-      end))
-    #end
+    createurl("GET"*roop,(q,req,res)->(begin
+      res.headers["Content-Type"]= extension
+      res.status = 200
+      res.body= data
+    end))
   end
 end
 

@@ -15,22 +15,20 @@ function NotFound(q,req,res)
 end
 
 routes=Dict()
+routes_array=[]
 routes_patterns=Dict()
 routes["notfound"] = NotFound
 
 function createurl(url::String,funtion::Function)
   if occursin(":",url)||occursin("(",url)
-    try
       url_ = "^"*url*"\$"
       url_ = replace(url_,":" => "(?<")
       url_ = replace(url_,">" => ">[a-z]+)")
       routes_patterns[Regex(url_)] = funtion
       @info("Url added",Regex(url_))
-    catch
-     @warn("Error in the format of the route $url, verify it\n \"VERB/get/:data>\" \n \"VERB/get/([0-9])\"")
-    end
   else
     routes[url] = funtion
+    push!(routes_array,url)
     @info("Url added",url)
   end
 end
