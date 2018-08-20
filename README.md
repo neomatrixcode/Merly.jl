@@ -28,7 +28,11 @@ Below are some of the features that are planned to be added in future versions o
 ### All contributions and suggestions are welcome !!!!
 
 #### Version 0.1.0
-- [ ] Julia version 0.7 syntax update
+- [x] Julia version 0.7 syntax update
+
+#### Version 0.1.1
+- [x] Julia version 1.0 syntax update
+- [x] Update and refactor
 
 #### Version 0.1.2
 - [ ] Implementation of a websocket module
@@ -69,13 +73,13 @@ end
   println("query: ",q.query)
   println("body: ",q.body)
 
-  q.headers["Content-Type"]= "text/plain"
+  res.headers["Content-Type"]= "text/plain"
 
   "I did something!"
 end
 
 Get("/data", (q,req,res)->(begin
-  q.headers["Content-Type"]= "text/plain"
+  res.headers["Content-Type"]= "text/plain"
   u*"data"
 end))
 
@@ -84,7 +88,7 @@ Post("/data", (q,req,res)->(begin
   println("params: ",q.params)
   println("query: ",q.query)
   println("body: ",q.body)
-  q.headers["Content-Type"]= "text/plain"
+  res.headers["Content-Type"]= "text/plain"
   global u="bye"
   "I did something!"
 end))
@@ -108,7 +112,7 @@ end
 
 ```julia
 @route POST|PUT|DELETE "/" begin
-  q.headers["Content-Type"]= "text/plain"
+  res.headers["Content-Type"]= "text/plain"
   # matches "POST /?title=foo&author=bar"
   title = q.query["title"]
   author = q.query["author"]
@@ -122,7 +126,7 @@ Payload
 ```
 ```julia
 @route POST|PUT|DELETE "/" begin
-  q.headers["Content-Type"]= "text/plain"
+  res.headers["Content-Type"]= "text/plain"
   res.body = "Payload data "*q.body["data1"]
 end
 ```
@@ -135,7 +139,7 @@ Payload
 ```
 ```julia
 @route POST|PUT|DELETE "/" begin
-  q.headers["Content-Type"]= "text/plain"
+  res.headers["Content-Type"]= "text/plain"
   "Payload data "*q.body["Data"]["Data1"]
 end
 ```
@@ -144,7 +148,7 @@ end
 
 ```julia
 @route POST|PUT|DELETE "/" begin
-  q.headers["Content-Type"]="application/json"
+  res.headers["Content-Type"]="application/json"
   res.status = 200 #optional
   "{\"data1\":2,\"data2\":\"t\"}"
 end
@@ -153,7 +157,7 @@ end
 or
 ```julia
 @route POST|PUT|DELETE "/" begin
-  q.headers["Content-Type"]="application/json"
+  res.headers["Content-Type"]="application/json"
   info=Dict()
   info["data1"]=2
   info["data2"]="t"
@@ -167,7 +171,7 @@ end
 
 ```julia
 @route POST|PUT|DELETE "/" begin
-  q.headers["Content-Type"]="application/xml"
+  res.headers["Content-Type"]="application/xml"
 
   "<ListAllMyBucketsResult>
     <Buckets>
@@ -222,6 +226,6 @@ server.useCORS(true)
 ### Bonus
 If you forgot the MIME type of a file you can use the next instruction
 ```julia
-q.headers["Content-Type"]= mimetypes["file extension"]
+res.headers["Content-Type"]= mimetypes["file extension"]
 ```
 the file mimetypes.jl was taken from https://github.com/JuliaWeb/HttpServer.jl  guys are great

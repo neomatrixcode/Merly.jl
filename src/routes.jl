@@ -11,7 +11,7 @@ PATCH = "PATCH"
 
 function NotFound(q,req,res)
   res.status = 404
-  res.body = notfound_message
+  return notfound_message
 end
 
 routes=Dict()

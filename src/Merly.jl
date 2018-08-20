@@ -1,11 +1,10 @@
-__precompile__()
 module Merly
 import Base.|
 
 using Sockets,
-      JSON,
-      HTTP,
-      XMLDict
+JSON,
+HTTP#,
+#XMLDict
 
 include("mimetypes.jl")
 include("routes.jl")
@@ -13,6 +12,12 @@ include("allformats.jl")
 include("webserver.jl")
 
 export app, @page, @route, GET,POST,PUT,DELETE,HEAD,OPTIONS,PATCH,Get,Post,Put,Delete
+
+mutable struct myresponse
+  status::Int
+  headers::Dict
+  body::String
+end
 
 cors=false::Bool
 root=pwd()
@@ -28,10 +33,9 @@ mutable struct Data
   query::Dict
   params::Any
   body::Any
-  headers::Dict
 end
-global notfound_message = "NotFound"::AbstractString
-global q=Data(Dict(),"","",Dict())
+global notfound_message = "NotFound"::String
+global q=Data(Dict(),"","")
 
 mutable struct Fram
   notfound::Function
@@ -82,25 +86,19 @@ function handler(request::HTTP.Messages.Request)
     q.query= HTTP.queryparams(data[2]);
   catch
   end
-   response = HTTP.Response()
 
-  try
-   q.body= _body(request.body,HTTP.header(request, "Content-Type"))
-  catch
-   q.body = _body(request.body,SubString("*/*"))
+  response = myresponse(200,Dict(),"")
+
+  header_content_type = HTTP.header(request, "Content-Type")
+  if(length(header_content_type)>0)
+    q.body= _body(request.body,header_content_type)
+  else
+    q.body = _body(request.body,SubString("*/*"))
   end
 
-  if cors
-   HTTP.setheader(response,"Access-Control-Allow-Origin" => "*")
-   HTTP.setheader(response,"Access-Control-Allow-Methods" => "POST,GET,OPTIONS")
-  end
-
-  HTTP.setheader(response,"Content-Type" => "text/plain" )
-
- try
-    response.status= 200
+  if (haskey(routes, searchroute))
     response.body = getindex(routes, searchroute)(q,request,response)
-  catch
+  else
     try
       response.body = processroute_pattern(searchroute,request,response)
     catch
@@ -108,39 +106,44 @@ function handler(request::HTTP.Messages.Request)
     end
   end
 
-  for (key, value) in q.headers
-    HTTP.setheader(response,key => value )
+  responsefinal = HTTP.Response(response.status,response.body)
+  if cors
+   HTTP.setheader(responsefinal,"Access-Control-Allow-Origin" => "*")
+   HTTP.setheader(responsefinal,"Access-Control-Allow-Methods" => "POST,GET,OPTIONS")
+  end
+  HTTP.setheader(responsefinal,"Content-Type" => "text/plain" )
+  for (key, value) in response.headers
+    HTTP.setheader(responsefinal,key => value )
   end
 
-
-  return response
+  return responsefinal
 end
 
 
 function app()
-global root
-global exten
-global cors
+  global root
+  global exten
+  global cors
 
   function useCORS(activate::Bool)
-      cors=activate
+    cors=activate
   end
 
   function notfound(text::AbstractString)
-      notfound_message= File(text)
+    notfound_message= File(text)
   end
 
   function webserverfiles(load::AbstractString)
-      if load=="*"
-        WebServer(root)
-      else
-        exten=load::AbstractString
-        WebServer(root)
-      end
+    if load=="*"
+      WebServer(root)
+    else
+      exten=load::AbstractString
+      WebServer(root)
+    end
   end
 
   function webserverpath(path::AbstractString)
-      root= path
+    root= path
   end
 
   function start(config=Dict("host" => "127.0.0.1","port" => 8000)::Dict)
@@ -148,7 +151,7 @@ global cors
     port= 8000
 
     try
-    host=Sockets.IPv4(get(config, "host", "127.0.0.1")::AbstractString)
+      host=Sockets.IPv4(get(config, "host", "127.0.0.1")::AbstractString)
     catch
       try
         host=Sockets.IPv6(get(config, "host", "127.0.0.1")::AbstractString)
@@ -157,7 +160,7 @@ global cors
     end
 
     try
-    port=get(config, "port", 8000)::Int
+      port=get(config, "port", 8000)::Int
     catch
       @info("Port 8000 ")
     end
@@ -177,6 +180,7 @@ global cors
       end
     end
   end
+  @info("App created")
   return Fram(notfound,start,useCORS,webserverfiles,webserverpath)
 end
 end # module
