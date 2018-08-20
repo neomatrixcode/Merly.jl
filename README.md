@@ -8,7 +8,7 @@
   <img src="https://codecov.io/gh/codeneomatrix/Merly.jl/branch/master/graph/badge.svg" />
 </a>
 &nbsp;&nbsp
-<a href="https://pkg.julialang.org/detail/Merly"><img src="http://pkg.julialang.org/badges/Merly_0.7.svg"></a>
+<a href="https://pkg.julialang.org/detail/Merly"><img src="https://pkg.julialang.org/badges/Merly_0.4.svg"></a>
  &nbsp;&nbsp;
 <a href="https://raw.githubusercontent.com/codeneomatrix/Merly.jl/master/LICENSE.md"><img src="https://img.shields.io/badge/license-MIT-blue.svg"></a>
 
