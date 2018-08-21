@@ -102,10 +102,18 @@ Features available in the current release
 ------------------
 ### Parameters dictionary
 ```julia
+# :data> does not accept special symbols (!,#,$,etc)
 @route GET "/get/:data>" begin
   # matches "GET /get/foo" and "GET /get/bar"
   # q.params["data"] is 'foo' or 'bar'
   "get this back: "*q.params["data"]
+end
+
+# it is possible to use regular expressions, enclosing them always between '(' ')'
+@route GET "/regex/(\\w+\\d+)" begin
+  # matches "GET /regex/test1" and "GET /regex/test125"
+  # q.params[1] is 'test1' or 'test125'
+   "datos $(q.params[1])"
 end
 ```
 ### url query dictionary

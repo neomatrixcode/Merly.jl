@@ -32,6 +32,10 @@ u="hello"
   "get this back: {{data}}"
 end
 
+@route GET "/regex/(\\w+\\d+)" begin
+   "datos $(q.params[1])"
+end
+
 @route POST "/post" begin
   res.body = "I did something!"
 end
@@ -135,6 +139,9 @@ end
 
 @test r.headers == Pair{SubString{String},SubString{String}}["Content-Type"=>"text/html", "Access-Control-Allow-Origin"=>"*", "Access-Control-Allow-Methods"=>"POST,GET,OPTIONS", "Transfer-Encoding"=>"chunked"]
 
+
+r= HTTP.get("http://$(ip):$(port)/regex/test1")
+@test String(r.body) == "datos test1"
 #@btime HTTP.get("http://$(ip):$(port)/?hola=5") # 3.864 ms (8304 allocations: 381.20 KiB)
 #@btime HTTP.get("http://$(ip):$(port)/hola/usuario") # 4.211 ms (7685 allocations: 353.44 KiB)
 #@btime r= HTTP.get("http://$(ip):$(port)/get/testdata") # 3.906 ms (7693 allocations: 353.78 KiB)

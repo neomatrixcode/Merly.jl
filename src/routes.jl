@@ -24,7 +24,7 @@ function createurl(url::String,funtion::Function)
   if occursin(":",url)||occursin("(",url)
       url_ = "^"*url*"\$"
       url_ = replace(url_,":" => "(?<")
-      url_ = replace(url_,">" => ">[a-z]+)")
+      url_ = replace(url_,">" => ">\\w+)")
       routes_patterns[Regex(url_)] = funtion
       push!(routes_patterns_array,Regex(url_))
       @info("Url added",Regex(url_))
