@@ -72,14 +72,14 @@ r = HTTP.get("http://$(ip):$(port)/")
 @test r.status == 200
 @test String(r.body) == "Hello World!"
 
-#=r = HTTP.get("http://$(ip):$(port)/hola/usuario")
+r = HTTP.get("http://$(ip):$(port)/hola/usuario")
 @test r.status == 200
 @test String(r.body) == "<b>Hello usuario!</b>"
 
 r = HTTP.get("http://$(ip):$(port)/get/testdata")
 @test r.status == 200
 @test String(r.body) == "get this back: testdata"
-=#
+
 r = HTTP.get("http://$(ip):$(port)/data?hola=1")
 @test r.status == 200
 @test String(r.body) == "hellodata"
@@ -135,4 +135,6 @@ end
 
 @test r.headers == Pair{SubString{String},SubString{String}}["Content-Type"=>"text/html", "Access-Control-Allow-Origin"=>"*", "Access-Control-Allow-Methods"=>"POST,GET,OPTIONS", "Transfer-Encoding"=>"chunked"]
 
-#@btime HTTP.get("http://$(ip):$(port)/?hola=5")
+#@btime HTTP.get("http://$(ip):$(port)/?hola=5") # 3.864 ms (8304 allocations: 381.20 KiB)
+#@btime HTTP.get("http://$(ip):$(port)/hola/usuario") # 4.211 ms (7685 allocations: 353.44 KiB)
+#@btime r= HTTP.get("http://$(ip):$(port)/get/testdata") # 3.906 ms (7693 allocations: 353.78 KiB)

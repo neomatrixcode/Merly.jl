@@ -17,6 +17,7 @@ end
 routes=Dict()
 routes_array=[]
 routes_patterns=Dict()
+routes_patterns_array=[]
 routes["notfound"] = NotFound
 
 function createurl(url::String,funtion::Function)
@@ -25,6 +26,7 @@ function createurl(url::String,funtion::Function)
       url_ = replace(url_,":" => "(?<")
       url_ = replace(url_,">" => ">[a-z]+)")
       routes_patterns[Regex(url_)] = funtion
+      push!(routes_patterns_array,Regex(url_))
       @info("Url added",Regex(url_))
   else
     routes[url] = funtion

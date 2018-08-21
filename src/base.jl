@@ -34,24 +34,13 @@ function File(file::String)
     return String(read(path))
 end
 
-function resolveroute(ruta::String)
-  for key in keys(routes_patterns)
-    params= match(key,ruta)
-    if params!= nothing
-      return params, getindex(routes_patterns,key)
+function searchroute_regex(ruta::String)
+  for i in 1:length(routes_patterns_array)
+    if(occursin(routes_patterns_array[i],ruta))
+      return routes_patterns_array[i]
     end
-  end
-end
-
-function processroute_pattern(searchroute::String,request,response)
-  q.params, _function  = resolveroute(searchroute)
-  respond = _function(q,request,response)
-  sal = collect((m.match for m = eachmatch(Regex("{{([a-z])+}}"), respond)))
-  for i in sal
-    respond = replace(respond,Regex(i) => q.params["$(i[3:end-2])"])
-  end
-  response.status = 200
-  return respond
+ end
+ return ""
 end
 
 function handler(request::HTTP.Messages.Request)
@@ -73,11 +62,18 @@ function handler(request::HTTP.Messages.Request)
   if (searchroute in routes_array)
     response.body = getindex(routes, searchroute)(q,request,response)
   else
-    #try
-    #  response.body = processroute_pattern(searchroute,request,response)
-    #catch
-     response.body = getindex(routes, "notfound")(q,request,response)
-    #end
+    pattern = searchroute_regex(searchroute)
+    if (typeof(pattern) <:Regex)
+      q.params = match(pattern,searchroute)
+      _function = getindex(routes_patterns,pattern)
+      response.body = _function(q,request,response)
+      sal = collect((m.match for m = eachmatch(Regex("{{([a-z])+}}"), response.body)))
+      for i in sal
+        response.body = replace(response.body,Regex(i) => q.params["$(i[3:end-2])"])
+      end
+    else
+      response.body = getindex(routes, "notfound")(q,request,response)
+    end
   end
   responsefinal = HTTP.Response(response.status,my_headers, body=response.body)
   for (key, value) in response.headers

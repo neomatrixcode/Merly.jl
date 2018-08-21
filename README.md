@@ -30,20 +30,19 @@ Below are some of the features that are planned to be added in future versions o
 #### Version 0.1.0
 - [x] Julia version 0.7 syntax update
 
-#### Version 0.1.1
+#### Version 0.2.0
 - [x] Julia version 1.0 syntax update
 - [x] Update and refactor
 
-#### Version 0.1.2
+#### Version 0.2.2
 - [ ] Implementation of a websocket module
 
-#### Version 0.1.3
+#### Version 0.2.3
 - [ ] Performance improvement
 
 
 Installing
 ----------
-```julia
 ```julia
 Pkg> add Diana                                             #Release
 pkg> add Diana#master                                      #Development
