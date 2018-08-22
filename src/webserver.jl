@@ -7,7 +7,7 @@ function files(arch::Array{Any,1})
     ext= split(roop,".")
     if(length(ext)>1) extension=mimetypes[ext[2]] end
     data = File(roop[2:end])
-    createurl("GET"*roop,(q,req,res)->(begin
+    createurl("GET"*roop,(req,res)->(begin
       res.headers["Content-Type"]= extension
       res.status = 200
       res.body= data

@@ -9,7 +9,7 @@ HEAD = "HEAD"
 OPTIONS = "OPTIONS"
 PATCH = "PATCH"
 
-function NotFound(q,req,res)
+function NotFound(req,res)
   res.status = 404
   return notfound_message
 end
@@ -37,7 +37,7 @@ end
 
 macro page(exp1,exp2)
   quote
-    createurl("GET"*$exp1,(q,req,res)->$exp2)
+    createurl("GET"*$exp1,(req,res)->$exp2)
   end
 end
 
@@ -45,7 +45,7 @@ macro route(exp1,exp2,exp3)
   quote
     verbs= split($exp1,"|")
     for i=verbs
-      createurl(i*$exp2,(q,req,res)->$exp3)
+      createurl(i*$exp2,(req,res)->$exp3)
     end
   end
 end

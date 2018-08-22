@@ -69,25 +69,25 @@ end
 end
 
 @route POST|PUT|DELETE "/" begin
-  println("params: ",q.params)
-  println("query: ",q.query)
-  println("body: ",q.body)
+  println("params: ",req.params)
+  println("query: ",req.query)
+  println("body: ",req.body)
 
   res.headers["Content-Type"]= "text/plain"
 
   "I did something!"
 end
 
-Get("/data", (q,req,res)->(begin
+Get("/data", (req,res)->(begin
   res.headers["Content-Type"]= "text/plain"
   u*"data"
 end))
 
 
-Post("/data", (q,req,res)->(begin
-  println("params: ",q.params)
-  println("query: ",q.query)
-  println("body: ",q.body)
+Post("/data", (req,res)->(begin
+  println("params: ",req.params)
+  println("query: ",req.query)
+  println("body: ",req.body)
   res.headers["Content-Type"]= "text/plain"
   global u="bye"
   "I did something!"
@@ -100,20 +100,35 @@ server.start(Dict("host" => "127.0.0.1","port" => 8000))
 
 Features available in the current release
 ------------------
+### Data stored on request (req)
+```
+  query   # data from the query url
+  params  # data from the regular expresion
+  body    # body of the request in dict or plane text
+  version # the protocol version
+  headers # the headers sent by the client
+```
+### Data stored on response (req)
+```
+  status
+  headers
+  body
+```
+
 ### Parameters dictionary
 ```julia
-# :data> does not accept special symbols (!,#,$,etc)
 @route GET "/get/:data>" begin
   # matches "GET /get/foo" and "GET /get/bar"
-  # q.params["data"] is 'foo' or 'bar'
-  "get this back: "*q.params["data"]
+  # not accept special symbols (!,#,$,etc)
+  # req.params["data"] is 'foo' or 'bar'
+  "get this back: "*req.params["data"]
 end
 
 # it is possible to use regular expressions, enclosing them always between '(' ')'
 @route GET "/regex/(\\w+\\d+)" begin
   # matches "GET /regex/test1" and "GET /regex/test125"
-  # q.params[1] is 'test1' or 'test125'
-   "datos $(q.params[1])"
+  # req.params[1] is 'test1' or 'test125'
+   "datos $(req.params[1])"
 end
 ```
 ### url query dictionary
@@ -122,8 +137,8 @@ end
 @route POST|PUT|DELETE "/" begin
   res.headers["Content-Type"]= "text/plain"
   # matches "POST /?title=foo&author=bar"
-  title = q.query["title"]
-  author = q.query["author"]
+  title = req.query["title"]
+  author = req.query["author"]
   "I did something!"
 end
 ```
@@ -135,7 +150,7 @@ Payload
 ```julia
 @route POST|PUT|DELETE "/" begin
   res.headers["Content-Type"]= "text/plain"
-  res.body = "Payload data "*q.body["data1"]
+  res.body = "Payload data "*req.body["data1"]
 end
 ```
 
@@ -148,7 +163,7 @@ Payload
 ```julia
 @route POST|PUT|DELETE "/" begin
   res.headers["Content-Type"]= "text/plain"
-  "Payload data "*q.body["Data"]["Data1"]
+  "Payload data "*req.body["Data"]["Data1"]
 end
 ```
 

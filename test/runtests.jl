@@ -33,7 +33,11 @@ u="hello"
 end
 
 @route GET "/regex/(\\w+\\d+)" begin
-   "datos $(q.params[1])"
+
+  println("req.version ",req.version)
+  println("req.headers ",req.headers)
+
+   "datos $(req.params[1])"
 end
 
 @route POST "/post" begin
@@ -41,26 +45,26 @@ end
 end
 
 @route POST|PUT|DELETE "/" begin
-  println("params: ",q.params)
-  println("query: ",q.query)
-  println("body: ",q.body)
+  println("params: ",req.params)
+  println("query: ",req.query)
+  println("body: ",req.body)
 
   res.headers["Content-Type"]= "text/plain"
 
   "I did something!"
 end
 
-Get("/data", (q,req,res)->(begin
+Get("/data", (req,res)->(begin
   res.headers["Content-Type"]= "text/plain"
-  println("params: ",q.params)
-  println("query: ",q.query)
+  println("params: ",req.params)
+  println("query: ",req.query)
   u*"data"
 end))
 
-Post("/data", (q,req,res)->(begin
-  println("params: ",q.params)
-  println("query: ",q.query)
-  println("body: ",q.body)
+Post("/data", (req,res)->(begin
+  println("params: ",req.params)
+  println("query: ",req.query)
+  println("body: ",req.body)
   res.headers["Content-Type"]= "text/plain"
   global u="bye"
   "I did something!"

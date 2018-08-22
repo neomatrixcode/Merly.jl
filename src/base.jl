@@ -2,15 +2,23 @@ mutable struct myresponse
   status::Int
   headers::Dict
   body::String
+  function myresponse(code)
+      new(code,Dict(),"")
+  end
 end
 
-mutable struct Data
+mutable struct myrequest
   query::Dict
-  params::Any
+  params::RegexMatch
   body::Any
+  version::VersionNumber
+  headers::Array
+  function myrequest()
+    new(Dict(),match(r"\s"," "),"",VersionNumber(1),[])
+  end
 end
 
-struct Fram
+struct App
   notfound::Function
   start::Function
   useCORS::Function
@@ -27,7 +35,7 @@ elseif Sys.iswindows() && root[end]=='\\'
 end
 exten="\"\""::AbstractString
 notfound_message = "NotFound"::String
-q=Data(Dict(),"","")
+
 
 function File(file::String)
     path = normpath(root, file)
@@ -47,32 +55,37 @@ function handler(request::HTTP.Messages.Request)
   data = split(request.target,"?")
   url=data[1]
   searchroute = request.method*url
-  if (length(data)>1) q.query= HTTP.queryparams(data[2]) end
-  response = myresponse(200,Dict(),"")
+
+  my_request=myrequest()
+  my_request.version=request.version
+  my_request.headers=request.headers
+  if (length(data)>1) my_request.query= HTTP.queryparams(data[2]) end
+
+  response = myresponse(200)
 
   if ((request.method=="POST"  )||(request.method=="PUT"  )||(request.method=="PATCH"))
     header_content_type = HTTP.header(request, "Content-Type")
     if(length(header_content_type)>0)
-      q.body= getindex(formats, header_content_type)(String(request.body))
+      my_request.body= getindex(formats, header_content_type)(String(request.body))
     else
-      q.body = getindex(formats, "*/*")(String(request.body))
+      my_request.body = getindex(formats, "*/*")(String(request.body))
     end
   end
 
   if (searchroute in routes_array)
-    response.body = getindex(routes, searchroute)(q,request,response)
+    response.body = getindex(routes, searchroute)(my_request,response)
   else
     pattern = searchroute_regex(searchroute)
     if (typeof(pattern) <:Regex)
-      q.params = match(pattern,searchroute)
+      my_request.params = match(pattern,searchroute)
       _function = getindex(routes_patterns,pattern)
-      response.body = _function(q,request,response)
+      response.body = _function(my_request,response)
       sal = collect((m.match for m = eachmatch(Regex("{{([a-z])+}}"), response.body)))
       for i in sal
-        response.body = replace(response.body,Regex(i) => q.params["$(i[3:end-2])"])
+        response.body = replace(response.body,Regex(i) => my_request.params["$(i[3:end-2])"])
       end
     else
-      response.body = getindex(routes, "notfound")(q,request,response)
+      response.body = getindex(routes, "notfound")(my_request,response)
     end
   end
   responsefinal = HTTP.Response(response.status,my_headers, body=response.body)
@@ -126,7 +139,7 @@ function app()
   end
 
   @info("App created")
-  return Fram(notfound,start,useCORS,webserverfiles,webserverpath)
+  return App(notfound,start,useCORS,webserverfiles,webserverpath)
 end
 
 #HSTS     HTTP.setheader(response,"Strict-Transport-Security" => "max-age=10886400; includeSubDomains; preload"
