@@ -9,16 +9,21 @@ HEAD = "HEAD"
 OPTIONS = "OPTIONS"
 PATCH = "PATCH"
 
-function NotFound(req,res)
-  res.status = 404
-  return notfound_message
-end
+
 
 routes=Dict()
 routes_array=[]
 routes_patterns=Dict()
 routes_patterns_array=[]
-routes["notfound"] = NotFound
+
+function addnotfound(message::String)
+  routes["notfound"] = (req,res) -> begin
+    res.status = 404
+    return message
+  end
+end
+
+addnotfound("NotFound")
 
 function createurl(url::String,funtion::Function)
   if occursin(":",url)||occursin("(",url)

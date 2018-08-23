@@ -245,6 +245,11 @@ server.notfound("notfound.html")
 ```julia
 server.useCORS(true)
 ```
+###Headers always
+You can add headers that will always be returned in each request
+```julia
+server.headersalways("Strict-Transport-Security","max-age=10886400; includeSubDomains; preload")
+```
 
 ### Bonus
 If you forgot the MIME type of a file you can use the next instruction

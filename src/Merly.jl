@@ -10,7 +10,6 @@ include("base.jl")
 include("mimetypes.jl")
 include("routes.jl")
 include("allformats.jl")
-include("webserver.jl")
 
 export app, @page, @route, GET,POST,PUT,DELETE,HEAD,OPTIONS,PATCH,Get,Post,Put,Delete
 

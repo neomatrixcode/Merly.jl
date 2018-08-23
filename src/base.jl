@@ -18,29 +18,7 @@ mutable struct myrequest
   end
 end
 
-struct App
-  notfound::Function
-  start::Function
-  useCORS::Function
-  webserverfiles::Function
-  webserverpath::Function
-end
-
 my_headers= HTTP.mkheaders(["Content-Type" => "text/plain"])
-root=pwd()
-if root[end]=='/'
-  root=root[1:end-1]
-elseif Sys.iswindows() && root[end]=='\\'
-  root=root[1:end-1]
-end
-exten="\"\""::AbstractString
-notfound_message = "NotFound"::String
-
-
-function File(file::String)
-    path = normpath(root, file)
-    return String(read(path))
-end
 
 function searchroute_regex(ruta::String)
   for i in 1:length(routes_patterns_array)
@@ -96,50 +74,108 @@ function handler(request::HTTP.Messages.Request)
 end
 
 
-function app()
-  global exten
+struct app
+  notfound::Function
+  start::Function
+  useCORS::Function
+  webserverfiles::Function
+  webserverpath::Function
+  headersalways::Function
 
-  function useCORS(activate::Bool)
-   HTTP.setheader(my_headers,"Access-Control-Allow-Origin" => "*")
-   HTTP.setheader(my_headers,"Access-Control-Allow-Methods" => "POST,GET,OPTIONS")
-   return true
-  end
+  function app()
+    root=pwd()
 
-  function notfound(text::String)
-    if occursin(".html", text)
-    notfound_message= File(text)
-    else
-      notfound_message= text
+    function File(file::String)
+      path = normpath(root, file)
+      return String(read(path))
     end
-  end
 
-  function webserverfiles(load::AbstractString)
-    if load=="*"
-      WebServer(root)
-    else
-      exten=load::AbstractString
-      WebServer(root)
+    function files(arch::Array{Any,1})
+      roop=""
+      for i=1:length(arch)
+        roop=replace(replace(arch[i],root => ""),"\\" => "/")
+        extension="text/plain"
+        ext= split(roop,".")
+        if(length(ext)>1)
+          my_extension = ext[2]
+          if (haskey(mimetypes,my_extension))
+            extension=mimetypes[my_extension]
+          end
+        end
+        data = File(roop[2:end])
+        createurl("GET"*roop,(req,res)->(begin
+          res.headers["Content-Type"]= extension
+          res.status = 200
+          res.body= data
+        end))
+      end
     end
-  end
 
-  function webserverpath(path::AbstractString)
-    root= path
-  end
+    function WebServer(rootte::String,exten::String)
+      cd(rootte)
+      ls= readdir()
+      arrfile=[]
+      arrdir=[]
+      for i=1:length(ls)
+        if isfile(ls[i])
+          if ( (occursin(Regex("((.)*\\.(?!($exten)))"),ls[i])) && (!occursin(r"^(\.)",ls[i])))
+            push!(arrfile,normpath(rootte,ls[i]))
+          end
+        end
+        if isdir(ls[i])
+          push!(arrdir,normpath(rootte,ls[i]))
+        end
+      end
+      files(arrfile)
+      for i=1:length(arrdir)
+        WebServer(arrdir[i],exten)
+      end
+    end
 
-  function start(config=Dict("host" => "127.0.0.1","port" => 8000)::Dict)
-    host= Sockets.IPv4("127.0.0.1")
-    port=get(config, "port", 8000)::Int
-    my_host = get(config, "host", "127.0.0.1")::String
-    if ('.' in my_host) host=Sockets.IPv4(my_host) end
-    if (':' in my_host) host=Sockets.IPv6(my_host) end
-    http = (req)-> handler(req)
-    myserver= HTTP.Servers.Server(http, stdout)
-    @info("Listening on: $(host) : $(port)")
-    return HTTP.Servers.serve(myserver, host, port)
-  end
+    function useCORS(activate::Bool)
+     HTTP.setheader(my_headers,"Access-Control-Allow-Origin" => "*")
+     HTTP.setheader(my_headers,"Access-Control-Allow-Methods" => "POST,GET,OPTIONS")
+     return true
+    end
 
-  @info("App created")
-  return App(notfound,start,useCORS,webserverfiles,webserverpath)
+    function headersalways(head::AbstractString,value::AbstractString)
+      HTTP.setheader(my_headers,head => value)
+    end
+
+    function notfound(text::String)
+      if occursin(".html", text)
+        notfound_message= File(text)
+       addnotfound(notfound_message)
+      else
+       addnotfound(text)
+      end
+    end
+
+    function webserverfiles(load::AbstractString)
+      if load=="*"
+        WebServer(root," ")
+      else
+        WebServer(root,load)
+      end
+    end
+
+    function webserverpath(path::AbstractString)
+      root = path
+    end
+
+    function start(config=Dict("host" => "127.0.0.1","port" => 8000)::Dict)
+      host= Sockets.IPv4("127.0.0.1")
+      port=get(config, "port", 8000)::Int
+      my_host = get(config, "host", "127.0.0.1")::String
+      if ('.' in my_host) host=Sockets.IPv4(my_host) end
+      if (':' in my_host) host=Sockets.IPv6(my_host) end
+      http = (req)-> handler(req)
+      myserver= HTTP.Servers.Server(http, stdout)
+      @info("Listening on: $(host) : $(port)")
+      return HTTP.Servers.serve(myserver, host, port)
+    end
+
+    @info("App created")
+    return new(notfound,start,useCORS,webserverfiles,webserverpath,headersalways)
+  end
 end
-
-#HSTS     HTTP.setheader(response,"Strict-Transport-Security" => "max-age=10886400; includeSubDomains; preload"
