@@ -3,8 +3,8 @@ import Base.|
 
 using Sockets,
 JSON,
-HTTP#,
-#XMLDict
+HTTP,
+XMLDict
 
 include("base.jl")
 include("mimetypes.jl")
