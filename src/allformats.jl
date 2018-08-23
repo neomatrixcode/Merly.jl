@@ -14,7 +14,7 @@ end
 
 formats = Dict(
     "application/json" =>  tojson
-  , "application/xml"  =>  toxml
+  #, "application/xml"  =>  toxml
   , "*/*"              =>  toplanetext
   , "text/plain"       =>  toplanetext
 )
