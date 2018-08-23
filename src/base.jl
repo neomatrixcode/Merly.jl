@@ -43,7 +43,7 @@ function handler(request::HTTP.Messages.Request)
 
   if ((request.method=="POST"  )||(request.method=="PUT"  )||(request.method=="PATCH"))
     header_content_type = HTTP.header(request, "Content-Type")
-    if(length(header_content_type)>0)
+    if((length(header_content_type)>0) && (haskey(formats,header_content_type)))
       my_request.body= getindex(formats, header_content_type)(String(request.body))
     else
       my_request.body = getindex(formats, "*/*")(String(request.body))

@@ -94,7 +94,7 @@ r = HTTP.get("http://$(ip):$(port)/data?hola=1")
 @test String(r.body) == "hellodata"
 
 myjson = Dict("query"=>"data")
-my_headers = HTTP.mkheaders(["Accept" => "application/json","Content-Type" => "application/json"])
+my_headers = HTTP.mkheaders(["Accept" => "application/json","Content-Type" => "application/xml"])
 r = HTTP.post("http://$(ip):$(port)/data",my_headers,JSON.json(myjson))
 @test r.status == 200
 @test String(r.body) == "I did something!"
@@ -137,16 +137,6 @@ r = HTTP.get("http://$(ip):$(port)/prueba.txt")
 @test r.status == 200
 @test String(r.body) == "probando webserver"
 @test r.headers == Pair{SubString{String},SubString{String}}["Content-Type"=>"text/plain", "Access-Control-Allow-Origin"=>"*", "Access-Control-Allow-Methods"=>"POST,GET,OPTIONS", "Strict-Transport-Security"=>"max-age=10886400; includeSubDomains; preload", "Transfer-Encoding"=>"chunked"]
-
-r = HTTP.get("http://$(ip):$(port)/Index.html")
-@test r.status == 200
-if Sys.iswindows()
-  @test String(r.body) == "<!DOCTYPE html>\r\n<html lang=\"en\">\r\n<head>\r\n\t<meta charset=\"UTF-8\">\r\n\t<title>Document</title>\r\n</head>\r\n<body>\r\n<h1>hola</h1>\r\n</body>\r\n</html>"
-else
-  @test String(r.body) == "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n\t<meta charset=\"UTF-8\">\n\t<title>Document</title>\n</head>\n<body>\n<h1>hola</h1>\n</body>\n</html>"
-end
-@test r.headers == Pair{SubString{String},SubString{String}}["Content-Type"=>"text/html", "Access-Control-Allow-Origin"=>"*", "Access-Control-Allow-Methods"=>"POST,GET,OPTIONS", "Strict-Transport-Security"=>"max-age=10886400; includeSubDomains; preload", "Transfer-Encoding"=>"chunked"]
-
 
 r= HTTP.get("http://$(ip):$(port)/regex/test1")
 @test String(r.body) == "datos test1"
