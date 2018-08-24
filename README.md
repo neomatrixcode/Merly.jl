@@ -1,5 +1,5 @@
 # Merly.jl
-
+<p align="center"><img src="merly.png" width="25%" ></p>
 <p align="center">
 <strong>Micro framework for web programming in Julia..</strong>
 <br><br>
