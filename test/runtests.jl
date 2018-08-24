@@ -109,6 +109,7 @@ r = HTTP.post("http://$(ip):$(port)/post",my_headers,JSON.json(myjson))
 @test r.status == 200
 @test String(r.body) == "I did something!"
 
+my_headers = HTTP.mkheaders(["Accept" => "application/json","Content-Type" => "application/json"])
 r = HTTP.post("http://$(ip):$(port)/",my_headers,JSON.json(myjson))
 @test r.status == 200
 @test String(r.body) == "I did something!"
