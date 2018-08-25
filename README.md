@@ -263,30 +263,30 @@ the file mimetypes.jl was taken from https://github.com/JuliaWeb/HttpServer.jl  
 For the test a simple application was created in heroku (https://github.com/codeneomatrix/merly-app) using merly.
 The software used for the test was wrk (https://github.com/wg/wrk) and the computer used for the test:
 ```
-Arquitectura:                        x86_64
-modo(s) de operación de las CPUs:    32-bit, 64-bit
-Orden de los bytes:                  Little Endian
-CPU(s):                              8
-Lista de la(s) CPU(s) en línea:      0-7
-Hilo(s) de procesamiento por núcleo: 2
-Núcleo(s) por «socket»:              4
-«Socket(s)»                          1
-Modo(s) NUMA:                        1
-ID de fabricante:                    GenuineIntel
-Familia de CPU:                      6
-Modelo:                              60
-Nombre del modelo:                   Intel(R) Core(TM) i7-4810MQ CPU @ 2.80GHz
-Revisión:                            3
-CPU MHz:                             798.150
-CPU MHz máx.:                        3800,0000
-CPU MHz mín.:                        800,0000
-BogoMIPS:                            5589.64
-Virtualización:                      VT-x
-Caché L1d:                           32K
-Caché L1i:                           32K
-Caché L2:                            256K
-Caché L3:                            6144K
-CPU(s) del nodo NUMA 0:              0-7
+Architecture: x86_64
+mode(s) of operation of the CPUs: 32-bit, 64-bit
+Byte order: Little Endian
+CPU (s): 8
+List of online CPU (s): 0-7
+Processing thread (s) per core: 2
+Nucleus (s) by «socket»: 4
+«Socket (s)» 1
+NUMA mode (s): 1
+Manufacturer ID: GenuineIntel
+CPU family: 6
+Model: 60
+Model name: Intel (R) Core (TM) i7-4810MQ CPU @ 2.80GHz
+Review: 3
+CPU MHz: 798,150
+Max. CPU MHz: 3800,0000
+CPU MHz min .: 800,0000
+BogoMIPS: 5589.64
+Virtualization: VT-x
+Cache L1d: 32K
+Cache L1i: 32K
+Cache L2: 256K
+Cache L3: 6144K
+CPU (s) of the NUMA node 0: 0-7
 
 cat /proc/meminfo
 MemTotal:        7761928 kB
