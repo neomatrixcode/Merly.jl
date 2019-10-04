@@ -44,8 +44,8 @@ Below are some of the features that are planned to be added in future versions o
 Installing
 ----------
 ```julia
-Pkg> add Diana                                             #Release
-pkg> add Diana#master                                      #Development
+Pkg> add Merly                                             #Release
+pkg> add Merly#master                                      #Development
 ```
 
 ## Example
