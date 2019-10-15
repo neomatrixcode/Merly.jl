@@ -58,7 +58,7 @@ function handler(request::HTTP.Request)
       my_request.params = match(pattern,searchroute)
       _function = getindex(routes_patterns,pattern)
       response.body = _function(my_request,response)
-      sal = collect((m.match for m = eachmatch(Regex("{{([a-z])+}}"), response.body)))
+      sal = collect((m.match for m = eachmatch(Regex("{{(\\w\\d*)+}}"), response.body)))
       for i in sal
         response.body = replace(response.body,Regex(i) => my_request.params["$(i[3:end-2])"])
       end
@@ -142,15 +142,15 @@ struct app
     function notfound(text::String)
       if occursin(".html", text)
         notfound_message= File(text)
-       addnotfound(notfound_message)
+        addnotfound(notfound_message)
       else
-       addnotfound(text)
+        addnotfound(text)
       end
     end
 
     function webserverfiles(load::AbstractString)
       if load=="*"
-        WebServer(""," ")
+        WebServer("","")
       else
         WebServer("",load)
       end
@@ -160,17 +160,15 @@ struct app
       rootbase = path
     end
 
-    function start(config=Dict("host" => "127.0.0.1","port" => 8000)::Dict)
-      host= Sockets.IPv4("127.0.0.1")
+    function start(;config=Dict("host" => "127.0.0.1","port" => 8000)::Dict,verbose=false::Bool)
       port=get(config, "port", 8000)::Int
       my_host = get(config, "host", "127.0.0.1")::String
       if ('.' in my_host) host=Sockets.IPv4(my_host) end
       if (':' in my_host) host=Sockets.IPv6(my_host) end
 
-      HTTP.serve(handler, host, port,verbose=true)
+      HTTP.serve(handler, host, port,verbose=verbose)
     end
 
-    #@info("App created")
     return new(notfound,start,useCORS,webserverfiles,webserverpath,headersalways)
   end
 end
