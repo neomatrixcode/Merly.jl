@@ -85,8 +85,8 @@ struct app
   function app()
     rootbase=pwd()
 
-    function File(roop,file::String)
-      path = normpath(roop, file)
+    function File(roop::String,file::String)
+      path = normpath(rootbase*"\\"*roop, file)
       return String(read(path))
     end
 
@@ -95,9 +95,7 @@ struct app
       return String(read(path))
     end
 
-    function files(roop,archivo)
-        file=""
-        file=replace(replace(archivo,file => ""),"\\" => "/")
+    function files(roop::String,file::String)
         extension="text/plain"
         ext= split(file,".")
         if(length(ext)>1)
@@ -106,26 +104,27 @@ struct app
             extension=mimetypes[my_extension]
           end
         end
-        @info("roop", roop)
         data = File(roop,file[1:end])
-        createurl("GET/"*file,(req,res)->(begin
+        roop = replace(roop,"\\" => "/")
+        createurl("GET"*roop*"/"*file,(req,res)->(begin
           res.headers["Content-Type"]= extension
           res.status = 200
           res.body= data
         end))
     end
 
-    function WebServer(rootb::String,exten::String)
-      cd(rootb)
+    function WebServer(ruta::String,exten::String)
+      cd(rootbase*"/"*ruta)
       ls= readdir()
       for i=1:length(ls)
+        cd(rootbase*"/"*ruta)
         if isfile(ls[i])
           if ( (occursin(Regex("((.)*\\.(?!($exten)))"),ls[i])) && (!occursin(r"^(\.)",ls[i])))
-            files(rootb,ls[i])
+            files(ruta,ls[i])
           end
         end
         if isdir(ls[i])
-          WebServer(rootb*"\\"*ls[i],exten)
+          WebServer(ruta*"\\"*ls[i],exten)
         end
       end
     end
@@ -151,9 +150,9 @@ struct app
 
     function webserverfiles(load::AbstractString)
       if load=="*"
-        WebServer(rootbase," ")
+        WebServer(""," ")
       else
-        WebServer(rootbase,load)
+        WebServer("",load)
       end
     end
 
