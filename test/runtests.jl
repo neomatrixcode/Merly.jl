@@ -41,6 +41,7 @@ end
 
 @route POST "/post" begin
   res.body = "I did something!"
+  "I did something!"
 end
 
 @route POST|PUT|DELETE "/" begin
@@ -70,8 +71,8 @@ Post("/data", (req,res)->(begin
 end))
 
 server.webserverfiles("jl")
-#server.webserverpath("C:\\Users\\ito\\.julia\\dev\\Merly\\prueba")
-#server.webserverfiles("*")
+server.webserverpath("C:\\Users\\ito\\.julia\\dev\\Merly\\test")
+server.webserverfiles("*")
 
 @async server.start(Dict("host" => "$(ip)","port" => port))
 
@@ -123,16 +124,13 @@ r = HTTP.delete("http://$(ip):$(port)/")
 @test String(r.body) == "I did something!"
 @test r.headers == Pair{SubString{String},SubString{String}}["Content-Type"=>"text/plain", "Access-Control-Allow-Origin"=>"*", "Access-Control-Allow-Methods"=>"POST,GET,OPTIONS", "Strict-Transport-Security"=>"max-age=10886400; includeSubDomains; preload", "Transfer-Encoding"=>"chunked"]
 
-try
+#=try
 r = HTTP.get("http://$(ip):$(port)/nada")
 catch e
-  @test e.status == 404
-  if Sys.iswindows()
-  @test String(e.response.body) == "<!DOCTYPE html>\r\n<html lang=\"en\">\r\n<head>\r\n\t<meta charset=\"UTF-8\">\r\n\t<title>Document</title>\r\n</head>\r\n<body>\r\nNot found!!!\r\n</body>\r\n</html>"
-  else
+
     @test String(e.response.body) == "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n\t<meta charset=\"UTF-8\">\n\t<title>Document</title>\n</head>\n<body>\nNot found!!!\n</body>\n</html>"
-  end
-end
+
+end=#
 
 r = HTTP.get("http://$(ip):$(port)/prueba.txt")
 @test r.status == 200

@@ -29,7 +29,7 @@ function searchroute_regex(ruta::String)
  return ""
 end
 
-function handler(request::HTTP.Messages.Request)
+function handler(request::HTTP.Request)
   data = split(request.target,"?")
   url=data[1]
   searchroute = request.method*url
@@ -83,52 +83,50 @@ struct app
   headersalways::Function
 
   function app()
-    root=pwd()
+    rootbase=pwd()
 
-    function File(file::String)
-      path = normpath(root, file)
+    function File(roop,file::String)
+      path = normpath(roop, file)
       return String(read(path))
     end
 
-    function files(arch::Array{Any,1})
-      roop=""
-      for i=1:length(arch)
-        roop=replace(replace(arch[i],root => ""),"\\" => "/")
+    function File(file::String)
+      path = normpath(rootbase, file)
+      return String(read(path))
+    end
+
+    function files(roop,archivo)
+        file=""
+        file=replace(replace(archivo,file => ""),"\\" => "/")
         extension="text/plain"
-        ext= split(roop,".")
+        ext= split(file,".")
         if(length(ext)>1)
           my_extension = ext[2]
           if (haskey(mimetypes,my_extension))
             extension=mimetypes[my_extension]
           end
         end
-        data = File(roop[2:end])
-        createurl("GET"*roop,(req,res)->(begin
+        @info("roop", roop)
+        data = File(roop,file[1:end])
+        createurl("GET/"*file,(req,res)->(begin
           res.headers["Content-Type"]= extension
           res.status = 200
           res.body= data
         end))
-      end
     end
 
-    function WebServer(rootte::String,exten::String)
-      cd(rootte)
+    function WebServer(rootb::String,exten::String)
+      cd(rootb)
       ls= readdir()
-      arrfile=[]
-      arrdir=[]
       for i=1:length(ls)
         if isfile(ls[i])
           if ( (occursin(Regex("((.)*\\.(?!($exten)))"),ls[i])) && (!occursin(r"^(\.)",ls[i])))
-            push!(arrfile,normpath(rootte,ls[i]))
+            files(rootb,ls[i])
           end
         end
         if isdir(ls[i])
-          push!(arrdir,normpath(rootte,ls[i]))
+          WebServer(rootb*"\\"*ls[i],exten)
         end
-      end
-      files(arrfile)
-      for i=1:length(arrdir)
-        WebServer(arrdir[i],exten)
       end
     end
 
@@ -153,14 +151,14 @@ struct app
 
     function webserverfiles(load::AbstractString)
       if load=="*"
-        WebServer(root," ")
+        WebServer(rootbase," ")
       else
-        WebServer(root,load)
+        WebServer(rootbase,load)
       end
     end
 
     function webserverpath(path::AbstractString)
-      root = path
+      rootbase = path
     end
 
     function start(config=Dict("host" => "127.0.0.1","port" => 8000)::Dict)
@@ -169,13 +167,11 @@ struct app
       my_host = get(config, "host", "127.0.0.1")::String
       if ('.' in my_host) host=Sockets.IPv4(my_host) end
       if (':' in my_host) host=Sockets.IPv6(my_host) end
-      http = (req)-> handler(req)
-      myserver= HTTP.Servers.Server(http, stdout)
-      @info("Listening on: $(host) : $(port)")
-      return HTTP.Servers.serve(myserver, host, port)
+
+      HTTP.serve(handler, host, port,verbose=true)
     end
 
-    @info("App created")
+    #@info("App created")
     return new(notfound,start,useCORS,webserverfiles,webserverpath,headersalways)
   end
 end
