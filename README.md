@@ -1,16 +1,17 @@
 # Merly.jl
 <p align="center"><img src="merly.png" width="25%" ></p>
 <p align="center">
-<strong>Micro framework for web programming in Julia..</strong>
+<strong>Micro framework for web programming in Julia.</strong>
 <br><br>
 <a href="https://travis-ci.org/codeneomatrix/Merly.jl"><img src="https://travis-ci.org/codeneomatrix/Merly.jl.svg?branch=master"></a>
 <a href="https://codecov.io/gh/codeneomatrix/Merly.jl">
   <img src="https://codecov.io/gh/codeneomatrix/Merly.jl/branch/master/graph/badge.svg" />
 </a>
-&nbsp;&nbsp
-<a href="https://pkg.julialang.org/detail/Merly"><img src="https://pkg.julialang.org/badges/Merly_0.4.svg"></a>
- &nbsp;&nbsp;
-<a href="https://raw.githubusercontent.com/codeneomatrix/Merly.jl/master/LICENSE.md"><img src="https://img.shields.io/badge/license-MIT-blue.svg"></a>
+<a href="https://codeneomatrix.github.io/Merly.jl/stable"><img src="https://img.shields.io/badge/docs-stable-blue.svg"></a>
+<a href="https://codeneomatrix.github.io/Merly.jl/dev"><img src="https://img.shields.io/badge/docs-dev-blue.svg"></a>
+<a href="https://www.repostatus.org/#active"><img src="https://www.repostatus.org/badges/latest/active.svg"></a>
+<a href="https://raw.githubusercontent.com/codeneomatrix/Merly.jl/master/LICENSE.md"><img src="https://img.shields.io/badge/License-MIT-blue.svg"></a>
+</p>
 
 ## About
 Merly is a micro framework for declaring routes and handling requests.
@@ -358,7 +359,7 @@ which is because the application blocked traffic to the application when exceedi
 2018-08-25T04:22:11.196025+00:00 app[web.1]: │ Connect-Time: 1
 2018-08-25T04:22:11.196027+00:00 app[web.1]: │ X-Request-Start: 1535170902285
 2018-08-25T04:22:11.196029+00:00 app[web.1]: │ Total-Route-Time: 0
-2018-08-25T04:22:11.196030+00:00 app[web.1]: │ 
+2018-08-25T04:22:11.196030+00:00 app[web.1]: │
 2018-08-25T04:22:11.196032+00:00 app[web.1]: └ """
 2018-08-25T04:22:11.214470+00:00 app[web.1]: ┌ Warning: discarding connection from 172.16.126.38 due to rate limiting
 2018-08-25T04:22:11.214473+00:00 app[web.1]: └ @ HTTP.Servers ~/.julia/packages/HTTP/nUK4f/src/Servers.jl:132

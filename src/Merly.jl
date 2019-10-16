@@ -1,9 +1,9 @@
 module Merly
 import Base.|
 
-using Sockets,
-JSON,
-HTTP#,
+using Sockets
+using JSON
+using HTTP
 #XMLDict
 
 include("base.jl")
