@@ -36,6 +36,6 @@
 ## New features
 - New features
 
-Merly v0.0.1
+# Merly v0.0.1
 ## New features
 - Micro framework for web programming in Julia
