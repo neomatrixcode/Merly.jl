@@ -86,9 +86,6 @@ struct app
     rootbase=pwd()
 
     function File(roop::String,file::String)
-      if(occursin("/",file))
-          file = replace(file,"/" => "")
-      end
       path = normpath(rootbase*"\\"*roop, file)
       return String(read(path))
     end
