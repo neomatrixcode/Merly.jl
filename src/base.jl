@@ -86,7 +86,6 @@ struct app
     rootbase=pwd()
 
     function File(roop::String,file::String)
-      @info("file",file)
       if(occursin("/",file))
           file = replace(file,"/" => "")
       end
