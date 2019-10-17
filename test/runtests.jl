@@ -73,7 +73,7 @@ server.webserverfiles("jl")
 if Sys.iswindows()
   server.webserverpath("C:\\Users\\ito\\.julia\\dev\\Merly\\test")
 else
-  server.webserverpath("~/build/codeneomatrix/Merly.jl/test")
+  server.webserverpath("/home/travis/build/codeneomatrix/Merly.jl/test")
 end
 server.webserverfiles("*")
 
