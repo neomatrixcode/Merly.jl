@@ -116,7 +116,7 @@ struct app
     function WebServer(ruta::String,exten::String)
       cd(rootbase*"/"*ruta)
       ls= readdir()
-      @info("ls",ls)
+      @info("pwd",pwd())
       for i=1:length(ls)
         cd(rootbase*"/"*ruta)
         if isfile(ls[i])
