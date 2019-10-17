@@ -19,34 +19,19 @@ Quickly creating web applications in Julia with minimal effort.
 
 Roadmap
 -----
-#### Version 0.0.3
-- [x] adding the debug option
-- [x] optimizing routes
-- [x] refactor notfount, cors, body
-
-Below are some of the features that are planned to be added in future versions of Merly.jl once version 0.7 of the language is released.
-
 ### All contributions and suggestions are welcome !!!!
 
-#### Version 0.1.0
-- [x] Julia version 0.7 syntax update
-
-#### Version 0.2.0
-- [x] Julia version 1.0 syntax update
-- [x] Update and refactor
-
-#### Version 0.2.2
+#### Version 0.3
 - [ ] Implementation of a websocket module
 
-#### Version 0.2.3
+#### Version 0.3.1
 - [ ] Performance improvement
 
 
 Installing
 ----------
 ```julia
-Pkg> add Merly                                             #Release
-pkg> add Merly#master                                      #Development
+Pkg> add Merly
 ```
 
 ## Example
@@ -97,121 +82,4 @@ end))
 
 server.start(Dict("host" => "127.0.0.1","port" => 8000))
 
-```
-
-
-### Benchmark
-For the test a simple application was created in heroku (https://github.com/codeneomatrix/merly-app) using merly.
-The software used for the test was wrk (https://github.com/wg/wrk) and the computer used for the test:
-```
-Architecture: x86_64
-mode(s) of operation of the CPUs: 32-bit, 64-bit
-Byte order: Little Endian
-CPU (s): 8
-List of online CPU (s): 0-7
-Processing thread (s) per core: 2
-Nucleus (s) by «socket»: 4
-«Socket (s)» 1
-NUMA mode (s): 1
-Manufacturer ID: GenuineIntel
-CPU family: 6
-Model: 60
-Model name: Intel (R) Core (TM) i7-4810MQ CPU @ 2.80GHz
-Review: 3
-CPU MHz: 798,150
-Max. CPU MHz: 3800,0000
-CPU MHz min .: 800,0000
-BogoMIPS: 5589.64
-Virtualization: VT-x
-Cache L1d: 32K
-Cache L1i: 32K
-Cache L2: 256K
-Cache L3: 6144K
-CPU (s) of the NUMA node 0: 0-7
-
-cat /proc/meminfo
-MemTotal:        7761928 kB
-MemFree:         2812536 kB
-MemAvailable:    4753564 kB
-```
-The results are the following: (The name of the application was random text)
-```
-~ $ wrk -t12 -c400 -d30s https://bfghsdg.herokuapp.com/
-Running 30s test @ https://bfghsdg.herokuapp.com/
-  12 threads and 400 connections
-  Thread Stats   Avg      Stdev     Max   +/- Stdev
-    Latency   704.25ms  538.73ms   2.00s    78.01%
-    Req/Sec     9.94      8.79    70.00     79.03%
-  2428 requests in 30.08s, 1.59MB read
-  Socket errors: connect 0, read 2385, write 0, timeout 536
-  Non-2xx or 3xx responses: 2293
-Requests/sec:     80.72
-Transfer/sec:     54.28KB
-~ $ wrk -t12 -c800 -d30s https://bfghsdg.herokuapp.com/
-Running 30s test @ https://bfghsdg.herokuapp.com/
-  12 threads and 800 connections
-  Thread Stats   Avg      Stdev     Max   +/- Stdev
-    Latency     1.15s   556.37ms   2.00s    54.34%
-    Req/Sec     6.94      6.03    50.00     84.73%
-  1280 requests in 30.08s, 833.06KB read
-  Socket errors: connect 0, read 1202, write 0, timeout 1107
-  Non-2xx or 3xx responses: 1146
-Requests/sec:     42.55
-Transfer/sec:     27.69KB
-~ $ wrk -t12 -c200 -d30s https://bfghsdg.herokuapp.com/
-Running 30s test @ https://bfghsdg.herokuapp.com/
-  12 threads and 200 connections
-  Thread Stats   Avg      Stdev     Max   +/- Stdev
-    Latency     1.21s   542.82ms   2.00s    54.55%
-    Req/Sec     5.62      4.62    30.00     85.10%
-  735 requests in 30.09s, 441.25KB read
-  Socket errors: connect 0, read 674, write 0, timeout 658
-  Non-2xx or 3xx responses: 584
-Requests/sec:     24.42
-Transfer/sec:     14.66KB
-~ $ wrk -t12 -c400 -d30s https://bfghsdg.herokuapp.com/
-Running 30s test @ https://bfghsdg.herokuapp.com/
-  12 threads and 400 connections
-  Thread Stats   Avg      Stdev     Max   +/- Stdev
-    Latency     1.11s   495.85ms   1.93s    70.00%
-    Req/Sec     4.00      4.42    20.00     77.60%
-  414 requests in 30.10s, 217.11KB read
-  Socket errors: connect 0, read 291, write 0, timeout 394
-  Non-2xx or 3xx responses: 263
-Requests/sec:     13.75
-Transfer/sec:      7.21KB
-```
-which is because the application blocked traffic to the application when exceeding a certain threshold
-```
-2018-08-25T04:22:11.140279+00:00 app[web.1]: ┌ Warning: discarding connection from 172.16.126.38 due to rate limiting
-2018-08-25T04:22:11.140291+00:00 app[web.1]: └ @ HTTP.Servers ~/.julia/packages/HTTP/nUK4f/src/Servers.jl:132
-2018-08-25T04:22:11.168493+00:00 app[web.1]: [ Info: Accept-Reject:  Sockets.TCPSocket(RawFD(0x00000011) open, 0 bytes waiting)
-2018-08-25T04:22:11.196006+00:00 app[web.1]: ┌ Info: HTTP.Messages.Request:
-2018-08-25T04:22:11.196010+00:00 app[web.1]: │ """
-2018-08-25T04:22:11.196012+00:00 app[web.1]: │ GET / HTTP/1.1
-2018-08-25T04:22:11.196013+00:00 app[web.1]: │ Host: bfghsdg.herokuapp.com
-2018-08-25T04:22:11.196015+00:00 app[web.1]: │ Connection: close
-2018-08-25T04:22:11.196017+00:00 app[web.1]: │ X-Request-Id: 546c7c39-039a-4487-b120-c46017e501b2
-2018-08-25T04:22:11.196018+00:00 app[web.1]: │ X-Forwarded-For: 189.215.153.244
-2018-08-25T04:22:11.196020+00:00 app[web.1]: │ X-Forwarded-Proto: https
-2018-08-25T04:22:11.196022+00:00 app[web.1]: │ X-Forwarded-Port: 443
-2018-08-25T04:22:11.196023+00:00 app[web.1]: │ Via: 1.1 vegur
-2018-08-25T04:22:11.196025+00:00 app[web.1]: │ Connect-Time: 1
-2018-08-25T04:22:11.196027+00:00 app[web.1]: │ X-Request-Start: 1535170902285
-2018-08-25T04:22:11.196029+00:00 app[web.1]: │ Total-Route-Time: 0
-2018-08-25T04:22:11.196030+00:00 app[web.1]: │
-2018-08-25T04:22:11.196032+00:00 app[web.1]: └ """
-2018-08-25T04:22:11.214470+00:00 app[web.1]: ┌ Warning: discarding connection from 172.16.126.38 due to rate limiting
-2018-08-25T04:22:11.214473+00:00 app[web.1]: └ @ HTTP.Servers ~/.julia/packages/HTTP/nUK4f/src/Servers.jl:132
-2018-08-25T04:22:11.236232+00:00 app[web.1]: ┌ Warning: Base.IOError("write: broken pipe (EPIPE)", -32)
-2018-08-25T04:22:11.236236+00:00 app[web.1]: └ @ HTTP.Servers ~/.julia/packages/HTTP/nUK4f/src/Servers.jl:479
-2018-08-25T04:22:11.260500+00:00 app[web.1]: [ Info: Accept-Reject:  Sockets.TCPSocket(RawFD(0x00000012) open, 0 bytes waiting)
-2018-08-25T04:22:11.281784+00:00 app[web.1]: ┌ Warning: discarding connection from 172.16.126.38 due to rate limiting
-2018-08-25T04:22:11.281788+00:00 app[web.1]: └ @ HTTP.Servers ~/.julia/packages/HTTP/nUK4f/src/Servers.jl:132
-2018-08-25T04:22:11.306090+00:00 app[web.1]: [ Info: Closed:  💀    1↑     1↓🔒   0s 0.0.0.0:28758:28758 ≣16
-2018-08-25T04:22:11.330233+00:00 app[web.1]: [ Info: Accept-Reject:  Sockets.TCPSocket(RawFD(0x00000011) open, 0 bytes waiting)
-2018-08-25T04:22:11.354170+00:00 app[web.1]: [ Info: Closed:  💀    1↑     1↓🔒   0s 0.0.0.0:28758:28758 ≣16
-2018-08-25T04:22:11.197444+00:00 heroku[router]: at=error code=H13 desc="Connection closed without response" method=GET path="/" host=bfghsdg.herokuapp.com request_id=b07a280a-64dd-4363-bd26-69e80ada801f fwd="189.215.153.244" dyno=web.1 connect=0ms service=28860ms status=503 bytes=0 protocol=https
-2018-08-25T04:22:11.331371+00:00 heroku[router]: sock=client at=warning code=H27 desc="Client Request Interrupted" method=GET path="/" host=bfghsdg.herokuapp.com request_id=546c7c39-039a-4487-b120-c46017e501b2 fwd="189.215.153.244" dyno=web.1 connect=1ms service=29043ms status=499 bytes= protocol=https
-2018-08-25T04:22:11.427289+00:00 heroku[router]: at=error code=H13 desc="Connection closed without response" method=GET path="/" host=bfghsdg.herokuapp.com request_id=33c2612e-2ca6-46c0-9d78-94967e5b3083 fwd="189.215.153.244" dyno=web.1 connect=1ms service=16202ms status=503 bytes=0 protocol=https
 ```
