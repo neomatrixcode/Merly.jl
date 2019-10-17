@@ -5,7 +5,7 @@ makedocs(format = Documenter.HTML(),
          sitename = "Merly.jl"
          )
 deploydocs(
-	repo = "https://github.com/codeneomatrix/Merly.jl"
+	repo = "https://github.com/codeneomatrix/Merly.jl.git"
 	#devbranch = "master",
     #devurl = "dev",
     #versions = ["stable" => "v^", "v#.#", "devurl" => devurl]
