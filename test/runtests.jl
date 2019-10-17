@@ -2,7 +2,6 @@ using Merly
 using Test
 using HTTP
 using JSON
-#using Pkg
 #Pkg.add("BenchmarkTools")
 #using BenchmarkTools
 
@@ -27,8 +26,8 @@ u="hello"
 
 @page "/mifile" File("Index.html")
 
-@route GET "/get/:data>" begin
-  "get this back: {{data}}"
+@route GET "/get/:data1>" begin
+  "get this back: {{data1}}"
 end
 
 @route GET "/regex/(\\w+\\d+)" begin
@@ -41,6 +40,7 @@ end
 
 @route POST "/post" begin
   res.body = "I did something!"
+  "I did something!"
 end
 
 @route POST|PUT|DELETE "/" begin
@@ -70,10 +70,14 @@ Post("/data", (req,res)->(begin
 end))
 
 server.webserverfiles("jl")
-#server.webserverpath("C:\\Users\\ito\\.julia\\dev\\Merly\\prueba")
-#server.webserverfiles("*")
+if Sys.iswindows()
+  server.webserverpath("C:\\Users\\ito\\.julia\\dev\\Merly\\test")
+else
+  #server.webserverpath("/home/travis/build/codeneomatrix/Merly.jl/test")
+end
+server.webserverfiles("*")
 
-@async server.start(Dict("host" => "$(ip)","port" => port))
+@async server.start(config=Dict("host" => "$(ip)","port" => port),verbose=false)
 
 sleep(2)
 
@@ -126,12 +130,9 @@ r = HTTP.delete("http://$(ip):$(port)/")
 try
 r = HTTP.get("http://$(ip):$(port)/nada")
 catch e
-  @test e.status == 404
-  if Sys.iswindows()
-  @test String(e.response.body) == "<!DOCTYPE html>\r\n<html lang=\"en\">\r\n<head>\r\n\t<meta charset=\"UTF-8\">\r\n\t<title>Document</title>\r\n</head>\r\n<body>\r\nNot found!!!\r\n</body>\r\n</html>"
-  else
-    @test String(e.response.body) == "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n\t<meta charset=\"UTF-8\">\n\t<title>Document</title>\n</head>\n<body>\nNot found!!!\n</body>\n</html>"
-  end
+
+    @test (String(e.response.body)) == "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n\t<meta charset=\"UTF-8\">\n\t<title>Document</title>\n</head>\n<body>\nNot found!!!\n</body>\n</html>"
+
 end
 
 r = HTTP.get("http://$(ip):$(port)/prueba.txt")
@@ -142,9 +143,21 @@ r = HTTP.get("http://$(ip):$(port)/prueba.txt")
 r= HTTP.get("http://$(ip):$(port)/regex/test1")
 @test String(r.body) == "datos test1"
 
-#r= HTTP.get("http://$(ip):$(port)/prueba/file.txt")
-#@test String(r.body) == "texto de prueba"
+r= HTTP.get("http://$(ip):$(port)/cosa/algomas/ja.txt")
+@test String(r.body) == "jajajajaj"
 
-#@btime HTTP.get("http://$(ip):$(port)/?hola=5") # 3.864 ms (8304 allocations: 381.20 KiB)
-#@btime HTTP.get("http://$(ip):$(port)/hola/usuario") # 4.211 ms (7685 allocations: 353.44 KiB)
-#@btime r= HTTP.get("http://$(ip):$(port)/get/testdata") # 3.906 ms (7693 allocations: 353.78 KiB)
+#@btime HTTP.get("http://$(ip):$(port)/?hola=5")
+# 3.864 ms (8304 allocations: 381.20 KiB)
+# 453.803 μs (748 allocations: 30.92 KiB)
+#@btime HTTP.get("http://$(ip):$(port)/hola/usuario")
+# 4.211 ms (7685 allocations: 353.44 KiB)
+# 483.861 μs (743 allocations: 30.41 KiB)
+#@benchmark r= HTTP.get("http://$(ip):$(port)/get/testdata")
+# 3.906 ms (7693 allocations: 353.78 KiB)
+# 484.960 μs (744 allocations: 30.44 KiB)
+#=
+ minimum time:     740.087 μs (0.00% GC)
+  median time:      843.457 μs (0.00% GC)
+  mean time:        1.099 ms (1.45% GC)
+  maximum time:     367.611 ms (0.00% GC)
+=#

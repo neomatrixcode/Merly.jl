@@ -29,7 +29,7 @@ function searchroute_regex(ruta::String)
  return ""
 end
 
-function handler(request::HTTP.Messages.Request)
+function handler(request::HTTP.Request)
   data = split(request.target,"?")
   url=data[1]
   searchroute = request.method*url
@@ -58,7 +58,7 @@ function handler(request::HTTP.Messages.Request)
       my_request.params = match(pattern,searchroute)
       _function = getindex(routes_patterns,pattern)
       response.body = _function(my_request,response)
-      sal = collect((m.match for m = eachmatch(Regex("{{([a-z])+}}"), response.body)))
+      sal = collect((m.match for m = eachmatch(Regex("{{(\\w\\d*)+}}"), response.body)))
       for i in sal
         response.body = replace(response.body,Regex(i) => my_request.params["$(i[3:end-2])"])
       end
@@ -83,52 +83,49 @@ struct app
   headersalways::Function
 
   function app()
-    root=pwd()
+    rootbase=pwd()
 
-    function File(file::String)
-      path = normpath(root, file)
+    function File(roop::String,file::String)
+      path = normpath(rootbase*"/"*roop, file)
       return String(read(path))
     end
 
-    function files(arch::Array{Any,1})
-      roop=""
-      for i=1:length(arch)
-        roop=replace(replace(arch[i],root => ""),"\\" => "/")
+    function File(file::String)
+      path = normpath(rootbase, file)
+      return String(read(path))
+    end
+
+    function files(roop::String,file::String)
         extension="text/plain"
-        ext= split(roop,".")
+        ext= split(file,".")
         if(length(ext)>1)
           my_extension = ext[2]
           if (haskey(mimetypes,my_extension))
             extension=mimetypes[my_extension]
           end
         end
-        data = File(roop[2:end])
-        createurl("GET"*roop,(req,res)->(begin
+        data = File(roop,file[1:end])
+        roop = replace(roop,"\\" => "/")
+        createurl("GET"*roop*"/"*file,(req,res)->(begin
           res.headers["Content-Type"]= extension
           res.status = 200
           res.body= data
         end))
-      end
     end
 
-    function WebServer(rootte::String,exten::String)
-      cd(rootte)
+    function WebServer(ruta::String,exten::String)
+      cd(rootbase*"/"*ruta)
       ls= readdir()
-      arrfile=[]
-      arrdir=[]
       for i=1:length(ls)
+        cd(rootbase*"/"*ruta)
         if isfile(ls[i])
           if ( (occursin(Regex("((.)*\\.(?!($exten)))"),ls[i])) && (!occursin(r"^(\.)",ls[i])))
-            push!(arrfile,normpath(rootte,ls[i]))
+            files(ruta,ls[i])
           end
         end
         if isdir(ls[i])
-          push!(arrdir,normpath(rootte,ls[i]))
+            WebServer(ruta*"/"*ls[i],exten)
         end
-      end
-      files(arrfile)
-      for i=1:length(arrdir)
-        WebServer(arrdir[i],exten)
       end
     end
 
@@ -145,37 +142,33 @@ struct app
     function notfound(text::String)
       if occursin(".html", text)
         notfound_message= File(text)
-       addnotfound(notfound_message)
+        addnotfound(notfound_message)
       else
-       addnotfound(text)
+        addnotfound(text)
       end
     end
 
     function webserverfiles(load::AbstractString)
       if load=="*"
-        WebServer(root," ")
+        WebServer("","")
       else
-        WebServer(root,load)
+        WebServer("",load)
       end
     end
 
     function webserverpath(path::AbstractString)
-      root = path
+      rootbase = path
     end
 
-    function start(config=Dict("host" => "127.0.0.1","port" => 8000)::Dict)
-      host= Sockets.IPv4("127.0.0.1")
+    function start(;config=Dict("host" => "127.0.0.1","port" => 8000)::Dict,verbose=false::Bool)
       port=get(config, "port", 8000)::Int
       my_host = get(config, "host", "127.0.0.1")::String
       if ('.' in my_host) host=Sockets.IPv4(my_host) end
       if (':' in my_host) host=Sockets.IPv6(my_host) end
-      http = (req)-> handler(req)
-      myserver= HTTP.Servers.Server(http, stdout)
-      @info("Listening on: $(host) : $(port)")
-      return HTTP.Servers.serve(myserver, host, port)
+
+      HTTP.serve(handler, host, port,verbose=verbose)
     end
 
-    @info("App created")
     return new(notfound,start,useCORS,webserverfiles,webserverpath,headersalways)
   end
 end

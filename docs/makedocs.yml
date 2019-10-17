@@ -1,0 +1,9 @@
+site_name:        Merly.jl
+repo_url:         https://github.com/codeneomatrix/Merly.jl
+site_description: Merly Docs
+site_author:      Josue Acevedo Maldonado
+
+theme: material
+
+extra_css:
+  - assets/Documenter.css
