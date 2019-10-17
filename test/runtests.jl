@@ -2,7 +2,6 @@ using Merly
 using Test
 using HTTP
 using JSON
-#using Pkg
 #Pkg.add("BenchmarkTools")
 #using BenchmarkTools
 
@@ -71,7 +70,11 @@ Post("/data", (req,res)->(begin
 end))
 
 server.webserverfiles("jl")
-server.webserverpath("C:\\Users\\ito\\.julia\\dev\\Merly\\test")
+if Sys.iswindows()
+  server.webserverpath("C:\\Users\\ito\\.julia\\dev\\Merly\\test")
+else
+  server.webserverpath("/home/neomatrix/.julia/dev/Merly/test")
+end
 server.webserverfiles("*")
 
 @async server.start(config=Dict("host" => "$(ip)","port" => port),verbose=false)

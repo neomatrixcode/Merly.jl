@@ -86,7 +86,7 @@ struct app
     rootbase=pwd()
 
     function File(roop::String,file::String)
-      path = normpath(rootbase*"\\"*roop, file)
+      path = normpath(rootbase*"/"*roop, file)
       return String(read(path))
     end
 
@@ -116,6 +116,7 @@ struct app
     function WebServer(ruta::String,exten::String)
       cd(rootbase*"/"*ruta)
       ls= readdir()
+      @info("ls",ls)
       for i=1:length(ls)
         cd(rootbase*"/"*ruta)
         if isfile(ls[i])
@@ -124,7 +125,7 @@ struct app
           end
         end
         if isdir(ls[i])
-          WebServer(ruta*"\\"*ls[i],exten)
+            WebServer(ruta*"/"*ls[i],exten)
         end
       end
     end
