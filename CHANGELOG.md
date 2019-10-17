@@ -1,6 +1,14 @@
 
 # Merly v0.2.1
 
+## New features
+- The file upload of the webserserver function is improved
+- the verbose parameter is added in the start function
+  server.start(config=Dict("host" => "$(ip)","port" => port),verbose=false)
+
+## Bug fixes
+- Fix the error when starting a server with the HTTP.jl update
+
 # Merly v0.2.0
 
 ## New features
