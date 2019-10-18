@@ -80,6 +80,6 @@ Post("/data", (req,res)->(begin
 end))
 
 
-server.start(Dict("host" => "127.0.0.1","port" => 8000))
+server.start(config=Dict("host" => "127.0.0.1","port" => 8000),verbose=false)
 
 ```
