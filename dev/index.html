@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Home · Merly.jl</title><link href="https://cdnjs.cloudflare.com/ajax/libs/normalize/4.2.0/normalize.min.css" rel="stylesheet" type="text/css"/><link href="https://fonts.googleapis.com/css?family=Lato|Roboto+Mono" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.2.0/require.min.js" data-main="assets/documenter.js"></script><script src="siteinfo.js"></script><script src="../versions.js"></script><link href="assets/documenter.css" rel="stylesheet" type="text/css"/></head><body><nav class="toc"><a href><img class="logo" src="assets/logo.svg" alt="Merly.jl logo"/></a><h1>Merly.jl</h1><select id="version-selector" onChange="window.location.href=this.value" style="visibility: hidden"></select><form class="search" id="search-form" action="search/"><input id="search-query" name="q" type="text" placeholder="Search docs"/></form><ul><li class="current"><a class="toctext" href>Home</a><ul class="internal"><li><a class="toctext" href="#Merly.jl-1">Merly.jl</a></li><li><a class="toctext" href="#Installation-1">Installation</a></li><li><a class="toctext" href="#An-example-in-Diana-1">An example in Diana</a></li><li><a class="toctext" href="#Index-1">Index</a></li></ul></li></ul></nav><article id="docs"><header><nav><ul><li><a href>Home</a></li></ul><a class="edit-page" href="https://github.com/codeneomatrix/Merly.jl/blob/master/docs/src/index.md"><span class="fa"></span> Edit on GitHub</a></nav><hr/><div id="topbar"><span>Home</span><a class="fa fa-bars" href="#"></a></div></header><h1><a class="nav-anchor" id="Home-1" href="#Home-1">Home</a></h1><h2><a class="nav-anchor" id="Merly.jl-1" href="#Merly.jl-1">Merly.jl</a></h2><p>Merly is a micro framework for declaring routes and handling requests. Quickly creating web applications in Julia with minimal effort.</p><h2><a class="nav-anchor" id="Installation-1" href="#Installation-1">Installation</a></h2><pre><code class="language-julia">Pkg&gt; add Merly
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Home · Merly.jl</title><link href="https://cdnjs.cloudflare.com/ajax/libs/normalize/4.2.0/normalize.min.css" rel="stylesheet" type="text/css"/><link href="https://fonts.googleapis.com/css?family=Lato|Roboto+Mono" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/default.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.2.0/require.min.js" data-main="assets/documenter.js"></script><script src="siteinfo.js"></script><script src="../versions.js"></script><link href="assets/documenter.css" rel="stylesheet" type="text/css"/></head><body><nav class="toc"><a href><img class="logo" src="assets/logo.svg" alt="Merly.jl logo"/></a><h1>Merly.jl</h1><select id="version-selector" onChange="window.location.href=this.value" style="visibility: hidden"></select><form class="search" id="search-form" action="search/"><input id="search-query" name="q" type="text" placeholder="Search docs"/></form><ul><li class="current"><a class="toctext" href>Home</a><ul class="internal"><li><a class="toctext" href="#Merly.jl-1">Merly.jl</a></li><li><a class="toctext" href="#Installation-1">Installation</a></li><li><a class="toctext" href="#An-example-in-Diana-1">An example in Diana</a></li><li><a class="toctext" href="#Data-stored-on-request-(req)-1">Data stored on request (req)</a></li><li><a class="toctext" href="#Data-stored-on-response-(req)-1">Data stored on response (req)</a></li><li><a class="toctext" href="#Parameters-dictionary-1">Parameters dictionary</a></li><li><a class="toctext" href="#url-query-dictionary-1">url query dictionary</a></li><li><a class="toctext" href="#Dictionary-of-body-1">Dictionary of body</a></li><li><a class="toctext" href="#Reply-JSON-1">Reply JSON</a></li><li><a class="toctext" href="#Reply-XML-1">Reply XML</a></li><li><a class="toctext" href="#Reply-File-1">Reply File</a></li><li><a class="toctext" href="#Web-server-1">Web server</a></li><li><a class="toctext" href="#Not-found-message-1">Not found message</a></li><li><a class="toctext" href="#CORS-1">CORS</a></li><li><a class="toctext" href="#Headers-always-1">Headers always</a></li><li><a class="toctext" href="#Bonus-1">Bonus</a></li></ul></li></ul></nav><article id="docs"><header><nav><ul><li><a href>Home</a></li></ul><a class="edit-page" href="https://github.com/codeneomatrix/Merly.jl/blob/master/docs/src/index.md"><span class="fa"></span> Edit on GitHub</a></nav><hr/><div id="topbar"><span>Home</span><a class="fa fa-bars" href="#"></a></div></header><h1><a class="nav-anchor" id="Home-1" href="#Home-1">Home</a></h1><h2><a class="nav-anchor" id="Merly.jl-1" href="#Merly.jl-1">Merly.jl</a></h2><p>Merly is a micro framework for declaring routes and handling requests. Quickly creating web applications in Julia with minimal effort.</p><h2><a class="nav-anchor" id="Installation-1" href="#Installation-1">Installation</a></h2><pre><code class="language-julia">Pkg&gt; add Merly
 #Release</code></pre><h2><a class="nav-anchor" id="An-example-in-Diana-1" href="#An-example-in-Diana-1">An example in Diana</a></h2><pre><code class="language-julia">using Merly
 
 u=&quot;hello&quot;
@@ -7,7 +7,7 @@ u=&quot;hello&quot;
 server = Merly.app()
 
 @page &quot;/&quot; &quot;Hello World!&quot;
-@page &quot;/hola/:usr1&gt;&quot; &quot;&lt;b&gt;Hello {{usr1}}!&lt;/b&gt;&quot;
+@page &quot;/hello/:usr1&gt;&quot; &quot;&lt;b&gt;Hello {{usr1}}!&lt;/b&gt;&quot;
 
 @route GET &quot;/get/:data&gt;&quot; begin
   &quot;get this back: {{data}}&quot;
@@ -42,13 +42,13 @@ Post(&quot;/data&quot;, (req,res)-&gt;(begin
   &quot;I did something!&quot;
 end))
 
-server.start(config=Dict(&quot;host&quot; =&gt; &quot;127.0.0.1&quot;,&quot;port&quot; =&gt; 8000),verbose=false)</code></pre><h3><a class="nav-anchor" id="Data-stored-on-request-(req)-1" href="#Data-stored-on-request-(req)-1">Data stored on request (req)</a></h3><pre><code class="language-none">  query   # data from the query url
+server.start(config=Dict(&quot;host&quot; =&gt; &quot;127.0.0.1&quot;,&quot;port&quot; =&gt; 8000),verbose=false)</code></pre><h2><a class="nav-anchor" id="Data-stored-on-request-(req)-1" href="#Data-stored-on-request-(req)-1">Data stored on request (req)</a></h2><pre><code class="language-none">  query   # data from the query url
   params  # data from the regular expresion
   body    # body of the request in dict or plane text
   version # the protocol version
-  headers # the headers sent by the client</code></pre><h3><a class="nav-anchor" id="Data-stored-on-response-(req)-1" href="#Data-stored-on-response-(req)-1">Data stored on response (req)</a></h3><pre><code class="language-none">  status
+  headers # the headers sent by the client</code></pre><h2><a class="nav-anchor" id="Data-stored-on-response-(req)-1" href="#Data-stored-on-response-(req)-1">Data stored on response (req)</a></h2><pre><code class="language-none">  status
   headers
-  body</code></pre><h3><a class="nav-anchor" id="Parameters-dictionary-1" href="#Parameters-dictionary-1">Parameters dictionary</a></h3><pre><code class="language-julia">@route GET &quot;/get/:data&gt;&quot; begin
+  body</code></pre><h2><a class="nav-anchor" id="Parameters-dictionary-1" href="#Parameters-dictionary-1">Parameters dictionary</a></h2><pre><code class="language-julia">@route GET &quot;/get/:data&gt;&quot; begin
   # matches &quot;GET /get/foo&quot; and &quot;GET /get/bar&quot;
   # not accept special symbols (!,#,$,etc)
   # req.params[&quot;data&quot;] is &#39;foo&#39; or &#39;bar&#39;
@@ -60,13 +60,13 @@ end
   # matches &quot;GET /regex/test1&quot; and &quot;GET /regex/test125&quot;
   # req.params[1] is &#39;test1&#39; or &#39;test125&#39;
    &quot;datos $(req.params[1])&quot;
-end</code></pre><h3><a class="nav-anchor" id="url-query-dictionary-1" href="#url-query-dictionary-1">url query dictionary</a></h3><pre><code class="language-julia">@route POST|PUT|DELETE &quot;/&quot; begin
+end</code></pre><h2><a class="nav-anchor" id="url-query-dictionary-1" href="#url-query-dictionary-1">url query dictionary</a></h2><pre><code class="language-julia">@route POST|PUT|DELETE &quot;/&quot; begin
   res.headers[&quot;Content-Type&quot;]= &quot;text/plain&quot;
   # matches &quot;POST /?title=foo&amp;author=bar&quot;
   title = req.query[&quot;title&quot;]
   author = req.query[&quot;author&quot;]
   &quot;I did something!&quot;
-end</code></pre><h3><a class="nav-anchor" id="Dictionary-of-body-1" href="#Dictionary-of-body-1">Dictionary of body</a></h3><p>Payload</p><pre><code class="language-ruby">{&quot;data1&quot;:&quot;Hello&quot;}</code></pre><pre><code class="language-julia">@route POST|PUT|DELETE &quot;/&quot; begin
+end</code></pre><h2><a class="nav-anchor" id="Dictionary-of-body-1" href="#Dictionary-of-body-1">Dictionary of body</a></h2><p>Payload</p><pre><code class="language-ruby">{&quot;data1&quot;:&quot;Hello&quot;}</code></pre><pre><code class="language-julia">@route POST|PUT|DELETE &quot;/&quot; begin
   res.headers[&quot;Content-Type&quot;]= &quot;text/plain&quot;
   res.body = &quot;Payload data &quot;*req.body[&quot;data1&quot;]
 end</code></pre><p>Payload</p><pre><code class="language-html">&lt;Data&gt;
@@ -74,7 +74,7 @@ end</code></pre><p>Payload</p><pre><code class="language-html">&lt;Data&gt;
 &lt;/Data&gt;</code></pre><pre><code class="language-julia">@route POST|PUT|DELETE &quot;/&quot; begin
   res.headers[&quot;Content-Type&quot;]= &quot;text/plain&quot;
   &quot;Payload data &quot;*req.body[&quot;Data&quot;][&quot;Data1&quot;]
-end</code></pre><h3><a class="nav-anchor" id="Reply-JSON-1" href="#Reply-JSON-1">Reply JSON</a></h3><pre><code class="language-julia">@route POST|PUT|DELETE &quot;/&quot; begin
+end</code></pre><h2><a class="nav-anchor" id="Reply-JSON-1" href="#Reply-JSON-1">Reply JSON</a></h2><pre><code class="language-julia">@route POST|PUT|DELETE &quot;/&quot; begin
   res.headers[&quot;Content-Type&quot;]=&quot;application/json&quot;
   res.status = 200 #optional
   &quot;{\&quot;data1\&quot;:2,\&quot;data2\&quot;:\&quot;t\&quot;}&quot;
@@ -87,7 +87,7 @@ end
   res.status = 200 #optional
   res.body = JSON.json(info)
 end
-</code></pre><h3><a class="nav-anchor" id="Reply-XML-1" href="#Reply-XML-1">Reply XML</a></h3><pre><code class="language-julia">@route POST|PUT|DELETE &quot;/&quot; begin
+</code></pre><h2><a class="nav-anchor" id="Reply-XML-1" href="#Reply-XML-1">Reply XML</a></h2><pre><code class="language-julia">@route POST|PUT|DELETE &quot;/&quot; begin
   res.headers[&quot;Content-Type&quot;]=&quot;application/xml&quot;
 
   &quot;&lt;ListAllMyBucketsResult&gt;
@@ -97,7 +97,7 @@ end
     &lt;/Buckets&gt;
   &lt;/ListAllMyBucketsResult&gt;&quot;
 end
-</code></pre><h3><a class="nav-anchor" id="Reply-File-1" href="#Reply-File-1">Reply File</a></h3><pre><code class="language-julia">@page &quot;/&quot; File(&quot;Index.html&quot;)</code></pre><h3><a class="nav-anchor" id="Web-server-1" href="#Web-server-1">Web server</a></h3><pre><code class="language-julia"># By default, the location where to look for the files that will
+</code></pre><h2><a class="nav-anchor" id="Reply-File-1" href="#Reply-File-1">Reply File</a></h2><pre><code class="language-julia">@page &quot;/&quot; File(&quot;Index.html&quot;)</code></pre><h2><a class="nav-anchor" id="Web-server-1" href="#Web-server-1">Web server</a></h2><pre><code class="language-julia"># By default, the location where to look for the files that will
 # be exposed will be the same where the script is, if the files are
 # not found in that site, the location of the files can be established
 # with the following instruction.
@@ -106,8 +106,8 @@ server.webserverpath(&quot;C:\\path&quot;)  # example in windows
 
 server.webserverfiles(&quot;*&quot;) #
  &quot;*&quot;               Load all the files located in the path, except what started with &quot;.&quot;
- &quot;jl&quot;,&quot;clj|jl|py&quot;  Extension in files that will not be exposed</code></pre><h3><a class="nav-anchor" id="Not-found-message-1" href="#Not-found-message-1">Not found message</a></h3><pre><code class="language-julia">server.notfound(&quot;&lt;!DOCTYPE html&gt;
+ &quot;jl&quot;,&quot;clj|jl|py&quot;  Extension in files that will not be exposed</code></pre><h2><a class="nav-anchor" id="Not-found-message-1" href="#Not-found-message-1">Not found message</a></h2><pre><code class="language-julia">server.notfound(&quot;&lt;!DOCTYPE html&gt;
 &lt;html&gt;
 &lt;head&gt;&lt;title&gt;Not found&lt;/title&gt;&lt;/head&gt;
 &lt;body&gt;&lt;h1&gt;404, Not found&lt;/h1&gt;&lt;/body&gt;
-&lt;/html&gt;&quot;)</code></pre><pre><code class="language-julia">server.notfound(&quot;notfound.html&quot;)</code></pre><h3><a class="nav-anchor" id="CORS-1" href="#CORS-1">CORS</a></h3><pre><code class="language-julia">server.useCORS(true)</code></pre><h3><a class="nav-anchor" id="Headers-always-1" href="#Headers-always-1">Headers always</a></h3><p>You can add headers that will always be returned in each request</p><pre><code class="language-julia">server.headersalways(&quot;Strict-Transport-Security&quot;,&quot;max-age=10886400; includeSubDomains; preload&quot;)</code></pre><h3><a class="nav-anchor" id="Bonus-1" href="#Bonus-1">Bonus</a></h3><p>If you forgot the MIME type of a file you can use the next instruction</p><pre><code class="language-julia">res.headers[&quot;Content-Type&quot;]= mimetypes[&quot;file extension&quot;]</code></pre><p>the file mimetypes.jl was taken from https://github.com/JuliaWeb/HttpServer.jl  guys are great</p><h2><a class="nav-anchor" id="Index-1" href="#Index-1">Index</a></h2><ul></ul><footer><hr/></footer></article></body></html>
+&lt;/html&gt;&quot;)</code></pre><pre><code class="language-julia">server.notfound(&quot;notfound.html&quot;)</code></pre><h2><a class="nav-anchor" id="CORS-1" href="#CORS-1">CORS</a></h2><pre><code class="language-julia">server.useCORS(true)</code></pre><h2><a class="nav-anchor" id="Headers-always-1" href="#Headers-always-1">Headers always</a></h2><p>You can add headers that will always be returned in each request</p><pre><code class="language-julia">server.headersalways(&quot;Strict-Transport-Security&quot;,&quot;max-age=10886400; includeSubDomains; preload&quot;)</code></pre><h2><a class="nav-anchor" id="Bonus-1" href="#Bonus-1">Bonus</a></h2><p>If you forgot the MIME type of a file you can use the next instruction</p><pre><code class="language-julia">res.headers[&quot;Content-Type&quot;]= mimetypes[&quot;file extension&quot;]</code></pre><p>the file mimetypes.jl was taken from https://github.com/JuliaWeb/HttpServer.jl  guys are great</p><footer><hr/></footer></article></body></html>
