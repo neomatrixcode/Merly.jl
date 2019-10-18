@@ -21,7 +21,7 @@ u="hello"
 server = Merly.app()
 
 @page "/" "Hello World!"
-@page "/hola/:usr1>" "<b>Hello {{usr1}}!</b>"
+@page "/hello/:usr1>" "<b>Hello {{usr1}}!</b>"
 
 @route GET "/get/:data>" begin
   "get this back: {{data}}"
@@ -59,7 +59,7 @@ end))
 server.start(config=Dict("host" => "127.0.0.1","port" => 8000),verbose=false)
 ```
 
-### Data stored on request (req)
+## Data stored on request (req)
 ```
   query   # data from the query url
   params  # data from the regular expresion
@@ -67,14 +67,14 @@ server.start(config=Dict("host" => "127.0.0.1","port" => 8000),verbose=false)
   version # the protocol version
   headers # the headers sent by the client
 ```
-### Data stored on response (req)
+## Data stored on response (req)
 ```
   status
   headers
   body
 ```
 
-### Parameters dictionary
+## Parameters dictionary
 ```julia
 @route GET "/get/:data>" begin
   # matches "GET /get/foo" and "GET /get/bar"
@@ -90,7 +90,7 @@ end
    "datos $(req.params[1])"
 end
 ```
-### url query dictionary
+## url query dictionary
 
 ```julia
 @route POST|PUT|DELETE "/" begin
@@ -101,7 +101,7 @@ end
   "I did something!"
 end
 ```
-### Dictionary of body
+## Dictionary of body
 Payload
 ```ruby
 {"data1":"Hello"}
@@ -126,7 +126,7 @@ Payload
 end
 ```
 
-### Reply JSON
+## Reply JSON
 
 ```julia
 @route POST|PUT|DELETE "/" begin
@@ -149,7 +149,7 @@ end
 
 ```
 
-### Reply XML
+## Reply XML
 
 ```julia
 @route POST|PUT|DELETE "/" begin
@@ -165,13 +165,13 @@ end
 
 ```
 
-### Reply File
+## Reply File
 
 ```julia
 @page "/" File("Index.html")
 ```
 
-### Web server
+## Web server
 
 ```julia
 # By default, the location where to look for the files that will
@@ -189,7 +189,7 @@ server.webserverfiles("*") #
  "jl","clj|jl|py"  Extension in files that will not be exposed
 ```
 
-### Not found message
+## Not found message
 ```julia
 server.notfound("<!DOCTYPE html>
 <html>
@@ -200,24 +200,19 @@ server.notfound("<!DOCTYPE html>
 ```julia
 server.notfound("notfound.html")
 ```
-### CORS
+## CORS
 ```julia
 server.useCORS(true)
 ```
-### Headers always
+## Headers always
 You can add headers that will always be returned in each request
 ```julia
 server.headersalways("Strict-Transport-Security","max-age=10886400; includeSubDomains; preload")
 ```
 
-### Bonus
+## Bonus
 If you forgot the MIME type of a file you can use the next instruction
 ```julia
 res.headers["Content-Type"]= mimetypes["file extension"]
 ```
 the file mimetypes.jl was taken from https://github.com/JuliaWeb/HttpServer.jl  guys are great
-
-
-## Index
-```@index
-```

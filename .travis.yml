@@ -5,7 +5,7 @@ os:
   - osx
 julia:
   - 1.0
-  #- nightly
+  - nightly
 codecov: true
 notifications:
   email: false

@@ -22,7 +22,7 @@ Roadmap
 ### All contributions and suggestions are welcome !!!!
 
 #### Version 0.3
-- [ ] Implementation of a websocket module
+- [ ] Websocket module implementation
 
 #### Version 0.3.1
 - [ ] Performance improvement
@@ -44,7 +44,7 @@ u="hello"
 server = Merly.app()
 
 @page "/" "Hello World!"
-@page "/hola/:usr>" "<b>Hello {{usr}}!</b>"
+@page "/hello/:usr>" "<b>Hello {{usr}}!</b>"
 
 @route GET "/get/:data>" begin
   "get this back: {{data}}"
