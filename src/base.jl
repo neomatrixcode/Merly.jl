@@ -99,7 +99,7 @@ struct app
         extension="text/plain"
         ext= split(file,".")
         if(length(ext)>1)
-        my_extension = ext[end]
+          my_extension = ext[end]
           if (haskey(mimetypes,my_extension))
             extension=mimetypes[my_extension]
           end
