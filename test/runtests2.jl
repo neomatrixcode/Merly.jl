@@ -18,14 +18,14 @@ notfound(server, """<!DOCTYPE html>
               <head><title>Not found</title></head>
               <body><h1>404, Not found</h1></body>
               </html>") == server.notfound("<!DOCTYPE html>\n              <html>\n              <head><title>Not found</title></head>\n              <body><h1>404, Not found</h1></body>\n              </html>""")
-notfound(server, "cosa/notfound.html")
+notfound(server, "notfound.html")
 
 u = "hello"
 
 @page "/" "Hello World!"
 @page "/hola/:usr>" "<b>Hello {{usr}}!</b>"
 
-@page "/mifile" File(server, "Index.html")
+@page "/mifile" getfile(server, "Index.html")
 
 @route GET "/get/:data1>" begin
   "get this back: {{data1}}"
@@ -70,7 +70,13 @@ Post("/data", (req,res)->(begin
   "I did something!"
 end))
 
-webserverpath(server, "cosa")
+webserverfiles(server, "jl")
+if Sys.iswindows()
+  webserverpath(server, "C:\\Users\\ito\\.julia\\dev\\Merly\\test")
+else
+  #server.webserverpath("/home/travis/build/codeneomatrix/Merly.jl/test")
+end
+
 webserverfiles(server, "*")
 
  @async start(server, verbose = false)
@@ -129,7 +135,7 @@ r = HTTP.delete("http://$(ip):$(port)/")
 try
   r = HTTP.get("http://$(ip):$(port)/nada")
 catch e
-  @test String(e.response.body) == File(server, "notfound.html")
+  @test String(e.response.body) == getfile(server, "notfound.html")
 end
 
 r = HTTP.get("http://$(ip):$(port)/prueba.txt")
@@ -138,7 +144,7 @@ r = HTTP.get("http://$(ip):$(port)/prueba.txt")
 @test r.headers == Pair{SubString{String},SubString{String}}["Content-Type"=>"text/plain", "Access-Control-Allow-Origin"=>"*", "Access-Control-Allow-Methods"=>"POST,GET,OPTIONS", "Strict-Transport-Security"=>"max-age=10886400; includeSubDomains; preload", "Transfer-Encoding"=>"chunked"]
 
 
-r= HTTP.get("http://$(ip):$(port)/algomas/ja.txt")
+r= HTTP.get("http://$(ip):$(port)/cosa/algomas/ja.txt")
 @test String(r.body) == "jajajajaj"
 
 #@btime HTTP.get("http://$(ip):$(port)/?hola=5")

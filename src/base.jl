@@ -73,102 +73,122 @@ function handler(request::HTTP.Request)
   return responsefinal
 end
 
-
-struct app
-  notfound::Function
-  start::Function
-  useCORS::Function
-  webserverfiles::Function
-  webserverpath::Function
-  headersalways::Function
-
-  function app()
-    rootbase=pwd()
-
-    function File(roop::String,file::String)
-      path = normpath(rootbase*"/"*roop, file)
-      return String(read(path))
-    end
-
-    function File(file::String)
-      path = normpath(rootbase, file)
-      return String(read(path))
-    end
-
-    function files(roop::String,file::String)
-        extension="text/plain"
-        ext= split(file,".")
-        if(length(ext)>1)
-          my_extension = ext[end]
-          if (haskey(mimetypes,my_extension))
-            extension=mimetypes[my_extension]
-          end
-        end
-        data = File(roop,file[1:end])
-        roop = replace(roop,"\\" => "/")
-        createurl("GET"*roop*"/"*file,(req,res)->(begin
-          res.headers["Content-Type"]= extension
-          res.status = 200
-          res.body= data
-        end))
-    end
-
-    function WebServer(ruta::String,exten::String)
-      cd(rootbase*"/"*ruta)
-      ls= readdir()
-      for i=1:length(ls)
-        cd(rootbase*"/"*ruta)
-        if isfile(ls[i])
-          if ( (occursin(Regex("((.)*\\.(?!($exten)))"),ls[i])) && (!occursin(r"^(\.)",ls[i])))
-            files(ruta,ls[i])
-          end
-        end
-        if isdir(ls[i])
-            WebServer(ruta*"/"*ls[i],exten)
-        end
-      end
-    end
-
-    function useCORS(activate::Bool)
-     HTTP.setheader(my_headers,"Access-Control-Allow-Origin" => "*")
-     HTTP.setheader(my_headers,"Access-Control-Allow-Methods" => "POST,GET,OPTIONS")
-     return true
-    end
-
-    function headersalways(head::AbstractString,value::AbstractString)
-      HTTP.setheader(my_headers,head => value)
-    end
-
-    function notfound(text::String)
-      if occursin(".html", text)
-        notfound_message= File(text)
-        addnotfound(notfound_message)
-      else
-        addnotfound(text)
-      end
-    end
-
-    function webserverfiles(load::AbstractString)
-      if load=="*"
-        WebServer("","")
-      else
-        WebServer("",load)
-      end
-    end
-
-    function webserverpath(path::AbstractString)
-      rootbase = path
-    end
-
-    function start(;config=Dict("host" => "127.0.0.1","port" => 8000)::Dict,verbose=false::Bool)
-      port=get(config, "port", 8000)::Int
-      my_host = get(config, "host", "127.0.0.1")::String
-      if ('.' in my_host) host=Sockets.IPv4(my_host) end
-      if (':' in my_host) host=Sockets.IPv6(my_host) end
-
-      HTTP.serve(handler, host, port,verbose=verbose)
-    end
-
-    return new(notfound,start,useCORS,webserverfiles,webserverpath,headersalways)
+"""
+Contains server configuration
+"""
+mutable struct App
+  rootbase::String
+  host::String
+  port::Int64
+  function App(host = "127.0.0.1", port = 8000)
+    return new(pwd(), host, port )      
   end
 end
+
+export File
+"""
+File(app::App, file::String)
+
+Return a file content located in "\$(app.rootbase path)"
+"""
+function File(app::App, file::String)
+    return File(app, "", file)
+end
+
+"""
+File(app::App, folder::String, file::String)
+
+Return a file content located in "\$(app.rootbase)"*"folder" path
+"""
+function File(app::App, folder::String, file::String)
+  path = joinpath(app.rootbase, folder, file)
+  f = open(path)
+  return read(f, String)
+end
+
+"""
+files(app::App, roop::String, file::String)
+
+Create a GET route ()to file
+"""
+function files(app::App, folder::String, file::String)
+    extension="text/plain"
+    ext= split(file,".")
+    if(length(ext)>1)
+      my_extension = ext[end]
+      if (haskey(mimetypes, my_extension))
+        extension = mimetypes[my_extension]
+      end
+    end
+    data = File(app, folder, file)
+    folder = replace(folder,"\\" => "/")
+    createurl("GET/"*joinpath(folder,file), (req,res)->(begin
+      res.headers["Content-Type"]= extension
+      res.status = 200
+      res.body = data
+    end))
+end
+
+function WebServer(app::App, folder::String, exten::String)
+  path = joinpath(app.rootbase, folder)
+  ls= readdir(path)
+  for i = 1:length(ls)
+    if isfile( joinpath(path, ls[i]) )
+      ext = split(ls[i], ".")
+      if length(ext) > 1 && ext[1] != "" && occursin(exten, ext[end] )
+        files(app, folder,ls[i])
+      end
+    elseif isdir( joinpath(path, ls[i]) )
+      WebServer(app, joinpath(folder, ls[i]) ,exten)
+    end
+  end
+end
+
+export useCORS
+function useCORS(activate::Bool)
+  HTTP.setheader(my_headers,"Access-Control-Allow-Origin" => "*")
+  HTTP.setheader(my_headers,"Access-Control-Allow-Methods" => "POST,GET,OPTIONS")
+  return true
+end
+
+export headersalways
+function headersalways(head::AbstractString,value::AbstractString)
+  HTTP.setheader(my_headers,head => value)
+end
+
+export notfound
+function notfound(app::App, text::String)
+  if occursin(".html", text)
+    notfound_message= File(app, text)
+    addnotfound(notfound_message)
+  else
+    addnotfound(text)
+  end
+end
+
+export webserverfiles
+function webserverfiles(app::App, load::AbstractString)
+  if load == "*"
+    WebServer(app, "", "")
+  else
+    WebServer(app, "", load)
+  end
+end
+
+export webserverpath
+function webserverpath(app::App, folder::AbstractString)
+  app.rootbase = joinpath(pwd(),folder)
+end
+
+export start
+function start( app::App; verbose = false)
+  my_host = app.host
+  if '.' in my_host 
+    my_host = Sockets.IPv4(my_host) 
+  elseif ':' in my_host 
+    my_host = Sockets.IPv6(my_host) 
+  end
+  HTTP.serve(handler, my_host, app.port, verbose=verbose)
+end
+
+# return new(notfound,start,useCORS,webserverfiles,webserverpath,headersalways)

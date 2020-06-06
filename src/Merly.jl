@@ -11,6 +11,6 @@ include("mimetypes.jl")
 include("routes.jl")
 include("allformats.jl")
 
-export app, @page, @route, GET,POST,PUT,DELETE,HEAD,OPTIONS,PATCH,Get,Post,Put,Delete
+export App, @page, @route, GET,POST,PUT,DELETE,HEAD,OPTIONS,PATCH,Get,Post,Put,Delete
 
 end # module
