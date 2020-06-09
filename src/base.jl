@@ -190,5 +190,3 @@ function start( app::App; verbose = false)
   end
   HTTP.serve(handler, my_host, app.port, verbose=verbose)
 end
-
-# return new(notfound,start,useCORS,webserverfiles,webserverpath,headersalways)

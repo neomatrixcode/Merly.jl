@@ -41,7 +41,7 @@ using Merly
 
 u="hello"
 
-server = Merly.app()
+server = App()
 
 @page "/" "Hello World!"
 @page "/hello/:usr>" "<b>Hello {{usr}}!</b>"
@@ -80,6 +80,6 @@ Post("/data", (req,res)->(begin
 end))
 
 
-server.start(config=Dict("host" => "127.0.0.1","port" => 8000),verbose=false)
+start(server, verbose = false)
 
 ```
