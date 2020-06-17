@@ -7,25 +7,26 @@ using JSON
 
 ip = "127.0.0.1"
 port = 8086
-# write your own tests here
-server = App(ip, port) 
+
+@test File("index.html") == read( open(joinpath(pwd(),"index.html")), String)
+
 
 useCORS(true)
 @test useCORS(true) == true
 headersalways("Strict-Transport-Security","max-age=10886400; includeSubDomains; preload")
-notfound(server, """<!DOCTYPE html>
+notfound("""<!DOCTYPE html>
               <html>
               <head><title>Not found</title></head>
               <body><h1>404, Not found</h1></body>
-              </html>") == server.notfound("<!DOCTYPE html>\n              <html>\n              <head><title>Not found</title></head>\n              <body><h1>404, Not found</h1></body>\n              </html>""")
-notfound(server, "cosa/notfound.html")
+              </html>""") 
+notfound("cosa/notfound.html")
 
 u = "hello"
 
 @page "/" "Hello World!"
 @page "/hola/:usr>" "<b>Hello {{usr}}!</b>"
 
-@page "/mifile" File(server, "Index.html")
+@page "/mifile" File("Index.html")
 
 @route GET "/get/:data1>" begin
   "get this back: {{data1}}"
@@ -70,11 +71,12 @@ Post("/data", (req,res)->(begin
   "I did something!"
 end))
 
-webserverpath(server, "cosa")
-webserverfiles(server, "*")
+@test webserverpath("cosa") == joinpath(pwd(),"cosa")
+webserverfiles("*")
 
- @async start(server, verbose = false)
+ @async start(host = ip, port = port, verbose = false)
  sleep(2)
+
 
  r = HTTP.get("http://$(ip):$(port)/")
  @test r.status == 200
@@ -129,7 +131,7 @@ r = HTTP.delete("http://$(ip):$(port)/")
 try
   r = HTTP.get("http://$(ip):$(port)/nada")
 catch e
-  @test String(e.response.body) == File(server, "notfound.html")
+  @test String(e.response.body) == File("notfound.html")
 end
 
 r = HTTP.get("http://$(ip):$(port)/prueba.txt")
@@ -156,3 +158,4 @@ r= HTTP.get("http://$(ip):$(port)/algomas/ja.txt")
   mean time:        1.099 ms (1.45% GC)
   maximum time:     367.611 ms (0.00% GC)
 =#
+

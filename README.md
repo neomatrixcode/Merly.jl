@@ -41,8 +41,6 @@ using Merly
 
 u="hello"
 
-server = App()
-
 @page "/" "Hello World!"
 @page "/hello/:usr>" "<b>Hello {{usr}}!</b>"
 
@@ -80,6 +78,6 @@ Post("/data", (req,res)->(begin
 end))
 
 
-start(server, verbose = false)
+start(verbose = false)
 
 ```
