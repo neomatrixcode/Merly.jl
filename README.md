@@ -17,16 +17,7 @@
 Merly is a micro framework for declaring routes and handling requests.
 Quickly creating web applications in Julia with minimal effort.
 
-Roadmap
------
 ### All contributions and suggestions are welcome !!!!
-
-#### Version 0.3
-- [ ] Websocket module implementation
-
-#### Version 0.3.1
-- [ ] Performance improvement
-
 
 Installing
 ----------
