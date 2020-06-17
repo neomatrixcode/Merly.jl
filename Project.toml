@@ -4,9 +4,9 @@ repo = "https://github.com/codeneomatrix/Merly.jl"
 version = "0.2.1"
 
 [deps]
-Sockets = "6462fe0b-24de-5631-8697-dd941f90decc"
-JSON = "682c06a0-de6a-54ab-a142-c8b1cf79cde6"
 HTTP = "cd3eb016-35fb-5094-929b-558a96fad6f3"
+JSON = "682c06a0-de6a-54ab-a142-c8b1cf79cde6"
+Sockets = "6462fe0b-24de-5631-8697-dd941f90decc"
 
 [compat]
 julia = "1"
