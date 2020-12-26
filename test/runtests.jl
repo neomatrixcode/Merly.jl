@@ -2,8 +2,6 @@ using Merly
 using Test
 using HTTP
 using JSON
-#Pkg.add("BenchmarkTools")
-#using BenchmarkTools
 
 ip = "127.0.0.1"
 port = 8086
@@ -18,7 +16,7 @@ notfound("""<!DOCTYPE html>
               <html>
               <head><title>Not found</title></head>
               <body><h1>404, Not found</h1></body>
-              </html>""") 
+              </html>""")
 notfound("cosa/notfound.html")
 
 u = "hello"
@@ -26,7 +24,7 @@ u = "hello"
 @page "/" "Hello World!"
 @page "/hola/:usr>" "<b>Hello {{usr}}!</b>"
 
-@page "/mifile" File("Index.html")
+@page "/mifile" File("index.html")
 
 @route GET "/get/:data1>" begin
   "get this back: {{data1}}"
@@ -78,15 +76,15 @@ webserverfiles("*")
  sleep(2)
 
 
- r = HTTP.get("http://$(ip):$(port)/")
+  global r = HTTP.get("http://$(ip):$(port)/")
  @test r.status == 200
  @test String(r.body) == "Hello World!"
 
-r = HTTP.get("http://$(ip):$(port)/hola/usuario")
+ global r = HTTP.get("http://$(ip):$(port)/hola/usuario")
 @test r.status == 200
 @test String(r.body) == "<b>Hello usuario!</b>"
 
-r = HTTP.get("http://$(ip):$(port)/get/testdata")
+ global r = HTTP.get("http://$(ip):$(port)/get/testdata")
 @test r.status == 200
 @test String(r.body) == "get this back: testdata"
 
@@ -94,68 +92,64 @@ r= HTTP.get("http://$(ip):$(port)/regex/test1")
 @test String(r.body) == "datos test1"
 
 
-r = HTTP.get("http://$(ip):$(port)/data?hola=1")
+ global r = HTTP.get("http://$(ip):$(port)/data?hola=1")
 @test r.status == 200
 @test String(r.body) == "hellodata"
 
 myjson = Dict("query"=>"data")
 my_headers = HTTP.mkheaders(["Accept" => "application/json","Content-Type" => "application/xml"])
-r = HTTP.post("http://$(ip):$(port)/data",my_headers,JSON.json(myjson))
+ global r = HTTP.post("http://$(ip):$(port)/data",my_headers,JSON.json(myjson))
 @test r.status == 200
 @test String(r.body) == "I did something!"
 
-r = HTTP.get("http://$(ip):$(port)/data")
+ global r = HTTP.get("http://$(ip):$(port)/data")
 @test r.status == 200
 @test String(r.body) == "byedata"
 
 
 my_headers = HTTP.mkheaders(["Accept" => "application/json"])
-r = HTTP.post("http://$(ip):$(port)/post",my_headers,JSON.json(myjson))
+ global r = HTTP.post("http://$(ip):$(port)/post",my_headers,JSON.json(myjson))
 @test r.status == 200
 @test String(r.body) == "I did something!"
 
 my_headers = HTTP.mkheaders(["Accept" => "application/json","Content-Type" => "application/json"])
-r = HTTP.post("http://$(ip):$(port)/",my_headers,JSON.json(myjson))
+ global r = HTTP.post("http://$(ip):$(port)/",my_headers,JSON.json(myjson))
 @test r.status == 200
 @test String(r.body) == "I did something!"
 
-r = HTTP.put("http://$(ip):$(port)/",my_headers,JSON.json(myjson))
+ global r = HTTP.put("http://$(ip):$(port)/",my_headers,JSON.json(myjson))
 @test r.status == 200
 @test String(r.body) == "I did something!"
 
-r = HTTP.delete("http://$(ip):$(port)/")
+ global r = HTTP.delete("http://$(ip):$(port)/")
 @test r.status == 200
 @test String(r.body) == "I did something!"
 @test r.headers == Pair{SubString{String},SubString{String}}["Content-Type"=>"text/plain", "Access-Control-Allow-Origin"=>"*", "Access-Control-Allow-Methods"=>"POST,GET,OPTIONS", "Strict-Transport-Security"=>"max-age=10886400; includeSubDomains; preload", "Transfer-Encoding"=>"chunked"]
 
 try
-  r = HTTP.get("http://$(ip):$(port)/nada")
+   global r = HTTP.get("http://$(ip):$(port)/nada")
 catch e
   @test String(e.response.body) == File("notfound.html")
 end
 
-r = HTTP.get("http://$(ip):$(port)/prueba.txt")
+ global r = HTTP.get("http://$(ip):$(port)/prueba.txt")
 @test r.status == 200
 @test String(r.body) == "probando webserver"
 @test r.headers == Pair{SubString{String},SubString{String}}["Content-Type"=>"text/plain", "Access-Control-Allow-Origin"=>"*", "Access-Control-Allow-Methods"=>"POST,GET,OPTIONS", "Strict-Transport-Security"=>"max-age=10886400; includeSubDomains; preload", "Transfer-Encoding"=>"chunked"]
 
-
-r= HTTP.get("http://$(ip):$(port)/algomas/ja.txt")
+global r= HTTP.get("http://$(ip):$(port)/algomas/ja.txt")
 @test String(r.body) == "jajajajaj"
 
-#@btime HTTP.get("http://$(ip):$(port)/?hola=5")
-# 3.864 ms (8304 allocations: 381.20 KiB)
-# 453.803 μs (748 allocations: 30.92 KiB)
-#@btime HTTP.get("http://$(ip):$(port)/hola/usuario")
-# 4.211 ms (7685 allocations: 353.44 KiB)
-# 483.861 μs (743 allocations: 30.41 KiB)
-#@benchmark r= HTTP.get("http://$(ip):$(port)/get/testdata")
-# 3.906 ms (7693 allocations: 353.78 KiB)
-# 484.960 μs (744 allocations: 30.44 KiB)
-#=
- minimum time:     740.087 μs (0.00% GC)
-  median time:      843.457 μs (0.00% GC)
-  mean time:        1.099 ms (1.45% GC)
-  maximum time:     367.611 ms (0.00% GC)
-=#
+global r= HTTP.get("http://$(ip):$(port)/mifile")
+@test String(r.body) == "<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+</head>
+<body>
+<h1>hola</h1>
+</body>
+</html>"
+
 
