@@ -1,3 +1,4 @@
+
 mutable struct myresponse
   status::Int
   headers::Dict
@@ -21,11 +22,23 @@ end
 my_headers= HTTP.mkheaders(["Content-Type" => "text/plain"])
 
 function searchroute_regex(ruta::String)
-  for i in 1:length(routes_patterns_array)
-    if(occursin(routes_patterns_array[i],ruta))
-      return routes_patterns_array[i]
+
+  #@info ("url a filtrar", ruta)
+  #@info("dato del filter",filter(tuple -> occursin(first(tuple),ruta), collect(routes_patterns)))
+  #= ┌ Info: dato del filter
+  └   first(filter((tuple->begin
+                #= C:\Users\josue\.julia\dev\Merly\src\core.jl:27 =#
+                occursin(first(tuple), ruta)
+            end), collect(routes_patterns))) =
+
+            [Pair{Regex,Function}(r"^GET/hola/(?<usr>\w+)$", var"#3#4"())]
+  =#
+  for (k,v) in routes_patterns
+    if(occursin(k,ruta))
+      return k
     end
  end
+
  return ""
 end
 
@@ -50,8 +63,11 @@ function handler(request::HTTP.Request)
     end
   end
 
-  if (searchroute in routes_array)
-    response.body = getindex(routes, searchroute)(my_request,response)
+
+  result = get(routes, searchroute, -1)
+
+  if (typeof(result)!= Int64)
+    response.body = result(my_request,response)
   else
     pattern = searchroute_regex(searchroute)
     if (typeof(pattern) <:Regex)
@@ -60,7 +76,7 @@ function handler(request::HTTP.Request)
       response.body = _function(my_request,response)
       sal = collect((m.match for m = eachmatch(Regex("{{(\\w\\d*)+}}"), response.body)))
       for i in sal
-        response.body = replace(response.body,Regex(i) => my_request.params["$(i[3:end-2])"])
+        response.body = replace(response.body,Regex(i) => my_request.params[ string(i[3:end-2])])
       end
     else
       response.body = getindex(routes, "notfound")(my_request,response)
@@ -126,7 +142,7 @@ function files(folder::String, file::String)
       res.headers["Content-Type"]= extension
       res.status = 200
       res.body = data
-    end))
+    end),routes_patterns,routes)
 end
 
 """
@@ -163,9 +179,9 @@ export notfound
 function notfound(text::String)
   if occursin(".html", text)
     notfound_message= File(text)
-    addnotfound(notfound_message)
+    addnotfound(notfound_message,routes)
   else
-    addnotfound(text)
+    addnotfound(text,routes)
   end
 end
 
@@ -181,10 +197,10 @@ end
 export start
 function start( ;host = "127.0.0.1", port = "8080", verbose = false)
   my_host = host
-  if '.' in my_host 
-    my_host = Sockets.IPv4(my_host) 
-  elseif ':' in my_host 
-    my_host = Sockets.IPv6(my_host) 
+  if '.' in my_host
+    my_host = Sockets.IPv4(my_host)
+  elseif ':' in my_host
+    my_host = Sockets.IPv6(my_host)
   end
   HTTP.serve(handler, my_host, port, verbose=verbose)
 end

@@ -1,6 +1,5 @@
 using Merly
 using HTTP
-using JSON
 using BenchmarkTools
 
 ip = "127.0.0.1"
@@ -16,6 +15,36 @@ end
 
 @async start(host = ip, port = port, verbose = false)
 
+
+#------------------31/12/2020-------------------------------
+# @btime r= HTTP.get("http://$(ip):$(port)/")
+# 131.100 μs (539 allocations: 30.03 KiB)
+# @btime HTTP.get("http://$(ip):$(port)/?hola=5")
+# 140.601 μs (574 allocations: 32.75 KiB)
+# @btime HTTP.get("http://$(ip):$(port)/hola/usuario")
+# 165.399 μs (568 allocations: 31.61 KiB)
+# @btime r= HTTP.get("http://$(ip):$(port)/get/testdata")
+# 165.300 μs (564 allocations: 31.50 KiB)
+
+#------------------29/12/2020-------------------------------
+# @btime r= HTTP.get("http://$(ip):$(port)/")
+# 125.899 μs (510 allocations: 29.94 KiB)
+# @btime HTTP.get("http://$(ip):$(port)/?hola=5")
+# 144.100 μs (575 allocations: 32.80 KiB)
+# @btime HTTP.get("http://$(ip):$(port)/hola/usuario")
+# 171.801 μs (569 allocations: 31.66 KiB)
+# @btime r= HTTP.get("http://$(ip):$(port)/get/testdata")
+#  164.800 μs (565 allocations: 31.55 KiB)
+
+#------------------27/12/2020-------------------------------
+# @btime r= HTTP.get("http://$(ip):$(port)/")
+# 132.400 μs (540 allocations: 30.08 KiB)
+# @btime HTTP.get("http://$(ip):$(port)/?hola=5")
+# 141.000 μs (575 allocations: 32.80 KiB)
+# @btime HTTP.get("http://$(ip):$(port)/hola/usuario")
+# 164.300 μs (563 allocations: 31.50 KiB)
+# @btime r= HTTP.get("http://$(ip):$(port)/get/testdata")
+# 165.600 μs (564 allocations: 31.53 KiB)
 
 #------------------26/12/2020-------------------------------
 # @btime HTTP.get("http://$(ip):$(port)/?hola=5")
