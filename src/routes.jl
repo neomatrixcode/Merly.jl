@@ -1,15 +1,10 @@
 
-
-
 function addnotfound(message::String,routes)
   routes["notfound"] = (req,res) -> begin
     res.status = 404
     return message
   end
 end
-
-addnotfound("NotFound",routes)
-
 
 function createurl(url::String,funtion::Function,routes_patterns,routes)
   if occursin(":",url)||occursin("(",url)

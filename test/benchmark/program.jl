@@ -15,6 +15,15 @@ end
 
 @async start(host = ip, port = port, verbose = false)
 
+#------------------01/01/2021-------------------------------
+# @btime r= HTTP.get(string("http://",ip,":",port,"/"))
+# 115.700 μs (272 allocations: 15.70 KiB)
+# @btime HTTP.get(string("http://",ip,":",port,"/?hola=5"))
+# 125.200 μs (273 allocations: 15.77 KiB)
+# @btime HTTP.get(string("http://",ip,":",port,"/hola/usuario"))
+# 150.600 μs (259 allocations: 15.50 KiB)
+# @btime r= HTTP.get(string("http://",ip,":",port,"/get/testdata"))
+# 144.700 μs (259 allocations: 15.50 KiB)
 
 #------------------31/12/2020-------------------------------
 # @btime r= HTTP.get("http://$(ip):$(port)/")

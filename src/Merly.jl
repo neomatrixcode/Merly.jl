@@ -23,11 +23,14 @@ PATCH = "PATCH"
 routes=Dict{String, Function}()
 routes_patterns=Dict{Regex, Function}()
 
+include("files.jl")
 include("core.jl")
 include("mimetypes.jl")
 include("routes.jl")
 include("allformats.jl")
 
-export App, @page, @route, GET,POST,PUT,DELETE,HEAD,OPTIONS,PATCH,Get,Post,Put,Delete
+addnotfound("NotFound",routes)
+
+export webserverfiles, webserverpath, notfound, headersalways, useCORS, File, @page, @route, GET,POST,PUT,DELETE,HEAD,OPTIONS,PATCH,Get,Post,Put,Delete, start
 
 end # module
