@@ -17,4 +17,5 @@ formats = Dict(
   #, "application/xml"  =>  toxml
   , "*/*"              =>  toplanetext
   , "text/plain"       =>  toplanetext
+  , ""       =>  toplanetext
 )

@@ -8,20 +8,6 @@ mutable struct myresponse
   end
 end
 
-mutable struct myrequest
-  query::Dict
-  params::RegexMatch
-  body::Any
-  version::VersionNumber
-  headers::Array
-  function myrequest()
-    new(Dict(),match(r"\s"," "),"",VersionNumber(1),[])
-  end
-end
-
-
-
-	my_headers= HTTP.mkheaders(["Content-Type" => "text/plain"])
 
 	function searchroute_regex(ruta::String,routes_patterns::Dict{Regex, Function})
 
@@ -44,54 +30,63 @@ end
 	 return ""
 	end
 
+function createrequest(request::HTTP.Request)
+
+	data = split(request.target,"?")
+    body = getindex(formats, HTTP.header(request,"Content-Type"))(String(request.body))
+
+    return (
+		 query = (length(data)>1 ? HTTP.queryparams(data[2]) : Dict())
+		,body = body
+		,headers = request.headers
+		,searchroute = request.method*data[1]
+    )
+
+end
 
 function my_handler(routes::Dict{String, Function}, routes_patterns::Dict{Regex, Function})
 
+	my_headers= HTTP.mkheaders(["Content-Type" => "text/plain"])
+
 	function handler(request::HTTP.Request)
-	  data = split(request.target,"?")
-	  url=data[1]
-	  searchroute = request.method*url
 
-	  my_request=myrequest()
-	  my_request.version=request.version
-	  my_request.headers=request.headers
-	  if (length(data)>1) my_request.query= HTTP.queryparams(data[2]) end
+		my_request = createrequest(request)
 
-	  response = myresponse(200)
-
-	  if ((request.method=="POST"  )||(request.method=="PUT"  )||(request.method=="PATCH"))
-	    header_content_type = HTTP.header(request, "Content-Type")
-	    if((length(header_content_type)>0) && (haskey(formats,header_content_type)))
-	      my_request.body= getindex(formats, header_content_type)(String(request.body))
-	    else
-	      my_request.body = getindex(formats, "*/*")(String(request.body))
-	    end
-	  end
+		result = get(routes, my_request.searchroute, -1)
 
 
-	  result = get(routes, searchroute, -1)
+		#if (typeof(result)== Int64)
+		#	return HTTP.Response(404, getindex(routes, "notfound")(my_request,""))
+		#end
+
+		return HTTP.Response(200, "")
+#=
+
+		#response = myresponse(200)
+
+
 
 	  if (typeof(result)!= Int64)
-	    response.body = result(my_request,response)
+	    return HTTP.Response(200, result(my_request,""))
 	  else
-	    pattern = searchroute_regex(searchroute,routes_patterns)
+	   #= pattern = searchroute_regex(my_request.searchroute,routes_patterns)
 	    if (typeof(pattern) <:Regex)
-	      my_request.params = match(pattern,searchroute)
+	      params = match(pattern,my_request.searchroute)
 	      _function = getindex(routes_patterns,pattern)
 	      response.body = _function(my_request,response)
 	      sal = collect((m.match for m = eachmatch(Regex("{{(\\w\\d*)+}}"), response.body)))
 	      for i in sal
-	        response.body = replace(response.body,Regex(i) => my_request.params[ string(i[3:end-2])])
+	        response.body = replace(response.body,Regex(i) => params[ string(i[3:end-2])])
 	      end
-	    else
-	      response.body = getindex(routes, "notfound")(my_request,response)
-	    end
+	    else=#
+	      return HTTP.Response(404, getindex(routes, "notfound")(my_request,""))
+	    #end
 	  end
-	  responsefinal = HTTP.Response(response.status,my_headers, body=response.body)
-	  for (key, value) in response.headers
-	    HTTP.setheader(responsefinal,key => value )
-	  end
-	  return responsefinal
+	 # responsefinal = HTTP.Response(response.status,my_headers, body=response.body)
+	 # for (key, value) in response.headers
+	  #  HTTP.setheader(responsefinal,key => value )
+	  #end
+	  return HTTP.Response(200, response.body)=#
 	end
 
     ()->(handler)
@@ -120,13 +115,10 @@ function my_handler(routes::Dict{String, Function}, routes_patterns::Dict{Regex,
 
 
 
-	function start( ;host = "127.0.0.1", port = "8080", verbose = false)
-	  my_host = host
-	  if '.' in my_host
-	    my_host = Sockets.IPv4(my_host)
-	  elseif ':' in my_host
-	    my_host = Sockets.IPv6(my_host)
+	function start( ;host::String = "127.0.0.1", port::Int64 = 8086, verbose::Bool = false)
+	  Handler = my_handler(routes,routes_patterns)
+	  if ':' in host
+	    HTTP.serve(Handler.handler, Sockets.IPv6(host), port, verbose=verbose)
 	  end
-      Handler = my_handler(routes,routes_patterns)
-	  HTTP.serve(Handler.handler, my_host, port, verbose=verbose)
+	  HTTP.serve(Handler.handler, Sockets.IPv4(host), port, verbose=verbose)
 	end

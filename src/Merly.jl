@@ -17,7 +17,7 @@ HEAD = "HEAD"
 OPTIONS = "OPTIONS"
 PATCH = "PATCH"
 
-# Dict("g" => (g(x::Int) = x + 5))
+# Dict("g" => (g(x::Int) = x + 5)) #mas rapido
 # Dict("g" => function g(x::Int); x + 5; end)
 
 routes=Dict{String, Function}()
