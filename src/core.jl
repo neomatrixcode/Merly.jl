@@ -46,6 +46,19 @@ function my_handler(myendpoints::Dict{Int64,Array{NamedTuple{(:route, :toexec),T
         return salida
 	end
 
+	function urlparams(input::SubString{String})::Dict{String,String}
+		salida = Dict{String,String}()
+		params = Dict(2=>"usuario")
+
+        for (index, value) in enumerate(split(input,"/"))
+        	if haskey(params, index)
+        		salida[params[index]]=value
+            end
+        end #845.574 ns (16 allocations: 768 bytes)
+
+        return salida
+	end
+
 	function createrequest(request::HTTP.Request)
 
 		data = split(request.target,"?")
@@ -53,8 +66,8 @@ function my_handler(myendpoints::Dict{Int64,Array{NamedTuple{(:route, :toexec),T
 	    body = ""
 	    myquery= Dict()
 
+	    mycleanurl= cleanurl(data[1])
 	    if(length(data[1])>1)
-		  mycleanurl= cleanurl(data[1])
 		  nvalues = length(split(mycleanurl,"/"))
 		end
 
@@ -71,7 +84,7 @@ function my_handler(myendpoints::Dict{Int64,Array{NamedTuple{(:route, :toexec),T
 			,body = body
 			,headers = request.headers
 			,searchroute = parse(Int64, string(tonumber[request.method] , nvalues) )
-			,url = data[1]
+			,url = mycleanurl
 	    )
 
     end

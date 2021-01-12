@@ -20,13 +20,15 @@ end
 
 #------------------12/01/2021-------------------------------
 # @btime r=HTTP.request("GET", string("http://",ip,":",port,"/"))
-# 119.000 μs (250 allocations: 14.97 KiB)
+# 116.000 μs (251 allocations: 15.00 KiB)
 # @btime r=HTTP.request("GET", string("http://",ip,":",port,"/?hola=5"))
-# 120.200 μs (251 allocations: 15.02 KiB)
+# 118.101 μs (251 allocations: 15.02 KiB)
 # @btime r=HTTP.request("GET", string("http://",ip,":",port,"/urll2"))
-# 117.800 μs (251 allocations: 15.00 KiB)
+# 114.501 μs (251 allocations: 15.00 KiB)
 # @btime r=HTTP.request("GET", string("http://",ip,":",port,"/url2"))
-# 119.400 μs (263 allocations: 15.19 KiB)
+# 116.399 μs (251 allocations: 14.98 KiB)
+# @btime r=HTTP.request("GET", string("http://",ip,":",port,"/url2/"))
+# 117.400 μs (252 allocations: 14.98 KiB)
 
 #------------------11/01/2021-------------------------------
 # @btime r=HTTP.request("GET", string("http://",ip,":",port,"/"))

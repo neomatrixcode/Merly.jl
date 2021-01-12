@@ -23,27 +23,44 @@ end
 
 
 
-function toregex(url::String)
- if occursin(":",url)||occursin("(",url)
-      url_ = "^"*url*"\$"
-      url_ = replace(url_,":" => "")
-      url_ = replace(url_,">" => "\\w+)")
-  end
+function urlparams(url::String)
+	params = Dict{Int64,String}()
+
+    for (index, value) in enumerate(split(url,"/"))
+    	if(length(value)>2 )
+    		if (value[1] ==':')
+               params[index] = value[2:end-1]
+    		end
+    		if (value[1] =='(')
+    			params[index] = string(index)
+    		end
+    	end
+    end
+
+    url = replace(url, r":(.+)>" => s"\\w+")
+
+  return (Regex(string("^"*url*"\$")), params)
 end
 
 
 function createurl(method::String,url::String,functiontoexec::Function,myendpoints::Dict{Int64,Array{NamedTuple{(:route, :toexec),Tuple{Union{Regex, String},Function}},1}},tonumber::Dict{String,Char},cleanurl::Function)
 
 	nvalues= 0
+	urlparams = Nothing
 
-    if(length(url)>1)
-		mycleanurl= cleanurl(url)
+	mycleanurl= cleanurl(url)
+	if(length(url)>1)
 		nvalues = length(split(mycleanurl,"/"))
 	end
 
-  indexsearch = parse(Int64, string(tonumber[method] , nvalues) )
+	indexsearch = parse(Int64, string(tonumber[method] , nvalues) )
 
-  myroute = (route= url, toexec= functiontoexec )
+    #if occursin(":",url) || occursin("(",url)
+    #  urlparams =
+    #end
+
+	myroute = (route= mycleanurl, toexec= functiontoexec)#,  params = urlparams )
+
 
     if haskey(myendpoints, indexsearch)
     	push!(myendpoints[indexsearch], myroute )
@@ -51,7 +68,8 @@ function createurl(method::String,url::String,functiontoexec::Function,myendpoin
         myendpoints[indexsearch] = [myroute]
     end
 
-  @info("Url added",url)
+
+    @info("Url added",url)
 
 end
 
