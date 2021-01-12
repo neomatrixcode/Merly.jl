@@ -12,7 +12,7 @@ function toxml(data::String)
 end
 
 
-formats = Dict(
+formats = Dict{String,Function}(
     "application/json" =>  tojson
   #, "application/xml"  =>  toxml
   , "*/*"              =>  toplanetext

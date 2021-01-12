@@ -7,19 +7,45 @@ port = 8086
 
 @page "/" "Hello World!"
 
-@page "/hola/:usr>" "<b>Hello {{usr}}!</b>"
+@page "/url1" "test1"
+@page "/url2" "test2"
+#=@page "/hola/:usr>" "<b>Hello {{usr}}!</b>"
 
 @route GET "/get/:data1>" begin
   "get this back: {{data1}}"
 end
+=#
 
 @async start(host = ip, port = port, verbose = false)
+
+#------------------12/01/2021-------------------------------
+# @btime r=HTTP.request("GET", string("http://",ip,":",port,"/"))
+# 119.000 μs (250 allocations: 14.97 KiB)
+# @btime r=HTTP.request("GET", string("http://",ip,":",port,"/?hola=5"))
+# 120.200 μs (251 allocations: 15.02 KiB)
+# @btime r=HTTP.request("GET", string("http://",ip,":",port,"/urll2"))
+# 117.800 μs (251 allocations: 15.00 KiB)
+# @btime r=HTTP.request("GET", string("http://",ip,":",port,"/url2"))
+# 119.400 μs (263 allocations: 15.19 KiB)
+
+#------------------11/01/2021-------------------------------
+# @btime r=HTTP.request("GET", string("http://",ip,":",port,"/"))
+# 118.700 μs (250 allocations: 14.97 KiB) -- 11/01/2021
+# 119.499 μs (251 allocations: 15.00 KiB) -- 11/01/2021 08:14 [ejecutando la funcion]
+# @btime r=HTTP.request("GET", string("http://",ip,":",port,"/?hola=5"))
+# 132.400 μs (251 allocations: 15.00 KiB) -- 11/01/2021 08:14 [ejecutando la funcion]
+# @btime r=HTTP.request("GET", string("http://",ip,":",port,"/urll2"))
+# 123.900 μs (251 allocations: 15.00 KiB) [ejecutando la funcion]
+# @btime r=HTTP.request("GET", string("http://",ip,":",port,"/url2"))
+# 122.100 μs (251 allocations: 14.98 KiB) [ejecutando la funcion]
+
 
 #------------------02/01/2021-------------------------------
 # @btime r=HTTP.request("GET", string("http://",ip,":",port,"/"))
 # 80.100 μs (247 allocations: 14.84 KiB) [minimo]
 # 82.400 μs (247 allocations: 14.84 KiB) [sin la ejecucion de la funcion]
-# 114.199 μs (250 allocations: 14.97 KiB)
+# 83.600 μs (247 allocations: 14.84 KiB) -- 09/01/2021 [sin la ejecucion de la funcion]
+# 114.199 μs (250 allocations: 14.97 KiB) [ejecutando la funcion]
 # @btime r=HTTP.request("GET", string("http://",ip,":",port,"/?hola=5"))
 # 91.600 μs (247 allocations: 14.86 KiB)
 # 93.900 μs (247 allocations: 14.86 KiB)[sin la ejecucion de la funcion]

@@ -26,25 +26,24 @@ u = "hello"
 
 @page "/mifile" File("index.html")
 
-@route GET "/get/:data1>" begin
+@route GET "/get/:data1>" (req,res)->begin
   "get this back: {{data1}}"
 end
 
-@route GET "/regex/(\\w+\\d+)" begin
+@route GET "/regex/(\\w+\\d+)" (req,res)->begin
 
-  println("req.version ",req.version)
   println("req.headers ",req.headers)
 
-   "datos $(req.params[1])"
+   "datos"# $(req.params[1])"
 end
 
-@route POST "/post" begin
+@route POST "/post" (req,res)->begin
   res.body = "I did something!"
   "I did something!"
 end
 
-@route POST|PUT|DELETE "/" begin
-  println("params: ",req.params)
+@route POST|PUT|DELETE "/" (req,res)->begin
+  #println("params: ",req.params)
   println("query: ",req.query)
   println("body: ",req.body)
 
@@ -75,6 +74,12 @@ webserverfiles("*")
  @async start(host = ip, port = port, verbose = false)
  sleep(2)
 
+myjson = Dict("query"=>"data")
+
+my_headers = HTTP.mkheaders(["Content-Type" => "application/json"])
+ global r = HTTP.post("http://$(ip):$(port)/post",my_headers,JSON.json(myjson))
+@test r.status == 200
+@test String(r.body) == "I did something!"
 
   global r = HTTP.get("http://$(ip):$(port)/")
  @test r.status == 200
@@ -96,8 +101,8 @@ r= HTTP.get("http://$(ip):$(port)/regex/test1")
 @test r.status == 200
 @test String(r.body) == "hellodata"
 
-myjson = Dict("query"=>"data")
-my_headers = HTTP.mkheaders(["Accept" => "application/json","Content-Type" => "application/xml"])
+
+my_headers = HTTP.mkheaders(["Accept" => "html/plain","Content-Type" => "application/json"])
  global r = HTTP.post("http://$(ip):$(port)/data",my_headers,JSON.json(myjson))
 @test r.status == 200
 @test String(r.body) == "I did something!"
@@ -105,12 +110,6 @@ my_headers = HTTP.mkheaders(["Accept" => "application/json","Content-Type" => "a
  global r = HTTP.get("http://$(ip):$(port)/data")
 @test r.status == 200
 @test String(r.body) == "byedata"
-
-
-my_headers = HTTP.mkheaders(["Accept" => "application/json"])
- global r = HTTP.post("http://$(ip):$(port)/post",my_headers,JSON.json(myjson))
-@test r.status == 200
-@test String(r.body) == "I did something!"
 
 my_headers = HTTP.mkheaders(["Accept" => "application/json","Content-Type" => "application/json"])
  global r = HTTP.post("http://$(ip):$(port)/",my_headers,JSON.json(myjson))

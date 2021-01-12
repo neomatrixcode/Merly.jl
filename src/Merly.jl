@@ -16,12 +16,30 @@ DELETE="DELETE"
 HEAD = "HEAD"
 OPTIONS = "OPTIONS"
 PATCH = "PATCH"
+CONNECT	= "CONNECT"
+TRACE = "TRACE"
+
+
+tonumber = Dict{String,Char}(
+ "CONNECT" => '1'
+,"TRACE"   => '2'
+,"HEAD"    => '3'
+,"DELETE"  => '4'
+,"PUT"     => '5'
+,"OPTIONS" => '6'
+,"POST"    => '7'
+,"GET"     => '8'
+,"PATCH"   => '9'
+)
 
 # Dict("g" => (g(x::Int) = x + 5)) #mas rapido
 # Dict("g" => function g(x::Int); x + 5; end)
 
-routes=Dict{String, Function}()
-routes_patterns=Dict{Regex, Function}()
+myendpoints = Dict{Int64,Array{NamedTuple{(:route, :toexec),Tuple{Union{String,Regex},Function}},1}}(
+
+0 => [(route= "", toexec= function nf(req,res); res.status = 404; end)]
+
+)
 
 include("files.jl")
 include("core.jl")
@@ -29,7 +47,7 @@ include("mimetypes.jl")
 include("routes.jl")
 include("allformats.jl")
 
-addnotfound("NotFound",routes)
+addnotfound("NotFound",myendpoints)
 
 export webserverfiles, webserverpath, notfound, headersalways, useCORS, File, @page, @route, GET,POST,PUT,DELETE,HEAD,OPTIONS,PATCH,Get,Post,Put,Delete, start
 

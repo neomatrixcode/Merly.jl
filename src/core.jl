@@ -30,42 +30,80 @@ end
 	 return ""
 	end
 
-function createrequest(request::HTTP.Request)
 
-	data = split(request.target,"?")
-    body = getindex(formats, HTTP.header(request,"Content-Type"))(String(request.body))
-
-    return (
-		 query = (length(data)>1 ? HTTP.queryparams(data[2]) : Dict())
-		,body = body
-		,headers = request.headers
-		,searchroute = request.method*data[1]
-    )
-
-end
-
-function my_handler(routes::Dict{String, Function}, routes_patterns::Dict{Regex, Function})
+function my_handler(myendpoints::Dict{Int64,Array{NamedTuple{(:route, :toexec),Tuple{Union{Regex, String},Function}},1}},tonumber::Dict{String,Char},formats::Dict{String,Function},cleanurl::Function)
 
 	my_headers= HTTP.mkheaders(["Content-Type" => "text/plain"])
+
+	function myqueryparams(input::SubString{String})::Dict{String,String}
+		salida = Dict{String,String}()
+        for e in split(input,"&")
+        	items = split(e,"=")
+        	if (length(items)==2)
+        		salida[items[1]]=items[2]
+            end
+        end   #1.030 μs (17 allocations: 992 bytes)
+        return salida
+	end
+
+	function createrequest(request::HTTP.Request)
+
+		data = split(request.target,"?")
+		nvalues= 0
+	    body = ""
+	    myquery= Dict()
+
+	    if(length(data[1])>1)
+		  mycleanurl= cleanurl(data[1])
+		  nvalues = length(split(mycleanurl,"/"))
+		end
+
+	    if(!eof(IOBuffer(HTTP.payload(request))))
+	    	body = getindex(formats, HTTP.header(request,"Content-Type"))(String(request.body))
+        end
+
+        if (length(data)>1)
+            myquery = myqueryparams(data[2])
+        end
+
+	    return (
+			 query = myquery
+			,body = body
+			,headers = request.headers
+			,searchroute = parse(Int64, string(tonumber[request.method] , nvalues) )
+			,url = data[1]
+	    )
+
+    end
+
+	function search(value)
+	    function run(item)
+			return occursin(value, item.route)
+		end
+		()-> (run)
+	end
 
 	function handler(request::HTTP.Request)
 
 		my_request = createrequest(request)
 
-		result = get(routes, my_request.searchroute, -1)
+		result = get(myendpoints, my_request.searchroute, 1)
+
+        response = myresponse(200)
+
+		if (typeof(result)!== Int64)
+
+		   f = iterate(Iterators.filter(search(my_request.url).run, result))
+		   if f !== nothing
+		   	 return f[1].toexec(my_request,response)
+		   end
+
+           return myendpoints[0][1].toexec(my_request,response)
+		end
 
 
-		#if (typeof(result)== Int64)
-		#	return HTTP.Response(404, getindex(routes, "notfound")(my_request,""))
-		#end
-
-		return HTTP.Response(200, "")
+		return myendpoints[0][1].toexec(my_request,response)
 #=
-
-		#response = myresponse(200)
-
-
-
 	  if (typeof(result)!= Int64)
 	    return HTTP.Response(200, result(my_request,""))
 	  else
@@ -116,7 +154,7 @@ function my_handler(routes::Dict{String, Function}, routes_patterns::Dict{Regex,
 
 
 	function start( ;host::String = "127.0.0.1", port::Int64 = 8086, verbose::Bool = false)
-	  Handler = my_handler(routes,routes_patterns)
+	  Handler = my_handler(myendpoints,tonumber,formats,cleanurl)
 	  if ':' in host
 	    HTTP.serve(Handler.handler, Sockets.IPv6(host), port, verbose=verbose)
 	  end
