@@ -9,26 +9,29 @@ port = 8086
 
 @page "/url1" "test1"
 @page "/url2" "test2"
-#=@page "/hola/:usr>" "<b>Hello {{usr}}!</b>"
+@page "/hola/:usr>" "<b>Hello {{usr}}!</b>"
 
-@route GET "/get/:data1>" begin
+@route GET "/get/:data1>" (req,res)->begin
   "get this back: {{data1}}"
 end
-=#
 
 @async start(host = ip, port = port, verbose = false)
 
 #------------------12/01/2021-------------------------------
 # @btime r=HTTP.request("GET", string("http://",ip,":",port,"/"))
-# 116.000 μs (251 allocations: 15.00 KiB)
+# 119.701 μs (263 allocations: 15.20 KiB)
 # @btime r=HTTP.request("GET", string("http://",ip,":",port,"/?hola=5"))
-# 118.101 μs (251 allocations: 15.02 KiB)
+# 122.900 μs (251 allocations: 15.02 KiB)
 # @btime r=HTTP.request("GET", string("http://",ip,":",port,"/urll2"))
-# 114.501 μs (251 allocations: 15.00 KiB)
+# 118.100 μs (251 allocations: 15.00 KiB)
 # @btime r=HTTP.request("GET", string("http://",ip,":",port,"/url2"))
-# 116.399 μs (251 allocations: 14.98 KiB)
+# 120.199 μs (264 allocations: 15.27 KiB)
 # @btime r=HTTP.request("GET", string("http://",ip,":",port,"/url2/"))
-# 117.400 μs (252 allocations: 14.98 KiB)
+# 123.999 μs (251 allocations: 14.98 KiB)
+# @btime HTTP.get("http://$(ip):$(port)/hola/usuario")
+# 120.900 μs (264 allocations: 15.27 KiB)
+# @btime r= HTTP.get("http://$(ip):$(port)/get/testdata")
+# 122.500 μs (251 allocations: 15.05 KiB)
 
 #------------------11/01/2021-------------------------------
 # @btime r=HTTP.request("GET", string("http://",ip,":",port,"/"))

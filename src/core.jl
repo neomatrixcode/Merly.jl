@@ -31,7 +31,7 @@ end
 	end
 
 
-function my_handler(myendpoints::Dict{Int64,Array{NamedTuple{(:route, :toexec),Tuple{Union{Regex, String},Function}},1}},tonumber::Dict{String,Char},formats::Dict{String,Function},cleanurl::Function)
+function my_handler(myendpoints::Dict{Int64,Array{NamedTuple{(:route, :toexec, :urlparams),Tuple{Union{String,Regex},Function,Union{Nothing,Dict{Int64,String}}}},1}},tonumber::Dict{String,Char},formats::Dict{String,Function},cleanurl::Function)
 
 	my_headers= HTTP.mkheaders(["Content-Type" => "text/plain"])
 
@@ -46,9 +46,8 @@ function my_handler(myendpoints::Dict{Int64,Array{NamedTuple{(:route, :toexec),T
         return salida
 	end
 
-	function urlparams(input::SubString{String})::Dict{String,String}
+	function urlparams(input::String,params::Dict{Int64,String})::Dict{String,String}
 		salida = Dict{String,String}()
-		params = Dict(2=>"usuario")
 
         for (index, value) in enumerate(split(input,"/"))
         	if haskey(params, index)
@@ -91,7 +90,7 @@ function my_handler(myendpoints::Dict{Int64,Array{NamedTuple{(:route, :toexec),T
 
 	function search(value)
 	    function run(item)
-			return occursin(value, item.route)
+			return occursin(item.route,value)
 		end
 		()-> (run)
 	end
@@ -102,12 +101,18 @@ function my_handler(myendpoints::Dict{Int64,Array{NamedTuple{(:route, :toexec),T
 
 		result = get(myendpoints, my_request.searchroute, 1)
 
+		params = Dict{String,String}()
+
         response = myresponse(200)
 
 		if (typeof(result)!== Int64)
 
 		   f = iterate(Iterators.filter(search(my_request.url).run, result))
+
 		   if f !== nothing
+		   	 if f[1].urlparams !== nothing
+		   	 	params = urlparams(my_request.url, f[1].urlparams)
+		   	 end
 		   	 return f[1].toexec(my_request,response)
 		   end
 
