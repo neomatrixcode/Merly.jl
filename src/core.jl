@@ -98,17 +98,13 @@ function my_handler(myendpoints::Dict{Int64,Array{NamedTuple{(:route, :toexec, :
 	function handler(request::HTTP.Request)
 
 		my_request = createrequest(request)
-
 		result = get(myendpoints, my_request.searchroute, 1)
-
 		params = Dict{String,String}()
-
         response = myresponse(200)
 
 		if (typeof(result)!== Int64)
 
 		   f = iterate(Iterators.filter(search(my_request.url).run, result))
-
 		   if f !== nothing
 		   	 if f[1].urlparams !== nothing
 		   	 	params = urlparams(my_request.url, f[1].urlparams)
@@ -119,30 +115,8 @@ function my_handler(myendpoints::Dict{Int64,Array{NamedTuple{(:route, :toexec, :
            return myendpoints[0][1].toexec(my_request,response)
 		end
 
-
 		return myendpoints[0][1].toexec(my_request,response)
-#=
-	  if (typeof(result)!= Int64)
-	    return HTTP.Response(200, result(my_request,""))
-	  else
-	   #= pattern = searchroute_regex(my_request.searchroute,routes_patterns)
-	    if (typeof(pattern) <:Regex)
-	      params = match(pattern,my_request.searchroute)
-	      _function = getindex(routes_patterns,pattern)
-	      response.body = _function(my_request,response)
-	      sal = collect((m.match for m = eachmatch(Regex("{{(\\w\\d*)+}}"), response.body)))
-	      for i in sal
-	        response.body = replace(response.body,Regex(i) => params[ string(i[3:end-2])])
-	      end
-	    else=#
-	      return HTTP.Response(404, getindex(routes, "notfound")(my_request,""))
-	    #end
-	  end
-	 # responsefinal = HTTP.Response(response.status,my_headers, body=response.body)
-	 # for (key, value) in response.headers
-	  #  HTTP.setheader(responsefinal,key => value )
-	  #end
-	  return HTTP.Response(200, response.body)=#
+
 	end
 
     ()->(handler)
