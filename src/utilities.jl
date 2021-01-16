@@ -16,4 +16,3 @@ function cleanurl(url::Union{SubString{String},String})::String
   return url[indexinit:indexend]
 
 end
-

@@ -5,17 +5,50 @@ using BenchmarkTools
 ip = "127.0.0.1"
 port = 8086
 
+u= 1
+
+Static("/", "./public"
+
+
+#middleware
+function authenticate(req, res, next) {
+  if (req.params.status === "authenticated") {
+    req.isAuthenticated = true
+  } else {
+    req.isAuthenticated = false
+  }
+  next();
+}
+
+
+
+Get('/verify/:status/:role/:userId', authenticate, function (req, res) {
+  if(req.isAuthenticated == false){
+    res.status(403);
+    res.send('Unauthenticated. Please signup!');
+    return
+  }
+  res.send('Redirecting ' + req.redirectRoute);
+});
+
+
+
 @page "/" "Hello World!"
 
 @page "/url1" "test1"
 @page "/url2" "test2"
-@page "/hola/:usr>" "<b>Hello {{usr}}!</b>"
+@page "/hola/:usr" "<b>Hello {{usr}}!</b>"
 
-@route GET "/get/:data1>" (req,res)->begin
+@page "/hola2/:usr" begin
+    u=u+1
+	"<b>Hello2 {{usr}}!</b>"
+	end
+
+@route GET "/get/:data1" begin
   "get this back: {{data1}}"
 end
 
-@async start(host = ip, port = port, verbose = false)
+@async start()
 
 #------------------12/01/2021-------------------------------
 # @btime r=HTTP.request("GET", string("http://",ip,":",port,"/"))

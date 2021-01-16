@@ -4,13 +4,13 @@ function addnotfound(message::String,myendpoints::Dict{Int64,Array{NamedTuple{(:
 end
 
 
-function createurlparams(url::String)
+function createurlparams(url::String)::Dict{Int64,String}
 	params = Dict{Int64,String}()
 
     for (index, value) in enumerate(split(url,"/"))
-    	if(length(value)>2 )
+    	if(length(value)>1 )
     		if (value[1] ==':')
-               params[index] = value[2:end-1]
+               params[index] = value[2:end]
     		end
     		if (value[1] =='(')
     			params[index] = string(index)
@@ -18,68 +18,90 @@ function createurlparams(url::String)
     	end
     end
 
-    url = replace(url, r":(.+)>" => s"\\w+")
+    return params
+end
 
-  return (Regex(string("^"*url*"\$")), params)
+function convertregex(url::String)::Regex
+
+	if occursin(":",url)
+		url = replace(url, r":(\w+)" => s"\\w+")
+	end
+
+	return Regex(string("^",url,"\$"))
 end
 
 
-function createurl(method::String,url::String,functiontoexec::Function,myendpoints::Dict{Int64,Array{NamedTuple{(:route, :toexec, :urlparams),Tuple{Union{String,Regex},Function,Union{Nothing,Dict{Int64,String}}}},1}},tonumber::Dict{String,Char},cleanurl::Function,createurlparams::Function)
+function createurl(method::String,url::String,functiontoexec::Function,myendpoints::Dict{Int64,Array{NamedTuple{(:route, :toexec, :urlparams),Tuple{Union{String,Regex},Function,Union{Nothing,Dict{Int64,String}}}},1}},tonumber::Dict{String,Char},cleanurl::Function,createurlparams::Function,convertregex::Function)::Nothing
 
-	nvalues = 0
-	myurlparams = nothing
-	mycleanurl= cleanurl(url)
+	nvalues::Int64 = 0
+	myurlparams::Union{Nothing,Dict{Int64,String}} = nothing
+	mycleanurl::Union{String,Regex} = cleanurl(url)
 
 	if(length(url)>1)
 		nvalues = length(split(mycleanurl,"/"))
 	end
 
-
     if occursin(":",mycleanurl) || occursin("(",mycleanurl)
-      mycleanurl, myurlparams = createurlparams(mycleanurl)
+      myurlparams = createurlparams(mycleanurl)
+      mycleanurl = convertregex(mycleanurl)
     end
 
-	myroute = (route= mycleanurl, toexec= functiontoexec,  urlparams = myurlparams )
+	myroute::NamedTuple{(:route, :toexec, :urlparams),Tuple{Union{String,Regex},Function,Union{Nothing,Dict{Int64,String}}}} = (route= mycleanurl, toexec= functiontoexec,  urlparams = myurlparams )
+	indexsearch::Int64 = parse(Int64, string(tonumber[method] , nvalues))
 
-
-	indexsearch = parse(Int64, string(tonumber[method] , nvalues) )
     if haskey(myendpoints, indexsearch)
     	push!(myendpoints[indexsearch], myroute )
     else
         myendpoints[indexsearch] = [myroute]
     end
 
-    @info("Url added",url)
+    @info(url)
 
 end
 
-macro page(exp1,exp2)
-  quote
-    createurl("GET",$exp1,(req,res)->$exp2,myendpoints,tonumber,cleanurl,createurlparams)
-  end
+macro page(exp1::String,exp2::Union{String,Expr})
+	quote
+    createurl("GET",$exp1,((req,res)->$exp2 ),myendpoints,tonumber,cleanurl,createurlparams,convertregex)
+    end
 end
 
-macro route(exp1,exp2,exp3)
+macro page(exp1::String, exp2::Expr ,exp3::Expr)
+    parameters = repr(exp2)[3:end-1]
+    quote
+    createurl("GET",$exp1,( $(Meta.parse(string("myfunction", parameters))) = (req,res)->$exp3 )(),myendpoints,tonumber,cleanurl,createurlparams,convertregex)
+    end
+end
+
+macro route(exp1,exp2::String,exp3::Expr)
   quote
-    verbs= split($exp1,"|")
-    for i=verbs
-      createurl(String(i),$exp2,$exp3,myendpoints,tonumber,cleanurl,createurlparams)
+    for i in split($exp1,"|")
+      createurl(String(i),$exp2,((req,res)->$exp3),myendpoints,tonumber,cleanurl,createurlparams,convertregex)
     end
   end
 end
 
-function Get(URL::String, fun::Function)
-  createurl("GET",URL,fun,myendpoints,tonumber,cleanurl,createurlparams)
+
+macro route(exp1,exp2::String,exp3::Expr, exp4::Expr)
+  parameters = repr(exp3)[3:end-1]
+  quote
+    for i in split($exp1,"|")
+      createurl(String(i),$exp2,( $(Meta.parse(string("myfunction", parameters))) = (req,res)->$exp4 )(),myendpoints,tonumber,cleanurl,createurlparams,convertregex)
+    end
+  end
 end
 
-function Post(URL::String, fun::Function)
-  createurl("POST",URL,fun,myendpoints,tonumber,cleanurl,createurlparams)
+function Get(URL::String, fun::Function)::Nothing
+  createurl("GET",URL,fun,myendpoints,tonumber,cleanurl,createurlparams,convertregex)
 end
 
-function Put(URL::String, fun::Function)
-  createurl("PUT",URL,fun,myendpoints,tonumber,cleanurl,createurlparams)
+function Post(URL::String, fun::Function)::Nothing
+  createurl("POST",URL,fun,myendpoints,tonumber,cleanurl,createurlparams,convertregex)
 end
 
-function Delete(URL::String, fun::Function)
-  createurl("DELETE",URL,fun,myendpoints,tonumber,cleanurl,createurlparams)
+function Put(URL::String, fun::Function)::Nothing
+  createurl("PUT",URL,fun,myendpoints,tonumber,cleanurl,createurlparams,convertregex)
+end
+
+function Delete(URL::String, fun::Function)::Nothing
+  createurl("DELETE",URL,fun,myendpoints,tonumber,cleanurl,createurlparams,convertregex)
 end

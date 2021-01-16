@@ -9,28 +9,6 @@ mutable struct myresponse
 end
 
 
-	function searchroute_regex(ruta::String,routes_patterns::Dict{Regex, Function})
-
-	  #@info ("url a filtrar", ruta)
-	  #@info("dato del filter",filter(tuple -> occursin(first(tuple),ruta), collect(routes_patterns)))
-	  #= ┌ Info: dato del filter
-	  └   first(filter((tuple->begin
-	                #= C:\Users\josue\.julia\dev\Merly\src\core.jl:27 =#
-	                occursin(first(tuple), ruta)
-	            end), collect(routes_patterns))) =
-
-	            [Pair{Regex,Function}(r"^GET/hola/(?<usr>\w+)$", var"#3#4"())]
-	  =#
-	  for (k,v) in routes_patterns
-	    if(occursin(k,ruta))
-	      return k
-	    end
-	 end
-
-	 return ""
-	end
-
-
 function my_handler(myendpoints::Dict{Int64,Array{NamedTuple{(:route, :toexec, :urlparams),Tuple{Union{String,Regex},Function,Union{Nothing,Dict{Int64,String}}}},1}},tonumber::Dict{String,Char},formats::Dict{String,Function},cleanurl::Function)
 
 	my_headers= HTTP.mkheaders(["Content-Type" => "text/plain"])
@@ -96,15 +74,14 @@ function my_handler(myendpoints::Dict{Int64,Array{NamedTuple{(:route, :toexec, :
 	end
 
 	function handler(request::HTTP.Request)
-
 		my_request = createrequest(request)
 		result = get(myendpoints, my_request.searchroute, 1)
 		params = Dict{String,String}()
         response = myresponse(200)
 
 		if (typeof(result)!== Int64)
-
 		   f = iterate(Iterators.filter(search(my_request.url).run, result))
+
 		   if f !== nothing
 		   	 if f[1].urlparams !== nothing
 		   	 	params = urlparams(my_request.url, f[1].urlparams)
@@ -120,7 +97,7 @@ function my_handler(myendpoints::Dict{Int64,Array{NamedTuple{(:route, :toexec, :
 	end
 
     ()->(handler)
-   end
+end
 
 	function useCORS(activate::Bool)
 	  HTTP.setheader(my_headers,"Access-Control-Allow-Origin" => "*")
@@ -143,12 +120,11 @@ function my_handler(myendpoints::Dict{Int64,Array{NamedTuple{(:route, :toexec, :
 	  end
 	end
 
-
-
 	function start( ;host::String = "127.0.0.1", port::Int64 = 8086, verbose::Bool = false)
-	  Handler = my_handler(myendpoints,tonumber,formats,cleanurl)
-	  if ':' in host
-	    HTTP.serve(Handler.handler, Sockets.IPv6(host), port, verbose=verbose)
-	  end
-	  HTTP.serve(Handler.handler, Sockets.IPv4(host), port, verbose=verbose)
+		Handler = my_handler(myendpoints,tonumber,formats,cleanurl)
+		if ':' in host
+			HTTP.serve(Handler.handler, Sockets.IPv6(host), port, verbose=verbose)
+		end
+
+		HTTP.serve(Handler.handler, Sockets.IPv4(host), port, verbose=verbose)
 	end
