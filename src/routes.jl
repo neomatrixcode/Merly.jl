@@ -55,13 +55,14 @@ function createurl(method::String,url::String,functiontoexec::Function,myendpoin
         myendpoints[indexsearch] = [myroute]
     end
 
-    @info(url)
+    @info(string(method," > ",url))
 
 end
 
 macro page(exp1::String,exp2::Union{String,Expr})
 	quote
     createurl("GET",$exp1,((req,res)->$exp2 ),myendpoints,tonumber,cleanurl,createurlparams,convertregex)
+    CorsOptions(URL)
     end
 end
 
@@ -69,6 +70,7 @@ macro page(exp1::String, exp2::Expr ,exp3::Expr)
     parameters = repr(exp2)[3:end-1]
     quote
     createurl("GET",$exp1,( $(Meta.parse(string("myfunction", parameters))) = (req,res)->$exp3 )(),myendpoints,tonumber,cleanurl,createurlparams,convertregex)
+    CorsOptions(URL)
     end
 end
 
@@ -76,6 +78,9 @@ macro route(exp1,exp2::String,exp3::Expr)
   quote
     for i in split($exp1,"|")
       createurl(String(i),$exp2,((req,res)->$exp3),myendpoints,tonumber,cleanurl,createurlparams,convertregex)
+      if(String(i) != "OPTIONS")
+        CorsOptions($exp2)
+      end
     end
   end
 end
@@ -86,22 +91,57 @@ macro route(exp1,exp2::String,exp3::Expr, exp4::Expr)
   quote
     for i in split($exp1,"|")
       createurl(String(i),$exp2,( $(Meta.parse(string("myfunction", parameters))) = (req,res)->$exp4 )(),myendpoints,tonumber,cleanurl,createurlparams,convertregex)
+      if(String(i) != "OPTIONS")
+        CorsOptions($exp2)
+      end
     end
   end
 end
 
+
 function Get(URL::String, fun::Function)::Nothing
   createurl("GET",URL,fun,myendpoints,tonumber,cleanurl,createurlparams,convertregex)
+  CorsOptions(URL)
 end
 
 function Post(URL::String, fun::Function)::Nothing
   createurl("POST",URL,fun,myendpoints,tonumber,cleanurl,createurlparams,convertregex)
+  CorsOptions(URL)
 end
 
 function Put(URL::String, fun::Function)::Nothing
   createurl("PUT",URL,fun,myendpoints,tonumber,cleanurl,createurlparams,convertregex)
+  CorsOptions(URL)
 end
 
 function Delete(URL::String, fun::Function)::Nothing
   createurl("DELETE",URL,fun,myendpoints,tonumber,cleanurl,createurlparams,convertregex)
+  CorsOptions(URL)
+end
+
+function Connect(URL::String, fun::Function)::Nothing
+  createurl("CONNECT",URL,fun,myendpoints,tonumber,cleanurl,createurlparams,convertregex)
+end
+
+function Trace(URL::String, fun::Function)::Nothing
+  createurl("TRACE",URL,fun,myendpoints,tonumber,cleanurl,createurlparams,convertregex)
+end
+
+function Head(URL::String, fun::Function)::Nothing
+  createurl("HEAD",URL,fun,myendpoints,tonumber,cleanurl,createurlparams,convertregex)
+  CorsOptions(URL)
+end
+
+function Options(URL::String, fun::Function)::Nothing
+  createurl("OPTIONS",URL,fun,myendpoints,tonumber,cleanurl,createurlparams,convertregex)
+end
+
+function Patch(URL::String, fun::Function)::Nothing
+  createurl("PATCH",URL,fun,myendpoints,tonumber,cleanurl,createurlparams,convertregex)
+end
+
+function CorsOptions(URL::String)::Nothing
+  if (CORSenabled[1] !== nothing)
+      Options(URL,CORSenabled[1])
+  end
 end

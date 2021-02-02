@@ -1,17 +1,19 @@
 
-mutable struct myresponse
+mutable struct Myresponse
   status::Int
-  headers::Dict
+  headers::Array{Pair{String,String},1} #["Content-Type" => "text/plain"]
   body::String
-  function myresponse(code)
-      new(code,Dict(),"")
+  function Myresponse(code::Int)
+      new(code,[],"")
+  end
+  function Myresponse(code::Int,headers::Array{Pair{String,String},1})
+      new(code,headers,"")
   end
 end
 
 
-function my_handler(myendpoints::Dict{Int64,Array{NamedTuple{(:route, :toexec, :urlparams),Tuple{Union{String,Regex},Function,Union{Nothing,Dict{Int64,String}}}},1}},tonumber::Dict{String,Char},formats::Dict{String,Function},cleanurl::Function)
 
-	my_headers= HTTP.mkheaders(["Content-Type" => "text/plain"])
+function my_handler(myendpoints::Dict{Int64,Array{NamedTuple{(:route, :toexec, :urlparams),Tuple{Union{String,Regex},Function,Union{Nothing,Dict{Int64,String}}}},1}},tonumber::Dict{String,Char},formats::Dict{String,Function},cleanurl::Function,constantheaders::Array{Pair{String,String},1})
 
 	function myqueryparams(input::SubString{String})::Dict{String,String}
 		salida = Dict{String,String}()
@@ -36,7 +38,7 @@ function my_handler(myendpoints::Dict{Int64,Array{NamedTuple{(:route, :toexec, :
         return salida
 	end
 
-	function createrequest(request::HTTP.Request)
+	function processrequest(request::HTTP.Request)
 
 		data = split(request.target,"?")
 		nvalues= 0
@@ -57,7 +59,7 @@ function my_handler(myendpoints::Dict{Int64,Array{NamedTuple{(:route, :toexec, :
         end
 
 	    return (
-			 query = myquery
+			query = myquery
 			,body = body
 			,headers = request.headers
 			,searchroute = parse(Int64, string(tonumber[request.method] , nvalues) )
@@ -66,6 +68,9 @@ function my_handler(myendpoints::Dict{Int64,Array{NamedTuple{(:route, :toexec, :
 
     end
 
+
+
+
 	function search(value)
 	    function run(item)
 			return occursin(item.route,value)
@@ -73,55 +78,79 @@ function my_handler(myendpoints::Dict{Int64,Array{NamedTuple{(:route, :toexec, :
 		()-> (run)
 	end
 
-	function handler(request::HTTP.Request)
-		my_request = createrequest(request)
-		result = get(myendpoints, my_request.searchroute, 1)
-		params = Dict{String,String}()
-        response = myresponse(200)
+	function service(myrequest)
+		myresponse = HTTP
+
+		myparams = Dict{String,String}()
+		result = get(myendpoints, myrequest.searchroute, 1)
 
 		if (typeof(result)!== Int64)
-		   f = iterate(Iterators.filter(search(my_request.url).run, result))
+			f = iterate(Iterators.filter(search(myrequest.url).run, result))
 
-		   if f !== nothing
-		   	 if f[1].urlparams !== nothing
-		   	 	params = urlparams(my_request.url, f[1].urlparams)
-		   	 end
-		   	 return f[1].toexec(my_request,response)
+			if f !== nothing
+
+				if f[1].urlparams !== nothing
+					myparams = urlparams(myrequest.url, f[1].urlparams)
+				end
+
+
+				return f[1].toexec(
+			   	(
+			   		 query = myrequest.query
+			   		,body = myrequest.body
+			   		,headers = myrequest.headers
+			   		,params= myparams
+			   	)
+				,myresponse
+			    )
+
 		   end
-
-           return myendpoints[0][1].toexec(my_request,response)
 		end
 
-		return myendpoints[0][1].toexec(my_request,response)
+		return myendpoints[0][1].toexec(myrequest,myresponse)
+	end
 
+
+	function handler(request::HTTP.Request)
+              myresponse = service(processrequest(request))
+              map( x -> HTTP.setheader(myresponse,x ), constantheaders)
+              return myresponse
 	end
 
     ()->(handler)
 end
 
-	function useCORS(activate::Bool)
-	  HTTP.setheader(my_headers,"Access-Control-Allow-Origin" => "*")
-	  HTTP.setheader(my_headers,"Access-Control-Allow-Methods" => "POST,GET,OPTIONS")
-	  return true
+	function useCORS(;AllowOrigins::String = "*", AllowHeaders::String = "Origin, Content-Type, Accept", AllowMethods::String = "GET,POST,PUT,DELETE", MaxAge::String = "178000")
+		headersalways(["Access-Control-Allow-Origin" => AllowOrigins])
+		CORSenabled[1] = (request, HTTP) -> begin
+
+        return HTTP.Response(200
+        	, HTTP.mkheaders(["Content-Type" => "text/plain"
+			,"Access-Control-Allow-Methods" => AllowMethods
+        	,"Access-Control-Allow-Headers" => AllowHeaders
+        	,"Access-Control-Max-Age" => MaxAge])
+        	, body="")
+        end
+
 	end
 
 
-	function headersalways(head::AbstractString,value::AbstractString)
-	  HTTP.setheader(my_headers,head => value)
+	function headersalways(values::Array{Pair{String,String},1})
+	  map( x -> push!(constantheaders, x), values)
+	  @info(values)
 	end
-
 
 	function notfound(text::String)
 	  if occursin(".html", text)
 	    notfound_message= File(text)
-	    addnotfound(notfound_message,routes)
+	    addnotfound(notfound_message,myendpoints)
 	  else
-	    addnotfound(text,routes)
+	    addnotfound(text,myendpoints)
 	  end
 	end
 
 	function start( ;host::String = "127.0.0.1", port::Int64 = 8086, verbose::Bool = false)
-		Handler = my_handler(myendpoints,tonumber,formats,cleanurl)
+		Handler = my_handler(myendpoints,tonumber,formats,cleanurl,constantheaders)
 		if ':' in host
 			HTTP.serve(Handler.handler, Sockets.IPv6(host), port, verbose=verbose)
 		end

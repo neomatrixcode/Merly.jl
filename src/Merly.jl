@@ -41,6 +41,9 @@ myendpoints = Dict{Int64,Array{NamedTuple{(:route, :toexec, :urlparams),Tuple{Un
 
 )
 
+constantheaders  = Pair{String,String}[]
+CORSenabled = Union{Nothing,Function}[nothing]
+
 include("utilities.jl")
 include("files.jl")
 include("core.jl")
@@ -50,6 +53,6 @@ include("allformats.jl")
 
 addnotfound("NotFound",myendpoints)
 
-export webserverfiles, webserverpath, notfound, headersalways, useCORS, File, @page, @route, GET,POST,PUT,DELETE,HEAD,OPTIONS,PATCH,Get,Post,Put,Delete, start
+export webserverfiles, webserverpath, notfound, headersalways, File, @page, @route, GET,POST,PUT,DELETE,HEAD,OPTIONS,PATCH,Get,Post,Put,Delete,start,useCORS
 
 end # module

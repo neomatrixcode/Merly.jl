@@ -50,6 +50,12 @@ end
 
 @async start()
 
+#------------------02/02/2021-------------------------------
+# @btime r=HTTP.request("GET", string("http://",ip,":",port,"/verify"))
+# 118.799 μs (259 allocations: 15.50 KiB)
+#------------------01/02/2021-------------------------------
+# @btime r=HTTP.request("GET", string("http://",ip,":",port,"/verify"))
+# 120.400 μs (259 allocations: 15.50 KiB)
 #------------------12/01/2021-------------------------------
 # @btime r=HTTP.request("GET", string("http://",ip,":",port,"/"))
 # 119.701 μs (263 allocations: 15.20 KiB)
