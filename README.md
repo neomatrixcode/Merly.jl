@@ -7,8 +7,7 @@
 <a href="https://codecov.io/gh/codeneomatrix/Merly.jl">
   <img src="https://codecov.io/gh/codeneomatrix/Merly.jl/branch/master/graph/badge.svg" />
 </a>
-<a href="https://codeneomatrix.github.io/Merly.jl/stable"><img src="https://img.shields.io/badge/docs-stable-blue.svg"></a>
-<a href="https://codeneomatrix.github.io/Merly.jl/dev"><img src="https://img.shields.io/badge/docs-dev-blue.svg"></a>
+<a href="https://neomatrixcode.gitbook.io/merly/"><img src="https://img.shields.io/badge/docs-stable-blue.svg"></a>
 <a href="https://www.repostatus.org/#active"><img src="https://www.repostatus.org/badges/latest/active.svg"></a>
 <a href="https://raw.githubusercontent.com/codeneomatrix/Merly.jl/master/LICENSE.md"><img src="https://img.shields.io/badge/License-MIT-blue.svg"></a>
 </p>
