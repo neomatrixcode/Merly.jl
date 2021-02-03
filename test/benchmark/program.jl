@@ -7,7 +7,7 @@ port = 8086
 
 u= 1
 
-Static("/", "./public"
+Static("/", "./public")
 
 
 #middleware

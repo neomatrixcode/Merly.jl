@@ -47,11 +47,11 @@
 	    end
 	    data = File(folder, file)
 	    folder = replace(folder,"\\" => "/")
-	    createurl("GET/"*joinpath(folder,file), (req,res)->(begin
-	      res.headers["Content-Type"]= extension
-	      res.status = 200
-	      res.body = data
-	    end),routes_patterns,routes)
+	    Get( string("/",joinpath(folder,file)) , (req,HTTP)->(begin
+	      HTTP.Response(200
+          , HTTP.mkheaders(["Content-Type" => extension])
+          , body=data)
+	    end) )
 	end
 
 	"""

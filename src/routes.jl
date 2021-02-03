@@ -61,15 +61,15 @@ end
 
 macro page(exp1::String,exp2::Union{String,Expr})
 	quote
-    createurl("GET",$exp1,((req,res)->$exp2 ),myendpoints,tonumber,cleanurl,createurlparams,convertregex)
-    CorsOptions(URL)
+    createurl("GET",$exp1,((req,HTTP)->$exp2 ),myendpoints,tonumber,cleanurl,createurlparams,convertregex)
+    CorsOptions($exp1)
     end
 end
 
 macro page(exp1::String, exp2::Expr ,exp3::Expr)
     parameters = repr(exp2)[3:end-1]
     quote
-    createurl("GET",$exp1,( $(Meta.parse(string("myfunction", parameters))) = (req,res)->$exp3 )(),myendpoints,tonumber,cleanurl,createurlparams,convertregex)
+    createurl("GET",$exp1,( $(Meta.parse(string("myfunction", parameters))) = (req,HTTP)->$exp3 )(),myendpoints,tonumber,cleanurl,createurlparams,convertregex)
     CorsOptions(URL)
     end
 end
@@ -77,7 +77,7 @@ end
 macro route(exp1,exp2::String,exp3::Expr)
   quote
     for i in split($exp1,"|")
-      createurl(String(i),$exp2,((req,res)->$exp3),myendpoints,tonumber,cleanurl,createurlparams,convertregex)
+      createurl(String(i),$exp2,((req,HTTP)->$exp3),myendpoints,tonumber,cleanurl,createurlparams,convertregex)
       if(String(i) != "OPTIONS")
         CorsOptions($exp2)
       end
@@ -90,7 +90,7 @@ macro route(exp1,exp2::String,exp3::Expr, exp4::Expr)
   parameters = repr(exp3)[3:end-1]
   quote
     for i in split($exp1,"|")
-      createurl(String(i),$exp2,( $(Meta.parse(string("myfunction", parameters))) = (req,res)->$exp4 )(),myendpoints,tonumber,cleanurl,createurlparams,convertregex)
+      createurl(String(i),$exp2,( $(Meta.parse(string("myfunction", parameters))) = (req,HTTP)->$exp4 )(),myendpoints,tonumber,cleanurl,createurlparams,convertregex)
       if(String(i) != "OPTIONS")
         CorsOptions($exp2)
       end

@@ -1,18 +1,4 @@
 
-mutable struct Myresponse
-  status::Int
-  headers::Array{Pair{String,String},1} #["Content-Type" => "text/plain"]
-  body::String
-  function Myresponse(code::Int)
-      new(code,[],"")
-  end
-  function Myresponse(code::Int,headers::Array{Pair{String,String},1})
-      new(code,headers,"")
-  end
-end
-
-
-
 function my_handler(myendpoints::Dict{Int64,Array{NamedTuple{(:route, :toexec, :urlparams),Tuple{Union{String,Regex},Function,Union{Nothing,Dict{Int64,String}}}},1}},tonumber::Dict{String,Char},formats::Dict{String,Function},cleanurl::Function,constantheaders::Array{Pair{String,String},1})
 
 	function myqueryparams(input::SubString{String})::Dict{String,String}
@@ -22,7 +8,7 @@ function my_handler(myendpoints::Dict{Int64,Array{NamedTuple{(:route, :toexec, :
         	if (length(items)==2)
         		salida[items[1]]=items[2]
             end
-        end   #1.030 μs (17 allocations: 992 bytes)
+        end
         return salida
 	end
 
