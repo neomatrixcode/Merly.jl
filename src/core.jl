@@ -37,7 +37,7 @@ function my_handler(myendpoints::Dict{Int64,Array{NamedTuple{(:route, :toexec, :
 		end
 
 	    if(!eof(IOBuffer(HTTP.payload(request))))
-	    	body = getindex(formats, HTTP.header(request,"Content-Type"))(String(request.body))
+	    	body = get(formats, HTTP.header(request,"Content-Type"), formats["*/*"] )(String(request.body))
         end
 
         if (length(data)>1)

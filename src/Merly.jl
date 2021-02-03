@@ -53,6 +53,6 @@ include("allformats.jl")
 
 addnotfound("NotFound",myendpoints)
 
-export webserverfiles, webserverpath, notfound, headersalways, File, @page, @route, GET,POST,PUT,DELETE,HEAD,OPTIONS,PATCH,Get,Post,Put,Delete,start,useCORS
+export webserverfiles, webserverpath, notfound, headersalways, File, @page, @route, GET,POST,PUT,DELETE,HEAD,OPTIONS,PATCH,Get,Post,Put,Delete,start,useCORS, formats
 
 end # module
