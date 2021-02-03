@@ -37,7 +37,7 @@ tonumber = Dict{String,Char}(
 
 myendpoints = Dict{Int64,Array{NamedTuple{(:route, :toexec, :urlparams),Tuple{Union{String,Regex},Function,Union{Nothing,Dict{Int64,String}}}},1}}(
 
-0 => [(route= "", toexec= function nf(req,res); res.status = 404; end , urlparams= nothing)]
+0 => [(route= "", toexec= function nf(req,res); HTTP.Response(404); end , urlparams= nothing)]
 
 )
 

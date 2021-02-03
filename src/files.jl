@@ -1,15 +1,9 @@
 
-
-"""
-	Contains server configuration
-	"""
 	rootbase = pwd()
-
 
 	function webserverpath(folder::AbstractString)
 	  global rootbase = joinpath(pwd(),folder)
 	end
-
 
 	"""
 	File(file::String)
@@ -46,8 +40,8 @@
 	      end
 	    end
 	    data = File(folder, file)
-	    folder = replace(folder,"\\" => "/")
-	    Get( string("/",joinpath(folder,file)) , (req,HTTP)->(begin
+	    routefile = replace(joinpath(folder,file),"\\" => "/")
+	    Get( string("/",routefile) , (req,HTTP)->(begin
 	      HTTP.Response(200
           , HTTP.mkheaders(["Content-Type" => extension])
           , body=data)
@@ -71,9 +65,6 @@
 	    end
 	  end
 	end
-
-
-
 
 	function webserverfiles(load::AbstractString)
 	  if load == "*"

@@ -18,9 +18,9 @@ notfound("""<!DOCTYPE html>
               <head><title>Not found</title></head>
               <body><h1>404, Not found</h1></body>
               </html>""")
-notfound("cosa/notfound.html")
+notfound("website/notfound.html")
 
-@test webserverpath("cosa") == joinpath(pwd(),"cosa")
+@test webserverpath("website") == joinpath(pwd(),"website")
 webserverfiles("*")
 
 u = "hello"
@@ -95,26 +95,13 @@ global r = HTTP.get("http://$(ip):$(port)/")
 r= HTTP.get("http://$(ip):$(port)/regex/test1")
 @test String(r.body) == "datos test1"
 
-
- global r = HTTP.get("http://$(ip):$(port)/data?hola=1")
+global r = HTTP.get("http://$(ip):$(port)/data?hola=1")
 @test r.status == 200
 @test String(r.body) == "hellodata"
 
+global r= HTTP.get("http://$(ip):$(port)/mifile")
+@test r.status == 200
+@test String(r.body) == "<!DOCTYPE html>\r\n<html lang=\"en\">\r\n<head>\r\n\t<meta charset=\"UTF-8\">\r\n\t<title>Document</title>\r\n</head>\r\n<body>\r\n<h1>hola</h1>\r\n</body>\r\n</html>"
 
-
-#global r= HTTP.get("http://$(ip):$(port)/algomas/ja.txt")
-#@test String(r.body) == "jajajajaj"
-
-#=global r= HTTP.get("http://$(ip):$(port)/mifile")
-@test String(r.body) == "<!DOCTYPE html>
-<html lang="en">
-<head>
-	<meta charset="UTF-8">
-	<title>Document</title>
-</head>
-<body>
-<h1>hola</h1>
-</body>
-</html>"
-=#
-
+global r= HTTP.get("http://$(ip):$(port)/testfolder/testfile.txt")
+@test String(r.body) == "test text"
