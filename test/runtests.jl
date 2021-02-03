@@ -76,8 +76,7 @@ Post("/data", (req,HTTP)-> begin
 
 end)
 
-
- @async start(host = ip, port = port, verbose = true)
+ @async start(host = ip, port = port)
  sleep(2)
 
 myjson = Dict("query"=>"data")
