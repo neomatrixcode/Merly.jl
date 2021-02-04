@@ -63,6 +63,7 @@ end
           , body="I did something2!")
 end
 
+
 Get("/data", (request,HTTP)->begin
 
   println("params: ",request.params)
@@ -87,6 +88,24 @@ Post("/data", (request,HTTP)-> begin
 
 end)
 
+ Put("/data", (request,HTTP) -> begin
+     HTTP.response(200, "test text put")
+ end)
+ Delete("/data", (request,HTTP) -> begin
+     HTTP.response(200, "test text delete")
+ end)
+ Connect("/data", (request,HTTP) -> begin
+     HTTP.response(200, "test text Connect")
+ end)
+ Trace("/data", (request,HTTP) -> begin
+     HTTP.response(200, "test text Trace")
+ end)
+ Head("/data", (request,HTTP) -> begin
+     HTTP.response(200, "test text head")
+ end)
+ Patch("/data", (request,HTTP) -> begin
+     HTTP.response(200, "test text Patch")
+ end)
 
 Get("/test1/:usr",
   (request, HTTP) -> begin
@@ -101,6 +120,12 @@ Get("/test2/:usr",
           HTTP.Response(200,string("<b>test2 ",u,request.params["usr"]," !</b>"))
         end)()
 )
+
+
+@route GET "/test3/" (;u=u) begin
+  u= u+1
+  HTTP.Response(200,string("get this back:", u))
+end
 
 
 function authenticate(request, HTTP)
@@ -176,6 +201,10 @@ my_headers = HTTP.mkheaders(["Accept" => "application/json","Content-Type" => "a
  global r = HTTP.get("http://$(ip):$(port)/test2/neomatrixcode")
 @test r.status == 200
 @test String(r.body) == "<b>test2 2neomatrixcode !</b>"
+
+ global r = HTTP.get("http://$(ip):$(port)/test3")
+@test r.status == 200
+@test String(r.body) == "get this back:2"
 
 my_headers = HTTP.mkheaders(["Accept" => "application/json"])
  global r = HTTP.post("http://$(ip):$(port)/post",my_headers,JSON.json(myjson))
