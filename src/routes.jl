@@ -1,6 +1,6 @@
 
 function addnotfound(message::String,myendpoints::Dict{Int64,Array{NamedTuple{(:route, :toexec, :urlparams),Tuple{Union{String,Regex},Function,Union{Nothing,Dict{Int64,String}}}},1}})
-  myendpoints[0] = [(route= "", toexec= function nf(req,HTTP); return HTTP.Response(404,message); end, urlparams= nothing)]
+  myendpoints[0] = [(route= "", toexec= function nf(request,HTTP); return HTTP.Response(404,message); end, urlparams= nothing)]
 end
 
 

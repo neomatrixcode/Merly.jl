@@ -41,7 +41,7 @@
 	    end
 	    data = File(folder, file)
 	    routefile = replace(joinpath(folder,file),"\\" => "/")
-	    Get( string("/",routefile) , (req,HTTP)->(begin
+	    Get( string("/",routefile) , (request,HTTP)->(begin
 	      HTTP.Response(200
           , HTTP.mkheaders(["Content-Type" => extension])
           , body=data)

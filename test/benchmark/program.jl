@@ -5,51 +5,68 @@ using BenchmarkTools
 ip = "127.0.0.1"
 port = 8086
 
-u= 1
 
-Static("/", "./public")
+function authenticate(request, HTTP)
+  isAuthenticated = false
 
+  if (request.params["status"] === "authenticated")
+    isAuthenticated = true
+  end
 
-#middleware
-function authenticate(req, res, next) {
-  if (req.params.status === "authenticated") {
-    req.isAuthenticated = true
-  } else {
-    req.isAuthenticated = false
-  }
-  next();
-}
+  return request, HTTP, isAuthenticated
+end
 
 
 
-Get('/verify/:status/:role/:userId', authenticate, function (req, res) {
-  if(req.isAuthenticated == false){
-    res.status(403);
-    res.send('Unauthenticated. Please signup!');
-    return
-  }
-  res.send('Redirecting ' + req.redirectRoute);
-});
+Get("/verify/:status",
 
+  (result(;middleware=authenticate) = (request, HTTP)-> begin
 
+      myfunction = (request, HTTP, isAuthenticated)-> begin
 
-@page "/" "Hello World!"
+      if (isAuthenticated == false )
+          return  HTTP.Response(403,string("Unauthenticated. Please signup!"))
+      end
+                return  HTTP.Response(200,string("<b>verify !</b>"))
+      end
 
-@page "/url1" "test1"
-@page "/url2" "test2"
-@page "/hola/:usr" "<b>Hello {{usr}}!</b>"
+      return myfunction(middleware(request,HTTP)...)
+
+  end)()
+
+)
+
+@page "/" HTTP.Response(200,"Hello World!")
+
+@page "/url1" HTTP.Response(200,"test1")
+@page "/url2" HTTP.Response(200,"test2")
+@page "/hola/:usr" HTTP.Response(200,"<b>Hello {{usr}}!</b>")
 
 @page "/hola2/:usr" begin
-    u=u+1
-	"<b>Hello2 {{usr}}!</b>"
+	HTTP.Response(200,string("<b>Hello2",request.params["usr"],"!</b>"))
 	end
 
 @route GET "/get/:data1" begin
-  "get this back: {{data1}}"
+HTTP.Response(200,string("get this back:",request.params["data1"],"!</b>"))
 end
 
 @async start()
 
+#------------------04/02/2021-------------------------------
+# @btime r=HTTP.request("GET", string("http://",ip,":",port,"/verify/authenticated"))
+# 136.400 μs (535 allocations: 30.41 KiB)
+# @btime r=HTTP.request("GET", string("http://",ip,":",port,"/"))
+# 134.800 μs (527 allocations: 29.41 KiB)
+# @btime r=HTTP.request("GET", string("http://",ip,":",port,"/?hola=5"))
+# 137.600 μs (540 allocations: 30.63 KiB)
+# @btime r=HTTP.request("GET", string("http://",ip,":",port,"/url2"))
+# 135.500 μs (533 allocations: 29.78 KiB)
+# @btime r=HTTP.request("GET", string("http://",ip,":",port,"/url1"))
+# 135.900 μs (530 allocations: 29.61 KiB)
+# @btime HTTP.get("http://$(ip):$(port)/hola/usuario")
+# 137.199 μs (536 allocations: 30.41 KiB)
+# @btime r= HTTP.get("http://$(ip):$(port)/get/testdata")
+# 137.999 μs (539 allocations: 30.56 KiB)
 #------------------02/02/2021-------------------------------
 # @btime r=HTTP.request("GET", string("http://",ip,":",port,"/verify"))
 # 118.799 μs (259 allocations: 15.50 KiB)
