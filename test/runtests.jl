@@ -212,7 +212,13 @@ global r= HTTP.get("http://$(ip):$(port)/testfolder/testfile.txt")
 
 global r= HTTP.get("http://$(ip):$(port)/mifile")
 @test r.status == 200
-@test String(r.body) ==  "<!DOCTYPE html>\r\n<html lang=\"en\">\r\n<head>\r\n\t<meta charset=\"UTF-8\">\r\n\t<title>Document</title>\r\n</head>\r\n<body>\r\n<h1>hola</h1>\r\n</body>\r\n</html>"
+
+if Sys.iswindows()
+    @test String(r.body) ==  "<!DOCTYPE html>\r\n<html lang=\"en\">\r\n<head>\r\n\t<meta charset=\"UTF-8\">\r\n\t<title>Document</title>\r\n</head>\r\n<body>\r\n<h1>hola</h1>\r\n</body>\r\n</html>"
+else
+   @test String(r.body) ==  "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n\t<meta charset=\"UTF-8\">\n\t<title>Document</title>\n</head>\n<body>\n<h1>hola</h1>\n</body>\n</html>"
+end
+
 
 global r= HTTP.get("http://$(ip):$(port)/verify")
 @test r.status == 200

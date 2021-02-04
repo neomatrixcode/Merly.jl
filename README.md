@@ -3,7 +3,7 @@
 <p align="center">
 <strong>Micro framework for web programming in Julia.</strong>
 <br><br>
-<a href="https://travis-ci.org/neomatrixcode/Merly.jl"><img src="https://travis-ci.org/neomatrixcode/Merly.jl.svg?branch=master"></a>
+<a href="https://travis-ci.org/github/neomatrixcode/Merly.jl"><img src="https://travis-ci.org/github/neomatrixcode/Merly.jl.svg?branch=master"></a>
 <a href="https://codecov.io/gh/neomatrixcode/Merly.jl">
   <img src="https://codecov.io/gh/neomatrixcode/Merly.jl/branch/master/graph/badge.svg" />
 </a>
