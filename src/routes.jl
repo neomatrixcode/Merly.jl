@@ -70,7 +70,7 @@ macro page(exp1::String, exp2::Expr ,exp3::Expr)
     parameters = repr(exp2)[3:end-1]
     quote
     createurl("GET",$exp1,( $(Meta.parse(string("myfunction", parameters))) = (request,HTTP)->$exp3 )(),myendpoints,tonumber,cleanurl,createurlparams,convertregex)
-    CorsOptions(URL)
+    CorsOptions($exp1)
     end
 end
 

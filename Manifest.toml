@@ -27,12 +27,6 @@ version = "0.5.0"
 deps = ["Markdown"]
 uuid = "b77e0a4c-d291-57a0-90e8-8db25a27a240"
 
-[[JSON]]
-deps = ["Dates", "Mmap", "Parsers", "Unicode"]
-git-tree-sha1 = "b34d7cef7b337321e97d22242c3c2b91f476748e"
-uuid = "682c06a0-de6a-54ab-a142-c8b1cf79cde6"
-version = "0.21.0"
-
 [[LibGit2]]
 deps = ["Printf"]
 uuid = "76f85450-5226-5b5a-8eaa-529ad045b433"

@@ -37,6 +37,8 @@ formats["application/json"] = tojson
 
 @page "/mifile" HTTP.Response(200, File("index.html"))
 
+@page "/get1" (;u=u) HTTP.Response(200,string("<b>Get1 ",u," !</b>"))
+
 @route GET "/get/:data1" (;u=u) begin
   u = u +1
   HTTP.Response(200, string(u ,request.params["data1"]))
@@ -201,6 +203,11 @@ my_headers = HTTP.mkheaders(["Accept" => "application/json","Content-Type" => "a
  global r = HTTP.get("http://$(ip):$(port)/test2/neomatrixcode")
 @test r.status == 200
 @test String(r.body) == "<b>test2 2neomatrixcode !</b>"
+
+
+ global r = HTTP.get("http://$(ip):$(port)/get1")
+@test r.status == 200
+@test String(r.body) == "<b>Get1 1 !</b>"
 
  global r = HTTP.get("http://$(ip):$(port)/test3")
 @test r.status == 200

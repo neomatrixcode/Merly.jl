@@ -3,7 +3,7 @@
 <p align="center">
 <strong>Micro framework for web programming in Julia.</strong>
 <br><br>
-<a href="https://travis-ci.org/github/neomatrixcode/Merly.jl"><img src="https://travis-ci.org/github/neomatrixcode/Merly.jl.svg?branch=master"></a>
+<a href="https://travis-ci.org/github/neomatrixcode/Merly.jl"><img src="https://travis-ci.org/neomatrixcode/Merly.jl.svg?branch=master"></a>
 <a href="https://codecov.io/gh/neomatrixcode/Merly.jl">
   <img src="https://codecov.io/gh/neomatrixcode/Merly.jl/branch/master/graph/badge.svg" />
 </a>
@@ -21,53 +21,70 @@ Quickly creating web applications in Julia with minimal effort.
 Installing
 ----------
 ```julia
-Pkg> add Merly
+(@v1.5) pkg> add Merly
 ```
 
 ## Example
 
 ```julia
 using Merly
+using JSON
 
-u="hello"
+u = 1
 
-@page "/" "Hello World!"
-@page "/hello/:usr>" "<b>Hello {{usr}}!</b>"
+function tojson(data::String)
+   return JSON.parse(data)
+end
 
-@route GET "/get/:data>" begin
-  "get this back: {{data}}"
+formats["application/json"] = tojson
+
+@page "/" HTTP.Response(200,"Hello World!")
+@page "/hola/:usr" (;u=u) HTTP.Response(200,string("<b>Hello ",request.params["usr"],u,"!</b>"))
+
+@route GET "/get/:data1" (;u=u) begin
+  u = u +1
+  HTTP.Response(200, string(u ,request.params["data1"]))
 end
 
 @route POST "/post" begin
-  res.body = "I did something!"
+  HTTP.Response(200,"I did something!")
 end
 
 @route POST|PUT|DELETE "/" begin
-  println("params: ",req.params)
-  println("query: ",req.query)
-  println("body: ",req.body)
+  println("query: ",request.query)
+  println("body: ",request.body)
 
-  res.headers["Content-Type"]= "text/plain"
-
-  "I did something!"
+  HTTP.Response(200
+          , HTTP.mkheaders(["Content-Type" => "text/plain"])
+          , body="I did something2!")
 end
 
-Get("/data", (req,res)->(begin
-  res.headers["Content-Type"]= "text/plain"
-  u*"data"
-end))
+Get("/data", (request,HTTP)->begin
+
+  println("params: ",request.params)
+  println("query: ",request.query)
+
+  HTTP.Response(200
+          , HTTP.mkheaders(["Content-Type" => "text/plain"])
+          , body=string(u,"data ", get(request.query,"hola","")))
+
+end)
 
 
-Post("/data", (req,res)->(begin
-  println("params: ",req.params)
-  println("query: ",req.query)
-  println("body: ",req.body)
-  res.headers["Content-Type"]= "text/plain"
+Post("/data", (request,HTTP)-> begin
+  println("params: ",request.params)
+  println("query: ",request.query)
+  println("body: ",request.body)
+
   global u="bye"
-  "I did something!"
-end))
+
+  HTTP.Response(200
+          , HTTP.mkheaders(["Content-Type" => "text/plain"])
+          , body=string("I did something! ", request.body["query"]))
+
+end)
 
 
-start(verbose = false)
+@async start()
 
 ```
