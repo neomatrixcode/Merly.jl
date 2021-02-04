@@ -23,20 +23,31 @@ notfound("website/notfound.html")
 @test webserverpath("website") == joinpath(pwd(),"website")
 webserverfiles("*")
 
-u = "hello"
+u = 1
+
+function tojson(data::String)
+   return JSON.parse(data)
+end
+
+formats["application/json"] = tojson
 
 @page "/" HTTP.Response(200,"Hello World!")
 
-@page "/hola/:usr" HTTP.Response(200,string("<b>Hello ",req.params["usr"],"!</b>"))
+@page "/hola/:usr" HTTP.Response(200,string("<b>Hello ",request.params["usr"],"!</b>"))
 
 @page "/mifile" HTTP.Response(200, File("index.html"))
 
-@route GET "/get/:data1" begin
-  HTTP.Response(200, string("get this back: ",req.params["data1"]))
+@route GET "/get/:data1" (;u=u) begin
+  u = u +1
+  HTTP.Response(200, string(u ,request.params["data1"]))
+end
+
+@route GET "/get/data/hola" begin
+  HTTP.Response(200,"get this back: data")
 end
 
 @route GET "/regex/(\\w+\\d+)" begin
-  return HTTP.Response(200, string("datos ",req.params["2"]))# $(req.params[1])"
+  return HTTP.Response(200, string("datos ",request.params["2"]))# $(request.params[1])"
 end
 
 @route POST "/post" begin
@@ -44,37 +55,73 @@ end
 end
 
 @route POST|PUT|DELETE "/" begin
-  println("query: ",req.query)
-  println("body: ",req.body)
+  println("query: ",request.query)
+  println("body: ",request.body)
 
   HTTP.Response(200
           , HTTP.mkheaders(["Content-Type" => "text/plain"])
-          , body="I did something!")
+          , body="I did something2!")
 end
 
-Get("/data", (req,HTTP)->begin
+Get("/data", (request,HTTP)->begin
 
-  println("params: ",req.params)
-  println("query: ",req.query)
+  println("params: ",request.params)
+  println("query: ",request.query)
 
   HTTP.Response(200
           , HTTP.mkheaders(["Content-Type" => "text/plain"])
-          , body=u*"data")
+          , body=string(u,"data ", get(request.query,"hola","")))
 
 end)
 
-Post("/data", (req,HTTP)-> begin
-  println("params: ",req.params)
-  println("query: ",req.query)
-  println("body: ",req.body)
+Post("/data", (request,HTTP)-> begin
+  println("params: ",request.params)
+  println("query: ",request.query)
+  println("body: ",request.body)
 
   global u="bye"
 
   HTTP.Response(200
           , HTTP.mkheaders(["Content-Type" => "text/plain"])
-          , body="I did something!")
+          , body=string("I did something! ", request.body["query"]))
 
 end)
+
+
+Get("/test1/:usr",
+  (request, HTTP) -> begin
+        HTTP.Response(200,string("<b>test1 ",request.params["usr"],"!</b>"))
+    end
+)
+
+
+Get("/test2/:usr",
+    (result(;u=u) = (request, HTTP)-> begin
+          u= u+1
+          HTTP.Response(200,string("<b>test2 ",u,request.params["usr"]," !</b>"))
+        end)()
+)
+
+
+function authenticate(request, HTTP)
+
+  return request, HTTP, 300
+end
+
+
+Get("/verify",
+
+  (result(;middleware=authenticate) = (request, HTTP)-> begin
+
+      myfunction = (request, HTTP, data)-> begin
+                return  HTTP.Response(200,string("<b>verify ", data ," !</b>"))
+      end
+
+      return myfunction(middleware(request,HTTP)...)
+
+  end)()
+
+)
 
  @async start(host = ip, port = port)
  sleep(2)
@@ -93,7 +140,15 @@ my_headers = HTTP.mkheaders(["Content-Type" => "application/json"])
 
  global r = HTTP.get("http://$(ip):$(port)/get/testdata")
 @test r.status == 200
-@test String(r.body) == "get this back: testdata"
+@test String(r.body) == "2testdata"
+
+ global r = HTTP.get("http://$(ip):$(port)/get/data")
+@test r.status == 200
+@test String(r.body) == "3data"
+
+ global r = HTTP.get("http://$(ip):$(port)/get/data/hola")
+@test r.status == 200
+@test String(r.body) == "get this back: data"
 
 r= HTTP.get("http://$(ip):$(port)/regex/test1")
 @test String(r.body) == "datos test1"
@@ -101,18 +156,26 @@ r= HTTP.get("http://$(ip):$(port)/regex/test1")
 
  global r = HTTP.get("http://$(ip):$(port)/data?hola=1")
 @test r.status == 200
-@test String(r.body) == "hellodata"
+@test String(r.body) == "1data 1"
 
 myjson = Dict("query"=>"data")
-my_headers = HTTP.mkheaders(["Accept" => "application/json","Content-Type" => "application/xml"])
+my_headers = HTTP.mkheaders(["Accept" => "application/json","Content-Type" => "application/json"])
  global r = HTTP.post("http://$(ip):$(port)/data",my_headers,JSON.json(myjson))
 @test r.status == 200
-@test String(r.body) == "I did something!"
+@test String(r.body) == "I did something! data"
 
  global r = HTTP.get("http://$(ip):$(port)/data")
 @test r.status == 200
-@test String(r.body) == "byedata"
+@test String(r.body) == "byedata "
 
+
+ global r = HTTP.get("http://$(ip):$(port)/test1/neomatrix")
+@test r.status == 200
+@test String(r.body) == "<b>test1 neomatrix!</b>"
+
+ global r = HTTP.get("http://$(ip):$(port)/test2/neomatrixcode")
+@test r.status == 200
+@test String(r.body) == "<b>test2 2neomatrixcode !</b>"
 
 my_headers = HTTP.mkheaders(["Accept" => "application/json"])
  global r = HTTP.post("http://$(ip):$(port)/post",my_headers,JSON.json(myjson))
@@ -122,15 +185,15 @@ my_headers = HTTP.mkheaders(["Accept" => "application/json"])
 my_headers = HTTP.mkheaders(["Accept" => "application/json","Content-Type" => "application/json"])
  global r = HTTP.post("http://$(ip):$(port)/",my_headers,JSON.json(myjson))
 @test r.status == 200
-@test String(r.body) == "I did something!"
+@test String(r.body) == "I did something2!"
 
  global r = HTTP.put("http://$(ip):$(port)/",my_headers,JSON.json(myjson))
 @test r.status == 200
-@test String(r.body) == "I did something!"
+@test String(r.body) == "I did something2!"
 
  global r = HTTP.delete("http://$(ip):$(port)/")
 @test r.status == 200
-@test String(r.body) == "I did something!"
+@test String(r.body) == "I did something2!"
 @test r.headers == Pair{SubString{String},SubString{String}}["Content-Type" => "text/plain", "Access-Control-Allow-Origin" => "*", "X-PINGOTHER" => "pingpong", "Transfer-Encoding" => "chunked"]
 
 try
@@ -151,4 +214,6 @@ global r= HTTP.get("http://$(ip):$(port)/mifile")
 @test r.status == 200
 @test String(r.body) ==  "<!DOCTYPE html>\r\n<html lang=\"en\">\r\n<head>\r\n\t<meta charset=\"UTF-8\">\r\n\t<title>Document</title>\r\n</head>\r\n<body>\r\n<h1>hola</h1>\r\n</body>\r\n</html>"
 
-
+global r= HTTP.get("http://$(ip):$(port)/verify")
+@test r.status == 200
+@test String(r.body) == "<b>verify 300 !</b>"
