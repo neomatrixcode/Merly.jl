@@ -6,7 +6,7 @@ using JSON
 ip = "127.0.0.1"
 port = 8086
 
-
+@test webserverpath("website") == joinpath(pwd(),"website")
 @test File("index.html") == read( open(joinpath(pwd(),"index.html")), String)
 
 useCORS(AllowOrigins = "*", AllowHeaders = "*" , AllowMethods = "GET,POST,PUT,DELETE", MaxAge = "80")
@@ -18,9 +18,10 @@ notfound("""<!DOCTYPE html>
               <head><title>Not found</title></head>
               <body><h1>404, Not found</h1></body>
               </html>""")
-notfound("website/notfound.html")
 
-@test webserverpath("website") == joinpath(pwd(),"website")
+notfound("notfound.html")
+
+
 webserverfiles("*")
 
 u = 1

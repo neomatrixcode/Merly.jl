@@ -1,8 +1,6 @@
 module Merly
 import Base.|
-
 using Sockets
-using JSON
 using HTTP
 using MbedTLS
 

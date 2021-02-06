@@ -53,15 +53,6 @@ git-tree-sha1 = "c83f5a1d038f034ad0549f9ee4d5fac3fb429e33"
 uuid = "c8ffd9c3-330d-5841-b78e-0817d7145fa1"
 version = "2.16.0+2"
 
-[[Mmap]]
-uuid = "a63ad114-7e13-5084-954f-fe012c677804"
-
-[[Parsers]]
-deps = ["Dates", "Test"]
-git-tree-sha1 = "eb3e09940c0d7ae01b01d9291ebad7b081c844d3"
-uuid = "69de0a69-1ddd-5017-9359-2bf0b02dc9f0"
-version = "1.0.5"
-
 [[Pkg]]
 deps = ["Dates", "LibGit2", "Libdl", "Logging", "Markdown", "Printf", "REPL", "Random", "SHA", "UUIDs"]
 uuid = "44cfe95a-1eb2-52ea-b672-e2afdf69b78f"
