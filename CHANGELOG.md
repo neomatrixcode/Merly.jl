@@ -1,3 +1,7 @@
+# Merly v1.0.0
+
+## New features
+The package is completely rewritten so the syntax is modified
 
 # Merly v0.2.1
 
