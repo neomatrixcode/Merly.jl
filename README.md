@@ -85,6 +85,6 @@ Post("/data", (request,HTTP)-> begin
 end)
 
 
-start(port= 8086)
+start(host = "127.0.0.1", port = 8086, verbose = true)
 
 ```

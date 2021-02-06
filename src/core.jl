@@ -135,11 +135,11 @@ end
 	  end
 	end
 
-	function start( ;host::String = "127.0.0.1", port::Int64 = 8086, verbose::Bool = false)
+	function start( ;host::String = "127.0.0.1", port::Int64 = 8086, verbose::Bool = false, sslconfig::Union{MbedTLS.SSLConfig, Nothing}=nothing)
 		Handler = my_handler(myendpoints,tonumber,formats,cleanurl,constantheaders)
 		if ':' in host
-			HTTP.serve(Handler.handler, Sockets.IPv6(host), port, verbose=verbose)
+			HTTP.serve(Handler.handler, Sockets.IPv6(host), port, verbose=verbose, sslconfig=sslconfig)
 		end
 
-		HTTP.serve(Handler.handler, Sockets.IPv4(host), port, verbose=verbose)
+		HTTP.serve(Handler.handler, Sockets.IPv4(host), port, verbose=verbose, sslconfig=sslconfig)
 	end

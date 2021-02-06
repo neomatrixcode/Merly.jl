@@ -50,7 +50,7 @@ Get("/verify/:status",
 HTTP.Response(200,string("get this back:",request.params["data1"],"!</b>"))
 end
 
-@async start()
+start(verbose=true)
 
 #------------------04/02/2021-------------------------------
 # @btime r=HTTP.request("GET", string("http://",ip,":",port,"/verify/authenticated"))
