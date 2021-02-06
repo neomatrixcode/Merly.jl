@@ -9,7 +9,7 @@ port = 8086
 
 @test File("index.html") == read( open(joinpath(pwd(),"index.html")), String)
 
-useCORS()
+useCORS(AllowOrigins = "*", AllowHeaders = "*" , AllowMethods = "GET,POST,PUT,DELETE", MaxAge = "80")
 
 headersalways(["X-PINGOTHER" => "pingpong"])
 
@@ -131,20 +131,29 @@ end
 
 
 function authenticate(request, HTTP)
+  isAuthenticated = false
 
-  return request, HTTP, 300
+  if (request.params["status"] === "authenticated")
+    isAuthenticated = true
+  end
+
+  return request, HTTP, isAuthenticated
 end
 
 
-Get("/verify",
+Get("/verify/:status",
 
   (result(;middleware=authenticate) = (request, HTTP)-> begin
 
-      myfunction = (request, HTTP, data)-> begin
-                return  HTTP.Response(200,string("<b>verify ", data ," !</b>"))
+  myfunction = (request, HTTP, isAuthenticated)-> begin
+
+      if (isAuthenticated == false )
+          return  HTTP.Response(403,string("Unauthenticated. Please signup!"))
+      end
+          return  HTTP.Response(200,string("<b>verify !</b>"))
       end
 
-      return myfunction(middleware(request,HTTP)...)
+  return myfunction(middleware(request,HTTP)...)
 
   end)()
 
@@ -256,6 +265,14 @@ else
 end
 
 
-global r= HTTP.get("http://$(ip):$(port)/verify")
+global r= HTTP.get("http://$(ip):$(port)/verify/authenticated")
 @test r.status == 200
-@test String(r.body) == "<b>verify 300 !</b>"
+@test String(r.body) == "<b>verify !</b>"
+
+
+try
+   global r= HTTP.get("http://$(ip):$(port)/verify/unauthenticated")
+catch e
+  @test e.response.status == 403
+  @test String(e.response.body) == "Unauthenticated. Please signup!"
+end
