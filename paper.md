@@ -328,15 +328,19 @@ The HTTP.jl package is used to manage communication through the HTTP protocol, a
 - Phelipe Wesley, contributed by rewriting a large part of the package to improve its compatibility with the 1.4 version of Julia
 
 ## Software location
-
- - ```File: Zenodo
+ 
+ ```
+   File: Zenodo
    Name: Merly.jl
    Persistent identifier: DOI: https://doi.org/10.5281/zenodo.4546005
    License: MIT
    Publisher: Acevedo Maldonado Josué
    Version published: v1.0.0
 ```
- - ```Code repository: GitHub
+
+
+ ```
+   Code repository: GitHub
    Name: neomatrixcode/Merly.jl
    Persistent identifier: https://github.com/neomatrixcode/Merly.jl
    License: MIT
