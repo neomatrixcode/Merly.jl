@@ -18,7 +18,7 @@ date: 08 April 2021
 bibliography: paper.bib
 ---
 
-# STATEMENT OF NEED
+# SUMMARY
 
 Merly.jl is a package for creating web applications in Julia. It presents features such as the creation of endpoints with function notation and with macro notation, handling of static files, use of path parameters, processing of data sent by a web client in the body in a personalized way, handling of CORS and compatibility with the use of middleware. It presents a familiar syntax with the rest of the most popular web frameworks without neglecting the execution performance. This manuscript mentions the operation and main features of Merly.jl
 
