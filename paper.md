@@ -330,33 +330,20 @@ The HTTP.jl package is used to manage communication through the HTTP protocol, a
 ## Software location
 
  - File: Zenodo
-
-Name: Merly.jl
-
-Persistent identifier: DOI: https://doi.org/10.5281/zenodo.4546005}{10.5281/zenodo.4546005
-
-License: MIT
-
-Publisher: Acevedo Maldonado Josu\'e
-
-Version published: v1.0.0
+   Name: Merly.jl
+   Persistent identifier: DOI: https://doi.org/10.5281/zenodo.4546005
+   License: MIT
+   Publisher: Acevedo Maldonado Josué
+   Version published: v1.0.0
 
  - Code repository: GitHub
-
-Name: neomatrixcode/Merly.jl
-
-Persistent identifier: https://github.com/neomatrixcode/Merly.jl
-
-
-License: MIT
-
-Date published: 07/02/2021
-
-Version published: v1.0.0
-
-Documentation Language: English
-
-Programming Language: Julia
+   Name: neomatrixcode/Merly.jl
+   Persistent identifier: https://github.com/neomatrixcode/Merly.jl
+   License: MIT
+   Date published: 07/02/2021
+   Version published: v1.0.0
+   Documentation Language: English
+   Programming Language: Julia
 
 
 # CONCLUDING REMARKS
@@ -364,12 +351,13 @@ Programming Language: Julia
 Julia is a relatively recent programming language which has had the greatest boom so far in the field of data science and artificial intelligence. However, these are not the only areas where the language can address thanks to its features such as ease of use and execution speed. Julians who are looking for a package that allow them to expose resources on the web in a simple and efficient way with periodic updates of features will find in Merly.jl an important ally to achieve their objectives.
 
 
-# Acknowledgements
+# ACKNOWLEDGEMENTS
 
-A thank you to the Julia community for their contributions to the package and their feedback on the features to add or modify in this package, also to my friend Vásquez Martínez Agustín (@maldad) for his help in reviewing the first versions of this document.
+A thank you to the Julia community for their contributions to the package and their feedback on the features to add or modify in this package, also to my friend Vásquez Martínez Agustín (`@maldad`) for his help in reviewing the first versions of this document.
 
-# References
-
-# Online Resources
+# ONLINE RESOURCES
 
 On the Merly.jl website you can find [practical examples](https://merly.vercel.app/#examples) to use the framework to create a web application and deploy it to different cloud providers, as well as Docker and Docker-compose.
+
+# REFERENCES
+
