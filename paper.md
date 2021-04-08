@@ -18,11 +18,11 @@ date: 08 April 2021
 bibliography: paper.bib
 ---
 
-# Statement of Need
+# STATEMENT OF NEED
 
 Merly.jl is a package for creating web applications in Julia. It presents features such as the creation of endpoints with function notation and with macro notation, handling of static files, use of path parameters, processing of data sent by a web client in the body in a personalized way, handling of CORS and compatibility with the use of middleware. It presents a familiar syntax with the rest of the most popular web frameworks without neglecting the execution performance. This manuscript mentions the operation and main features of Merly.jl
 
-# Introduction
+# INTRODUCTION
 
 At present, information systems have gone from running on a personal computer to working on the Internet, this change of environment has occurred mainly thanks to the evolution of protocols such as the Hypertext Transfer Protocol (HTTP)  [@10.1145/1060745.1060746] , the creation of exchange formats of information such as XML [@10.1145/872757.872793] or JSON [@10.1145/2872427.2883029], software architectures such as Microservices [@10.1145/3053600.3053653]  as well as Backend web development libraries. Such has been the impact that web development libraries exist in practically all programming languages, the best known being Flask, Sinatra or Express.
 
@@ -89,7 +89,7 @@ Patch("/data", (request,HTTP) -> begin
 end)
 ```
 
-There is a shorter syntax with which route paths can be defined, that is, through Macros, which assign a tuple of arguments to an expression which is compiled directly. The macro @page implicitly assigns the GET method to a certain route and instead of defining a function, only its body is specified.
+There is a shorter syntax with which route paths can be defined, that is, through Macros, which assign a tuple of arguments to an expression which is compiled directly. The macro `@page` implicitly assigns the GET method to a certain route and instead of defining a function, only its body is specified.
 
 ```
 @page "/" HTTP.Response(200,"Hello World!")
@@ -218,7 +218,7 @@ If we need to associate a url with a file stored on the computer, allowing the a
 File("index.html")
 ```
 
-The `webserverfiles` function will take all the existing files in the root or current directory and expose them, although there is a parameter that allows controlling this behavior; if the `webserverfiles` function receives a text string equal to ( * ) it will expose all files without exception, but if you want to discriminate files by extension, then a text string with the extension or extensions separated by pipe will be passed to the function ( | ) of the files to expose.
+The `webserverfiles` function will take all the existing files in the root or current directory and expose them, although there is a parameter that allows controlling this behavior; if the `webserverfiles` function receives a text string equal to ( `*` ) it will expose all files without exception, but if you want to discriminate files by extension, then a text string with the extension or extensions separated by pipe will be passed to the function ( `|` ) of the files to expose.
 
 ```
 webserverfiles("*")
@@ -306,7 +306,7 @@ In future versions of Merly.jl it is planned to add the possibility of working w
 
 The Project presents a set of tests hosted in the runtests.jl file, which tests most of the Merly.jl features and runs automatically on the TravisCI platform on Windows, Linux and Mac OSX operating systems and on the Julia versions 1.5, 1.6 and 1.7. Also, the amount of code evaluated by the tests is monitored on the AppVoyer platform.
 
-Locally, these same tests can be executed with the Pkg.test ("Merly") command, so any user can verify that the package works correctly on their computer. If there is a problem with the operation of the package or want to propose new features, users can go to the project's issues page on Github and open a new one.
+Locally, these same tests can be executed with the `Pkg.test ("Merly")` command, so any user can verify that the package works correctly on their computer. If there is a problem with the operation of the package or want to propose new features, users can go to the project's issues page on Github and open a new one.
 
 # AVAILABILITY
 
@@ -329,14 +329,14 @@ The HTTP.jl package is used to manage communication through the HTTP protocol, a
 
 ## Software location
 
- - File: Zenodo
+ - ```File: Zenodo
    Name: Merly.jl
    Persistent identifier: DOI: https://doi.org/10.5281/zenodo.4546005
    License: MIT
    Publisher: Acevedo Maldonado Josué
    Version published: v1.0.0
-
- - Code repository: GitHub
+```
+ - ```Code repository: GitHub
    Name: neomatrixcode/Merly.jl
    Persistent identifier: https://github.com/neomatrixcode/Merly.jl
    License: MIT
@@ -344,7 +344,7 @@ The HTTP.jl package is used to manage communication through the HTTP protocol, a
    Version published: v1.0.0
    Documentation Language: English
    Programming Language: Julia
-
+```
 
 # CONCLUDING REMARKS
 
