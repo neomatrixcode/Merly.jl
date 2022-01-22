@@ -11,6 +11,7 @@
 <a href="https://juliahub.com/ui/Packages/Merly/a9bHk?t=2"><img src="https://juliahub.com/docs/Merly/deps.svg"></a>
 <a href="https://juliahub.com/ui/Packages/Merly/a9bHk"><img src="https://juliahub.com/docs/Merly/version.svg"></a>
 <a href="https://juliahub.com/ui/Packages/Merly/a9bHk"><img src="https://juliahub.com/docs/Merly/pkgeval.svg"></a>
+<a><img src="https://shields.io/endpoint?url=https://pkgs.genieframework.com/api/v1/badge/Merly"></a>
 <a href="https://raw.githubusercontent.com/neomatrixcode/Merly.jl/master/LICENSE.md"><img src="https://img.shields.io/badge/License-MIT-blue.svg"></a>
 </p>
 
